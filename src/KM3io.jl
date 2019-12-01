@@ -11,6 +11,13 @@ struct Cartesian{T} <: FieldVector{3, T}
     z::T
 end
 
+struct NeutrinoWeights{T} <: FieldVector{4, T}
+    w1::T
+    w2::T
+    w3::T
+    w4::T
+end
+
 struct RawHit <: AbstractHit
     id::Integer
     PMid::Integer
@@ -51,10 +58,11 @@ end
 
 struct Event
     hits::Vector{AbstractHit}
-    neutrinos::Vector{Neutrino}
+    neutrino::Union{Missing, Neutrino}
     tracks::Vector{Track}
+    weights::Union{Missing, NeutrinoWeights}
 end
-Event() = Event(Vector{AbstractHit}(), Vector{Neutrino}(), Vector{Track}())
+# Event() = Event(Vector{AbstractHit}(), missing, Vector{Track}(), missing)
 
 struct EvtFile
     events::Dict{T, Event} where {T <: Integer}
@@ -108,6 +116,13 @@ function read_evt_track(line::AbstractString)
     Track(id, kin, particle)
 end
 
+function read_evt_nu_weights(line::AbstractString)
+    fields = split(line)
+    weights = parse.(Float64, fields[2:4])
+    NeutrinoWeights{Float64}(weights..., 0)
+end
+
+
 function read_evt_file(filepath::AbstractString)
     f = open(filepath)
     evtfile = EvtFile()
@@ -116,21 +131,25 @@ function read_evt_file(filepath::AbstractString)
         if occursin("start_event:", line)
             fields = split(line)
             eventid = parse(Int64, fields[2])
-            event = Event()
-            evtfile.events[eventid] = event
+            hits = Vector{AbstractHit}()
+            tracks = Vector{Track}()
+            neutrino = missing
+            weights = missing
             while !occursin("end_event:", line)
                 line = readline(f)
                 if occursin("hit:", line)
                     hit = read_evt_hit(line)
-                    push!(event.hits, hit)
+                    push!(hits, hit)
                 elseif occursin("neutrino:", line)
                     neutrino = read_evt_neutrino(line)
-                    push!(event.neutrinos, neutrino)
                 elseif occursin("track_in:", line)
                     track = read_evt_track(line)
-                    push!(event.tracks, track)
+                    push!(tracks, track)
+                elseif occursin("weights:", line)
+                    weights = read_evt_nu_weights(line)
                 end
             end
+            evtfile.events[eventid] = Event(hits, neutrino, tracks, weights)
         end
     end
     return evtfile
