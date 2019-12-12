@@ -3,6 +3,8 @@ module KM3io
 using StaticArrays
 using Corpuscles
 
+import Base: getindex
+
 abstract type AbstractHit end
 
 struct Cartesian{T} <: FieldVector{3, T}
@@ -30,7 +32,7 @@ struct Hit <: AbstractHit
     PMid::Integer
     npe::Real
     time::Real
-    particle::GeantID
+    particle::Geant3ID
     track_id::Integer
 end
 
@@ -53,7 +55,7 @@ end
 struct Track
     id::Integer
     kin::KineticInfo
-    particle::GeantID
+    particle::Geant3ID
 end
 
 struct Event
@@ -68,6 +70,10 @@ struct EvtFile
     events::Dict{T, Event} where {T <: Integer}
 end
 
+function getindex(f::EvtFile, i::Integer)
+    f.events[i]
+end
+
 EvtFile() = EvtFile(Dict{Int64, Event}())
 
 function read_evt_hit(line::AbstractString)
@@ -76,7 +82,7 @@ function read_evt_hit(line::AbstractString)
     pmt_id = parse(Int64, fields[3])
     npe = parse(Float64, fields[4])
     time = parse(Float64, fields[5])
-    geantid = GeantID(parse(Int64, fields[6]))
+    geantid = Geant3ID(parse(Int64, fields[6]))
     track_id = parse(Int64, fields[7])
     Hit(id, pmt_id, npe, time, geantid, track_id)
 end
@@ -112,7 +118,7 @@ function read_evt_track(line::AbstractString)
     fields = split(line)
     id = parse(Int64, fields[2])
     kin = parse_kin(fields[3:10])
-    particle = GeantID(parse(Int8, fields[11]))
+    particle = Geant3ID(parse(Int8, fields[11]))
     Track(id, kin, particle)
 end
 
@@ -152,6 +158,7 @@ function read_evt_file(filepath::AbstractString)
             evtfile.events[eventid] = Event(hits, neutrino, tracks, weights)
         end
     end
+    close(f)
     return evtfile
 end 
 
