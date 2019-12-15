@@ -7,6 +7,8 @@ import Base: getindex
 
 abstract type AbstractHit end
 
+abstract type DataFile end
+
 struct Cartesian{T} <: FieldVector{3, T}
     x::T
     y::T
@@ -66,7 +68,7 @@ struct Event
 end
 # Event() = Event(Vector{AbstractHit}(), missing, Vector{Track}(), missing)
 
-struct EvtFile
+struct EvtFile <: DataFile
     events::Dict{T, Event} where {T <: Integer}
 end
 
@@ -163,5 +165,16 @@ function read_evt_file(filepath::AbstractString)
 end 
 
 EvtFile(filepath::AbstractString) = read_evt_file(filepath)
+
+extension(url::String) = try match(r"\.[A-Za-z0-9]+$", url).match catch e "" end
+
+function read_compound(files::Vector{T}) where {T <: AbstractString}
+    filedata = Dict{AbstractString, DataFile}()
+    for filepath in files
+        if extension(filepath) == ".evt"
+            filedata[filepath] = EvtFile(filepath)
+        end
+    end
+end
 
 end # module
