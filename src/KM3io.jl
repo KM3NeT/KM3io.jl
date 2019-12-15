@@ -175,6 +175,7 @@ function read_compound(files::Vector{T}) where {T <: AbstractString}
             filedata[filepath] = EvtFile(filepath)
         end
     end
+    filedata
 end
 
 end # module
