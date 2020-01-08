@@ -1,6 +1,3 @@
-using KM3io
-using Test
+include("evttests.jl")
 
-@testset "KM3io.jl" begin
-    # Write your own tests here.
-end
+println("Tests finished!")
