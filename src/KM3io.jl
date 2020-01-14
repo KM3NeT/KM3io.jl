@@ -203,6 +203,7 @@ end
 
 function write_evt_file(filepath::AbstractString, data::EvtFile)
     f = open(filepath, "w")
+    write_hit_no = sum(length.(getproperty.(values(data.events), :hits))) > 0
     for key in sort(collect(keys(data.events)))
         event = data.events[key]
         write(f, "start_event: $key 1\n")
@@ -210,7 +211,9 @@ function write_evt_file(filepath::AbstractString, data::EvtFile)
             hit_line = build_evt_hit_entry(hit)
             write(f, hit_line)
         end
-        write(f, "total_hits: $(length(event.hits))\n")
+        if write_hit_no
+            write(f, "total_hits: $(length(event.hits))\n")
+        end
         for track in event.tracks
             trk_line = build_evt_track_entry(track) 
             write(f, trk_line)
