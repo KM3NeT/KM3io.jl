@@ -69,6 +69,8 @@ end
 # Event() = Event(Vector{AbstractHit}(), missing, Vector{Track}(), missing)
 
 struct EvtFile <: DataFile
+    runid::Int64
+    header::Dict{AbstractString, AbstractString}
     events::Dict{T, Event} where {T <: Integer}
 end
 
@@ -76,7 +78,8 @@ function getindex(f::EvtFile, i::Integer)
     f.events[i]
 end
 
-EvtFile() = EvtFile(Dict{Int64, Event}())
+EvtFile(runid) = EvtFile(runid, Dict{AbstractString, AbstractString}(), Dict{Int64, Event}())
+EvtFile() = EvtFile(-1)
 
 function read_evt_hit(line::AbstractString)
     fields = split(line)
@@ -159,7 +162,19 @@ function read_evt_file(filepath::AbstractString)
     evtfile = EvtFile()
     while !eof(f)
         line = readline(f)
-        if occursin("start_event:", line)
+        if occursin("start_run:", line)
+            fields = split(line)
+            runid = parse(Int64, fields[2])
+            evtfile = EvtFile(runid)
+            line = readline(f)
+            while !occursin("end_event:", line)
+                fields = split(line, ":")
+                key = fields[1]
+                value = strip(join(fields[2:end]))
+                evtfile.header[key] = value
+                line = readline(f)
+            end
+        elseif occursin("start_event:", line)
             fields = split(line)
             eventid = parse(Int64, fields[2])
             hits = Vector{AbstractHit}()
@@ -201,30 +216,38 @@ function read_compound(files::Vector{T}) where {T <: AbstractString}
     filedata
 end
 
-function write_evt_file(filepath::AbstractString, data::EvtFile)
-    f = open(filepath, "w")
+function Base.write(io::IO, data::EvtFile)
     write_hit_no = sum(length.(getproperty.(values(data.events), :hits))) > 0
+    write(io, "start_run: $(data.runid)\n")
+    for (key, value) in data.header
+        write(io, "$(key): $(value)\n") 
+    end
+    write(io, "end_event:\n")
     for key in sort(collect(keys(data.events)))
         event = data.events[key]
-        write(f, "start_event: $key 1\n")
+        write(io, "start_event: $key 1\n")
         for hit in event.hits
             hit_line = build_evt_hit_entry(hit)
-            write(f, hit_line)
+            write(io, hit_line)
         end
         if write_hit_no
-            write(f, "total_hits: $(length(event.hits))\n")
+            write(io, "total_hits: $(length(event.hits))\n")
         end
         for track in event.tracks
             trk_line = build_evt_track_entry(track) 
-            write(f, trk_line)
+            write(io, trk_line)
         end
         if !ismissing(event.neutrino)
             nu_line = build_evt_nu_entry(event.neutrino) 
-            write(f, nu_line)
+            write(io, nu_line)
         end
-        write(f, "end_event: \n")
     end
-    close(f)
+end
+
+function Base.write(filepath::AbstractString, data::EvtFile)
+    io = open(filepath, "w")
+    write(io, data) 
+    close(io)
 end
 
 end # module
