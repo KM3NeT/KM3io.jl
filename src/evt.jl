@@ -157,6 +157,7 @@ function Base.write(io::IO, data::EvtFile)
             nu_line = build_evt_nu_entry(event.neutrino) 
             write(io, nu_line)
         end
+        write(io, "end_event:\n")
     end
 end
 
@@ -165,4 +166,17 @@ function Base.write(filepath::AbstractString, data::EvtFile)
     write(io, data) 
     close(io)
 end
+
+function Base.append!(A::EvtFile, B::EvtFile)
+    max_event_id = 0
+    if length(A.events) > 0
+        max_event_id = maximum(keys(A.events))
+    end
+    for i in keys(B.events)
+        A.events[i+max_event_id] = B.events[i]
+    end
+    A
+end
+
+
 
