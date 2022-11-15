@@ -6,7 +6,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
     ],
-    repo="https://git.km3net.de/jschumann/KM3io.jl/blob/{commit}{path}#L{line}",
+    repo="https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
     sitename="KM3io.jl",
     authors="Johannes Schumann, Tamas Gal",
     assets=String[],
