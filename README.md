@@ -9,7 +9,7 @@ to deal with dataformats used in KM3NeT.
 
 ## Installation
 
-`KM3Acoustics.jl` is not an officially registered Julia package but it's
+`KM3io.jl` is not an officially registered Julia package but it's
 available via the KM3NeT Julia registry. To add the KM3NeT Julia registry,
 execute once:
 
