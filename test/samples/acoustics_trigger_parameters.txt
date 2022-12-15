@@ -1,0 +1,3 @@
+Q             = 0.0;
+TMax_s        = 0.004;
+numberOfHits  = 90;

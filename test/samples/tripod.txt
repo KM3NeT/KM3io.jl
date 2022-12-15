@@ -1,0 +1,13 @@
+# Preliminary autononous acoustic beacon locations
+# Positions of ID 7 is derived from D0ARCA009 positions.
+# Position of ID 8 (TAB4) is from preliminary FUGRO survey with the depth of CTF1
+# Position of ID 9 (JB2) is from preliminary FUGRO survey
+# Position of ID 10 (JB3) is from preliminary FUGRO survey
+# Position of ID 12 (TAB2) nominal position (before deployment), no info for depth, took the one from ID 8
+# Position of ID 13 (JB1) from final positions in KM3NeT_ISIT_2020_007-Seabed_nominal_and_final_positions_V4, depth from nominal position
+7   +587198.628  +4016228.693  -3433.306
+8   +588257.896  +4017034.442  -3457.240
+9   +587646.419  +4017109.956  -3456.980
+10  +587763.722  +4017253.398  -3453.894
+12  +587600.000  +4017500.000  -3457.240
+13  +587510.740  +4016869.160  -3451.700

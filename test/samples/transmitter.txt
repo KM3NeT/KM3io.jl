@@ -1,0 +1,2 @@
+# Data are derived from the anchor drawing and the sea operation survey (for the heading)
+11 16 0 -0.770 -0.020 1.470

@@ -1,0 +1,14 @@
+# $fd0a2502-e154-4566-b8fb-63f49e5ffffd$
+# GIT test_elongated_shower_pde-123-ged3beb762-D
+# ROOT 6.24/06
+# application JEditProperties
+# command /data1/dejong/km3net/GIT/Jpp/out//Linux/bin//JEditProperties -f acoustics_fit_parameters.txt -o acoustics_fit_parameters.txt -@ \"mestimator  =   1;\" -@ \"option      =   3;\" -@ \"stdev       =  10.0e+5;\" -d 2
+# namespace KM3NET
+# system Linux doesburg.lorentz.leidenuniv.nl 5.15.13-200.fc35.x86_64 #1 SMP Wed Jan 5 16:39:13 UTC 2022 x86_64
+Nmin         = 3;
+Tmax_s       = 600.0;
+chi2perNDF   = 100.0;
+mestimator   = 1;
+option       = 3;
+sigma_s      = 50.0e-6;
+stdev        = 10.0e+5;

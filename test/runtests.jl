@@ -1,3 +1,7 @@
-include("evttests.jl")
+using Test
 
-println("Tests finished!")
+@testset "KM3io.jl" begin
+    include("tools.jl")
+    include("hardware.jl")
+    include("acoustics.jl")
+end

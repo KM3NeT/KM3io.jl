@@ -1,11 +1,28 @@
 module KM3io
 
-using StaticArrays
-using Corpuscles
+import Base: read, write
+import Statistics: mean
 
-import Base: getindex
+using Printf: @printf
+using Dates: DateTime, datetime2unix, unix2datetime
+using StaticArrays: FieldVector
 
+export Position, UTMPosition, Location, Quaternion
+export Detector, DetectorModule, PMT, Tripod, Hydrophone
+export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
+
+
+
+# KM3NeT Dataformat definitions
+for inc ∈ readdir(joinpath(@__DIR__, "definitions"), join=true)
+    !endswith(inc, ".jl") && continue
+    include(inc)
+end
+
+
+include("tools.jl")
 include("types.jl")
-include("evt.jl")
+include("hardware.jl")
+include("acoustics.jl")
 
 end # module
