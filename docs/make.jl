@@ -8,6 +8,6 @@ makedocs(;
     ],
     repo="https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
     sitename="KM3io.jl",
-    authors="Johannes Schumann, Tamas Gal",
+    authors="Tamas Gal",
     assets=String[],
 )
