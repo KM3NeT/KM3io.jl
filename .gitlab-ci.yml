@@ -1,34 +1,44 @@
-variables:
-    JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
-
-.test_template: &test_definition
+.script:
   script:
-    - mkdir -p "$CI_PROJECT_DIR/.julia" && ls -al "$CI_PROJECT_DIR/.julia"
-    - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("KM3io"); Pkg.test("KM3io"; coverage = true)'
-    - julia -e 'using Pkg; Pkg.add("Coverage"); 
-      import KM3io; cd(joinpath(dirname(pathof(KM3io)), ".."));
-      using Coverage; cl, tl = get_summary(process_folder());
-      println("(", cl/tl*100, "%) covered")'
-    - ls -al "$CI_PROJECT_DIR/.julia"
-
-cache:
-  paths:
-    - "$CI_PROJECT_DIR/.julia"
-  key: "$CI_COMMIT_REF_SLUG"
-
-test:julia-1.6:
-  image: julia:1.0
-  <<: *test_definition
-
+    - |
+      julia --project=@. -e '
+        using Pkg
+        Pkg.build()
+        Pkg.test(coverage=true)'
+.coverage:
+  coverage: /Test coverage (\d+\.\d+%)/
+  after_script:
+    - |
+      julia -e '
+        using Pkg
+        Pkg.add("Coverage")
+        using Coverage
+        c, t = get_summary(process_folder())
+        using Printf
+        @printf "Test coverage %.2f%%\n" 100c / t'
+Julia 1.6:
+  image: julia:1.6
+  extends:
+    - .script
+    - .coverage
+Julia 1.8:
+  image: julia:1.8
+  extends:
+    - .script
+    - .coverage
 pages:
   image: julia:1.6
   stage: deploy
   script:
-    - julia --project=docs -e '
-          using Pkg;
-          Pkg.develop(PackageSpec(path=pwd()));
-          Pkg.instantiate();
-          include("docs/make.jl");'
+    - |
+      julia --project=docs -e '
+        using Pkg
+        Pkg.develop(PackageSpec(path=pwd()))
+        Pkg.instantiate()
+        using Documenter: doctest
+        using KM3io
+        doctest(KM3io)
+        include("docs/make.jl")'
     - mkdir -p public
     - mv docs/build public/dev
   artifacts:
