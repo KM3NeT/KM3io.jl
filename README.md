@@ -21,3 +21,5 @@ it whenever you install a package which is registered there.
 To install `KM3io.jl`:
 
     julia> import Pkg; Pkg.add("KM3io")
+
+## Quickstart
