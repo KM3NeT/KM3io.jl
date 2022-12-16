@@ -20,9 +20,12 @@ for inc ∈ readdir(joinpath(@__DIR__, "definitions"), join=true)
 end
 
 
-include("tools.jl")
 include("types.jl")
+
 include("hardware.jl")
 include("acoustics.jl")
+include("root.jl")
+
+include("tools.jl")
 
 end # module
