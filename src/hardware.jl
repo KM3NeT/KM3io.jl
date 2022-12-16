@@ -413,7 +413,8 @@ function write(io::IO, d::Detector; version=:same)
         writeln(io, "$(d.n_modules)")
     end
 
-    for mod in d
+    # TODO: module sorting is not needed according to specs but Jpp has problems with it
+    for mod in sort(collect(values(d.modules)); by=m->(m.location.string, m.location.floor))
         if version < 4
             writeln(io, "$(mod.id) $(mod.location.string) $(mod.location.floor) $(mod.n_pmts)")
         else
