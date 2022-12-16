@@ -6,6 +6,7 @@ import Statistics: mean
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using StaticArrays: FieldVector
+import UnROOT
 
 export Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
