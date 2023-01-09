@@ -127,8 +127,10 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
     det_id = read(s, Int32)
     run_id = read(s, Int32)
     timeslice_id = read(s, Int32)
-    timestamp = read(s, Int32)
-    ticks = read(s, Int32)
+    _timestamp_field = read(s, UInt32)
+    whiterabbit_status = _timestamp_field & 0x80000000  # most significant bit
+    timestamp = _timestamp_field & 0x7FFFFFFF  # skipping the most significant bit
+    ticks = read(s, UInt32)
     trigger_counter = read(s, Int64)
     trigger_mask = read(s, Int64)
     overlays = read(s, Int32)
@@ -163,5 +165,5 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
         push!(hits, Hit(channel_id, dom_id, time, tot, triggered))
     end
 
-    T(det_id, run_id, timeslice_id, timestamp, ticks, trigger_counter, trigger_mask, overlays, n_triggered_hits, triggered_hits, n_hits, hits)
+    T(det_id, run_id, timeslice_id, whiterabbit_status, timestamp, ticks, trigger_counter, trigger_mask, overlays, n_triggered_hits, triggered_hits, n_hits, hits)
 end

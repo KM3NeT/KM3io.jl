@@ -53,8 +53,9 @@ struct DAQEvent
     det_id::Int32
     run_id::Int32
     timeslice_id::Int32
-    timestamp::Int32
-    ticks::Int32
+    whiterabbit_status::UInt8
+    timestamp::UInt32
+    ticks::UInt32
     trigger_counter::Int64
     trigger_mask::Int64
     overlays::Int32
