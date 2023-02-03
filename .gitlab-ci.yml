@@ -1,7 +1,7 @@
 before_script:
   # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
   - apt-get -qq update; apt-get -y install git
-  - ssh-keyscan git.km3net.de:22 >> /root/.ssh/known_hosts
+  - mkdir -p /root/.ssh && ssh-keyscan -H -t rsa git.km3net.de >> /root/.ssh/known_hosts
 
 .script:
   script:
