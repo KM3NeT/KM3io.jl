@@ -4,14 +4,15 @@
 [![Build Status](https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg)](https://git.km3net.de/common/KM3io.jl/pipelines)
 [![Coverage](https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg)](https://git.km3net.de/common/KM3io.jl/commits/main)
 
-`KM3io.jl` is an pure Julia library which implements I/O functions and utilities
-to deal with dataformats used in KM3NeT.
+`KM3io.jl` is a pure Julia library which implements I/O functions and utilities
+to deal with dataformats used in KM3NeT, e.g. `ROOT` (online/offline), `detx` and
+acoustics.
 
 ## Installation
 
 `KM3io.jl` is not an officially registered Julia package but it's
 available via the KM3NeT Julia registry. To add the KM3NeT Julia registry,
-execute once:
+run:
 
     git clone https://git.km3net.de/common/julia-registry ~/.julia/registries/KM3NeT
 
