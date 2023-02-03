@@ -7,6 +7,7 @@ before_script:
     - |
       julia --project=@. -e '
         using Pkg
+        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.build()
         Pkg.test(coverage=true)'
 .coverage:
@@ -15,6 +16,7 @@ before_script:
     - |
       julia -e '
         using Pkg
+        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.add("Coverage")
         using Coverage
         c, t = get_summary(process_folder())
