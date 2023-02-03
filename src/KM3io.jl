@@ -24,8 +24,10 @@ end
 include("types.jl")
 
 include("hardware.jl")
+include("daq.jl")
+include("root/online.jl")
+include("root/offline.jl")
 include("acoustics.jl")
-include("root.jl")
 
 include("tools.jl")
 
