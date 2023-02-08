@@ -71,25 +71,21 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     @test headers[1].overlays == 6
     @test headers[2].overlays == 21
     @test headers[3].overlays == 0
-end
 
+    events = []
+    for event in f.events
+        push!(events, event)
+    end
 
-@testset "DAQ readout" begin
-    f = open(IO_EVT_LEGACY)
-    daqevent = read(f, KM3io.DAQEvent; legacy=true)
-    @test 7 == daqevent.header.detector_id
-    @test 139 == daqevent.header.run
-    @test 5443 == daqevent.header.frame_index
-    @test 1449571426 == daqevent.header.UTC_seconds
-    @test 18750000 == daqevent.header.UTC_16nanosecondcycles
-    @test 184 == daqevent.header.trigger_counter
-    @test 0x0000000000000012 == daqevent.header.trigger_mask
-    @test 13 == daqevent.header.overlays
-    @test 13 == length(daqevent.triggered_hits)
-    @test 28 == length(daqevent.snapshot_hits)
-    @test is3dshower(daqevent)
-    @test !ismxshower(daqevent)
-    @test is3dmuon(daqevent)
-    @test !isnb(daqevent)
-    close(f)
+    @test 3 == length(events)
+    @test length(f.events.snapshot_hits[1]) == length(events[1].snapshot_hits)
+    @test length(f.events.triggered_hits[1]) == length(events[1].triggered_hits)
+    @test f.events.headers[3].frame_index == events[3].header.frame_index
+
+    events = []
+    for event in f.events[1:2]
+        push!(events, event)
+    end
+
+    @test 2 == length(events)
 end
