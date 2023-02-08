@@ -1,4 +1,5 @@
 using KM3io
+using UnROOT
 using KM3NeTTestData
 using Test
 
@@ -7,29 +8,12 @@ const DETX = datapath("detx", "detx_v3.detx")
 const ONLINEFILE = datapath("online", "km3net_online.root")
 const OFFLINEFILE = datapath("offline", "km3net_offline.root")
 const IO_EVT = datapath("daq", "IO_EVT.dat")
+const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
 
 
-@testset "calibration" begin
-    calib = Calibration(DETX)
-
-    @test 23 == calib.det_id
-    @test 6 == length(values(calib.pos))
-    @test 6 == length(values(calib.dir))
-    @test 6 == length(values(calib.t0))
-    @test 6 == length(values(calib.du))
-    @test 6 == length(values(calib.floor))
-    @test 6 == length(values(calib.omkeys))
-    @test 23.9 ≈ calib.max_z
-    @test 2 == calib.n_dus
-    @test 3.6 ≈ calib.pos[3][2].z
-
-    @test 4 == omkey2domid(calib, 2, 1)
-    @test 4 == omkey2domid(calib, OMKey(2, 1))
-end
-
-@testset "km3net online files" begin
-    f = NeRCA.OnlineFile(ONLINEFILE)
-    hits = NeRCA.read_snapshot_hits(f)
+@testset "KM3NeT online files" begin
+    f = OnlineFile(ONLINEFILE)
+    hits = f.events.snapshot_hits
     @test 3 == length(hits)  # grouped by event
     @test 96 == length(hits[1])
     @test [806451572, 806451572, 806455814] == [h.dom_id for h in hits[1][1:3]]
@@ -59,13 +43,13 @@ end
     @test [26, 29, 30, 23, 30] == [h.tot for h in hits[3][1:5]]
     @test [28, 11, 27, 24, 23] == [h.tot for h in hits[3][end-4:end]]
 
-    thits = NeRCA.read_triggered_hits(f)
+    thits = f.events.triggered_hits
     @test 3 == length(thits)
     @test 18 == length(thits[1])
     @test 53 == length(thits[2])
     @test 9 == length(thits[3])
 
-    headers = NeRCA.read_headers(f)
+    headers = f.events.headers
     @test length(headers) == 3
     for header in headers
         @test header.run == 6633
@@ -87,27 +71,21 @@ end
     @test headers[1].overlays == 6
     @test headers[2].overlays == 21
     @test headers[3].overlays == 0
-end
 
+    events = []
+    for event in f.events
+        push!(events, event)
+    end
 
-@testset "DAQ readout" begin
-    f = open(IO_EVT)
-    daqevent = read(f, NeRCA.DAQEvent; legacy=true)
-    @test 49 == daqevent.det_id
-    @test 8142 == daqevent.run_id
-    @test 107050 == daqevent.timeslice_id
-    @test 1591693105 == daqevent.timestamp
-    @test 0 == daqevent.ticks
-    @test 9789 == daqevent.trigger_counter
-    @test 2 == daqevent.trigger_mask
-    @test 0 == daqevent.overlays
-    @test 6 == daqevent.n_triggered_hits
-    @test 6 == length(daqevent.triggered_hits)
-    @test 106 == daqevent.n_hits
-    @test 106 == length(daqevent.hits)
-    @test NeRCA.is3dshower(daqevent)
-    @test !NeRCA.ismxshower(daqevent)
-    @test !NeRCA.is3dmuon(daqevent)
-    @test !NeRCA.isnb(daqevent)
-    close(f)
+    @test 3 == length(events)
+    @test length(f.events.snapshot_hits[1]) == length(events[1].snapshot_hits)
+    @test length(f.events.triggered_hits[1]) == length(events[1].triggered_hits)
+    @test f.events.headers[3].frame_index == events[3].header.frame_index
+
+    events = []
+    for event in f.events[1:2]
+        push!(events, event)
+    end
+
+    @test 2 == length(events)
 end

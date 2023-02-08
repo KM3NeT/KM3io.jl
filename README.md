@@ -24,3 +24,39 @@ To install `KM3io.jl`:
     julia> import Pkg; Pkg.add("KM3io")
 
 ## Quickstart
+
+### Reading online (DAQ or RBR) event data
+
+Accessing the data is as easy as opening it via `OnlineFile("path/to/file.root")` and using indices or
+iteration. Everything is lazily loaded that the data is only occupying memory when it's actually accessed.
+
+``` julia
+julia> using KM3io
+
+julia> using KM3NeTTestData
+
+julia> f = OnlineFile(datapath("online", "km3net_online.root"))
+OnlineFile with 3 events
+
+julia> event = f.events[1]
+KM3io.DAQEvent with 96 snapshot and 18 triggered hits
+
+julia> event.triggered_hits[4:8]
+5-element Vector{KM3io.KM3NETDAQTriggeredHit}:
+ KM3io.KM3NETDAQTriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
+ KM3io.KM3NETDAQTriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
+ KM3io.KM3NETDAQTriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
+ KM3io.KM3NETDAQTriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
+ KM3io.KM3NETDAQTriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
+
+julia> for event ∈ f.events
+           @show event.header.frame_index length(event.snapshot_hits)
+       end
+event.header.frame_index = 127
+length(event.snapshot_hits) = 96
+event.header.frame_index = 127
+length(event.snapshot_hits) = 124
+event.header.frame_index = 129
+length(event.snapshot_hits) = 78
+```
+

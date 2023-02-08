@@ -6,11 +6,13 @@ import Statistics: mean
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using StaticArrays: FieldVector
-import UnROOT
+using UnROOT
 
+export OnlineFile
 export Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
 export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
+export is3dshower, ismxshower, is3dmuon, isnb
 
 
 
@@ -24,9 +26,9 @@ end
 include("types.jl")
 
 include("hardware.jl")
-include("daq.jl")
 include("root/online.jl")
 include("root/offline.jl")
+include("daq.jl")
 include("acoustics.jl")
 
 include("tools.jl")
