@@ -105,6 +105,7 @@ struct OnlineFile
     end
 end
 Base.close(c::OnlineFile) = close(f._fobj)
+Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
 
 Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
 Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
