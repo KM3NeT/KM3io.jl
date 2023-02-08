@@ -7,7 +7,7 @@ end
 function UnROOT.readtype(io, T::Type{KM3NETDAQSnapshotHit})
     T(UnROOT.readtype(io, Int32), read(io, UInt8), read(io, Int32), read(io, UInt8))
 end
-function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{KM3NETDAQSnapshotHit}}, ::Type{J}) where {T, J <: UnROOT.JaggType}
+function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{KM3NETDAQSnapshotHit}}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, KM3NETDAQSnapshotHit, skipbytes=10)
 end
 
@@ -31,7 +31,7 @@ function UnROOT.readtype(io, T::Type{KM3NETDAQTriggeredHit})
     T(dom_id, channel_id, tdc, tot, trigger_mask)
 end
 
-function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{KM3NETDAQTriggeredHit}}, ::Type{J}) where {T, J <: UnROOT.JaggType}
+function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{KM3NETDAQTriggeredHit}}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, KM3NETDAQTriggeredHit, skipbytes=10)
 end
 
@@ -62,21 +62,31 @@ function UnROOT.readtype(io::IO, T::Type{KM3NETDAQEventHeader})
     overlays = UnROOT.readtype(io, UInt32)
     T(detector_id, run, frame_index, UTC_seconds, UTC_16nanosecondcycles, trigger_counter, trigger_mask, overlays)
 end
-function UnROOT.interped_data(rawdata, rawoffsets, ::Type{KM3NETDAQEventHeader}, ::Type{J}) where {T, J <: UnROOT.JaggType}
+function UnROOT.interped_data(rawdata, rawoffsets, ::Type{KM3NETDAQEventHeader}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, KM3NETDAQEventHeader, jagged=false)
 end
 
-struct OnlineEvent
+struct DAQEvent
     header::KM3NETDAQEventHeader
     snapshot_hits::Vector{KM3NETDAQSnapshotHit}
     triggered_hits::Vector{KM3NETDAQTriggeredHit}
 end
+function Base.show(io::IO, e::DAQEvent)
+    print(io, "$(typeof(e)) with $(length(e.snapshot_hits)) snapshot and $(length(e.triggered_hits)) triggered hits")
+end
 
-struct OnlineFile
-    fobj::UnROOT.ROOTFile
-    headers::Vector{KM3NETDAQEventHeader}
+struct EventContainer
+    headers
     snapshot_hits
     triggered_hits
+end
+function Base.show(io::IO, e::EventContainer)
+    print(io, "$(typeof(e)) with $(length(e.headers)) events")
+end
+
+struct OnlineFile
+    _fobj::UnROOT.ROOTFile
+    events::EventContainer
 
     function OnlineFile(filename::AbstractString)
         customstructs = Dict(
@@ -87,17 +97,19 @@ struct OnlineFile
         fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
 
         new(fobj,
-            fobj["KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"],
-            fobj["KM3NET_EVENT/KM3NET_EVENT/snapshotHits"],
-            fobj["KM3NET_EVENT/KM3NET_EVENT/triggeredHits"])
+            EventContainer(
+                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"),
+                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/snapshotHits"),
+                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/triggeredHits"))
+            )
     end
 end
-Base.getindex(f::OnlineFile, idx::Integer) = OnlineEvent(
-    f.headers[idx], f.snapshot_hits[idx], f.triggered_hits[idx]
-)
-Base.length(f::OnlineFile) = length(f.headers)
+Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
+Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
+Base.getindex(c::EventContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 
-Base.close(f::OnlineFile) = close(f.fobj)
+Base.length(c::EventContainer) = length(f.headers)
+Base.close(c::OnlineFile) = close(f._fobj)
 
 function read_headers(f::OnlineFile)
     data, offsets = UnROOT.array(f.fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"; raw=true)
