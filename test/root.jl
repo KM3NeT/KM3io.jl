@@ -1,11 +1,12 @@
 using KM3io
+using KM3NeTTestData
 using Test
 
 
-const DETX = joinpath(@__DIR__, "samples", "v3.detx")
-const ONLINEFILE = joinpath(@__DIR__, "samples", "km3net_online.root")
-const OFFLINEFILE = joinpath(@__DIR__, "samples", "km3net_offline.root")
-const IO_EVT = joinpath(@__DIR__, "samples", "IO_EVT.dat")
+const DETX = datapath("detx", "detx_v3.detx")
+const ONLINEFILE = datapath("online", "km3net_online.root")
+const OFFLINEFILE = datapath("offline", "km3net_offline.root")
+const IO_EVT = datapath("daq", "IO_EVT.dat")
 
 
 @testset "calibration" begin
