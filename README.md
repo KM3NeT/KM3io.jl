@@ -4,9 +4,13 @@
 [![Build Status](https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg)](https://git.km3net.de/common/KM3io.jl/pipelines)
 [![Coverage](https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg)](https://git.km3net.de/common/KM3io.jl/commits/main)
 
-`KM3io.jl` is a pure Julia library which implements I/O functions and utilities
-to deal with dataformats used in KM3NeT, e.g. `ROOT` (online/offline), `detx` and
-acoustics.
+`KM3io.jl` is a pure Julia library which implements high-performance I/O
+functions and utilities to deal with dataformats used in KM3NeT, e.g. `ROOT`
+(online/offline), `detx` and acoustics. In contrast to Python, you are free to
+utilise as many (nested) `for`-loops as you like while still being as fast as
+C++ counterparts.
+
+The library is still under development so that the API might slightly change.
 
 ## Installation
 
