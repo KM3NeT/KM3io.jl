@@ -301,26 +301,26 @@ function Detector(io::IO)
         end
 
         if ismissing(t₀) || t₀ == 0.0
+            # t₀ is only available in DETX v4+ and even with supported versions, the value is
+            # sometimes 0 when e.g. the DETX was converted with Jpp from a version which did
+            # not include that informatino (v3 and below). Here, we are using the averaged
+            # PMT t₀s for the module t₀, just like Jpp does nowadays.
             t₀ = mean([pmt.t₀ for pmt in pmts])
-            t₀_warning = true
         end
 
         if ismissing(pos)
+            # Similar to the module t₀, the module position was introduced in DETX v4.
+            # If this is missing, it will be set to the averaged PMT positions. If it's
+            # a base module, the position is set to (0, 0, 0).
             if length(pmts) > 0
                 pos = mean([pmt.pos for pmt in pmts])
             else
                 pos = Position(0, 0, 0)
             end
-            pos_warning = true
         end
 
         modules[module_id] = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
         idx += n_pmts + 1
-    end
-
-    t₀_warning && @warn "t₀ == 0 (for DOMs) -> using the averaged PMT t₀s instead."
-    if pos_warning
-        @warn "The optical module positions were calculated from the PMT positions and the base modules were placed at (0, 0, 0)."
     end
 
     Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, strings, comments)
