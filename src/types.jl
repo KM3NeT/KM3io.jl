@@ -48,24 +48,3 @@ struct TriggeredHit <: AbstractDAQHit
     tot::UInt8
     trigger_mask::Int64
 end
-
-struct DAQEvent
-    det_id::Int32
-    run_id::Int32
-    timeslice_id::Int32
-    whiterabbit_status::UInt8
-    timestamp::UInt32
-    ticks::UInt32
-    trigger_counter::Int64
-    trigger_mask::Int64
-    overlays::Int32
-    n_triggered_hits::Int32
-    triggered_hits::Vector{TriggeredHit}
-    n_snapshot_hits::Int32
-    snapshot_hits::Vector{SnapshotHit}
-end
-
-Base.show(io::IO, d::DAQEvent) = begin
-    print(io, "DAQEvent: $(d.n_triggered_hits) triggered hits, " *
-              "$(d.n_snapshot_hits) snapshot hits")
-end
