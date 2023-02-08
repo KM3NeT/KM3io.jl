@@ -1,0 +1,14 @@
+"""
+# KM3NeT Data Definitions v3.0.0-3-gef79250
+https://git.km3net.de/common/km3net-dataformat
+"""
+
+module WEIGHTLIST
+  const WEIGHTLIST_GENERATION_AREA = 0
+  const WEIGHTLIST_GENERATION_VOLUME = 0
+  const WEIGHTLIST_DIFFERENTIAL_EVENT_RATE = 1
+  const WEIGHTLIST_EVENT_RATE = 2
+  const WEIGHTLIST_NORMALISATION = 3
+  const WEIGHTLIST_RESCALED_EVENT_RATE = 4
+  const WEIGHTLIST_RUN_BY_RUN_WEIGHT = 5
+end
