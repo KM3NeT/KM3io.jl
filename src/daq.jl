@@ -6,11 +6,11 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
     version = Int16(0)
     !legacy && (version = read(s, Int16))
 
-    detector_id, Int32)
+    detector_id = read(s, Int32)
     run_id = read(s, Int32)
     frame_index, Int32)
     utc_seconds = read(s, UInt32)
-    utc_16nanosecondcycles = read(s, UInt32)
+    utc_16nanosecondcycles = read(s, UInt32) # 16ns ticks
     trigger_counter = read(s, Int64)
     trigger_mask = read(s, Int64)
     overlays = read(s, Int32)
