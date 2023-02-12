@@ -6,18 +6,24 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
     version = Int16(0)
     !legacy && (version = read(s, Int16))
 
-    det_id = read(s, Int32)
+    detector_id, Int32)
     run_id = read(s, Int32)
-    timeslice_id = read(s, Int32)
-    _timestamp_field = read(s, UInt32)
-    whiterabbit_status = _timestamp_field & 0x80000000  # most significant bit
-    timestamp = _timestamp_field & 0x7FFFFFFF  # skipping the most significant bit
-    ticks = read(s, UInt32) # 16ns ticks
+    frame_index, Int32)
+    utc_seconds = read(s, UInt32)
+    utc_16nanosecondcycles = read(s, UInt32)
     trigger_counter = read(s, Int64)
     trigger_mask = read(s, Int64)
     overlays = read(s, Int32)
 
-    header = EventHeader(det_id, run_id, timeslice_id, timestamp, ticks, trigger_counter, trigger_mask, overlays)
+    header = EventHeader(
+        detector_id,
+        run_id,
+        frame_index,
+        UTCExtended(utc_seconds, utc_16nanosecondcycles),
+        trigger_counter,
+        trigger_mask,
+        overlays
+    )
 
     n_triggered_hits = read(s, Int32)
     triggered_hits = Vector{TriggeredHit}()

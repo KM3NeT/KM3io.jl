@@ -48,12 +48,23 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
+struct UTCExtended
+    s::UInt32
+    ns::UInt32
+    wr_status::Bool
+
+    function UTCExtended(seconds, ns_cycles)
+        wr_status = seconds & 0x80000000  # most significant bit indicates White Rabbit status
+        s = seconds & 0x7FFFFFFF  # skipping the most significant bit
+        new(s, ns_cycles * 16, wr_status)
+    end
+end
+
 struct EventHeader
     detector_id::Int32
     run::Int32
     frame_index::Int32
-    UTC_seconds::UInt32
-    UTC_16nanosecondcycles::UInt32
+    t::UTCExtended
     trigger_counter::UInt64
     trigger_mask::UInt64
     overlays::UInt32

@@ -54,14 +54,14 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     for header in headers
         @test header.run == 6633
         @test header.detector_id == 44
-        @test header.UTC_seconds == 0x5dc6018c
+        @test header.t.s == 0x5dc6018c
     end
     @test headers[1].frame_index == 127
     @test headers[2].frame_index == 127
     @test headers[3].frame_index == 129
-    @test headers[1].UTC_16nanosecondcycles == 0x029b9270
-    @test headers[2].UTC_16nanosecondcycles == 0x029b9270
-    @test headers[3].UTC_16nanosecondcycles == 0x035a4e90
+    @test headers[1].t.ns == 700000000
+    @test headers[2].t.ns == 700000000
+    @test headers[3].t.ns == 900000000
     @test headers[1].trigger_counter == 0
     @test headers[2].trigger_counter == 1
     @test headers[3].trigger_counter == 0

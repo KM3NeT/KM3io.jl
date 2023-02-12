@@ -34,7 +34,7 @@ function UnROOT.readtype(io::IO, T::Type{EventHeader})
     skip(io, 6)
     trigger_mask = UnROOT.readtype(io, UInt64)
     overlays = UnROOT.readtype(io, UInt32)
-    T(detector_id, run, frame_index, UTC_seconds, UTC_16nanosecondcycles, trigger_counter, trigger_mask, overlays)
+    T(detector_id, run, frame_index, UTCExtended(UTC_seconds, UTC_16nanosecondcycles), trigger_counter, trigger_mask, overlays)
 end
 function UnROOT.interped_data(rawdata, rawoffsets, ::Type{EventHeader}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, EventHeader, jagged=false)
