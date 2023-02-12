@@ -5,7 +5,7 @@
     @test 139 == daqevent.header.run
     @test 5443 == daqevent.header.frame_index
     @test 1449571426 == daqevent.header.t.s
-    @test 18750000 == daqevent.header.t.ns
+    @test 300000000 == daqevent.header.t.ns
     @test 184 == daqevent.header.trigger_counter
     @test 0x0000000000000012 == daqevent.header.trigger_mask
     @test 13 == daqevent.header.overlays
