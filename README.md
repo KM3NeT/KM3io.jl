@@ -31,8 +31,12 @@ To install `KM3io.jl`:
 
 ### Reading online (DAQ or RBR) event data
 
-Accessing the data is as easy as opening it via `OnlineFile("path/to/file.root")` and using indices or
-iteration. Everything is lazily loaded that the data is only occupying memory when it's actually accessed.
+Accessing the data is as easy as opening it via
+`OnlineFile("path/to/file.root")` and using indices/slices or iteration.
+Everything is lazily loaded so that the data is only occupying memory when it's
+actually accessed. In the examples below, we use
+**[`KM3NeTTestdata`](https://git.km3net.de/km3py/km3net-testdata)** to get
+access to small sample files.
 
 ``` julia
 julia> using KM3io
