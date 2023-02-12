@@ -17,10 +17,10 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
     trigger_mask = read(s, Int64)
     overlays = read(s, Int32)
 
-    header = KM3NETDAQEventHeader(det_id, run_id, timeslice_id, timestamp, ticks, trigger_counter, trigger_mask, overlays)
+    header = EventHeader(det_id, run_id, timeslice_id, timestamp, ticks, trigger_counter, trigger_mask, overlays)
 
     n_triggered_hits = read(s, Int32)
-    triggered_hits = Vector{KM3NETDAQTriggeredHit}()
+    triggered_hits = Vector{TriggeredHit}()
     sizehint!(triggered_hits, n_triggered_hits)
     @inbounds for i ∈ 1:n_triggered_hits
         dom_id = read(s, Int32)
@@ -28,11 +28,11 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
         time = bswap(read(s, Int32))
         tot = read(s, UInt8)
         trigger_mask = read(s, Int64)
-        push!(triggered_hits, KM3NETDAQTriggeredHit(dom_id, channel_id, time, tot, trigger_mask))
+        push!(triggered_hits, TriggeredHit(dom_id, channel_id, time, tot, trigger_mask))
     end
 
     n_hits = read(s, Int32)
-    snapshot_hits = Vector{KM3NETDAQSnapshotHit}()
+    snapshot_hits = Vector{SnapshotHit}()
     sizehint!(snapshot_hits, n_hits)
     @inbounds for i ∈ 1:n_hits
         dom_id = read(s, Int32)
@@ -41,7 +41,7 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
         tot = read(s, UInt8)
         key = (dom_id, channel_id, time, tot)
         triggered = false
-        push!(snapshot_hits, KM3NETDAQSnapshotHit(dom_id, channel_id, time, tot))
+        push!(snapshot_hits, SnapshotHit(dom_id, channel_id, time, tot))
     end
 
     T(header, snapshot_hits, triggered_hits)

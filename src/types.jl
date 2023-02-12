@@ -34,11 +34,10 @@ abstract type AbstractDAQHit<:AbstractHit end
 abstract type AbstractMCHit<:AbstractHit end
 
 struct SnapshotHit <: AbstractDAQHit
-    channel_id::UInt8
     dom_id::UInt32
-    t::Float64
+    channel_id::UInt8
+    t::Int32
     tot::UInt8
-    trigger_mask::Int64
 end
 
 struct TriggeredHit <: AbstractDAQHit
@@ -46,5 +45,22 @@ struct TriggeredHit <: AbstractDAQHit
     channel_id::UInt8
     t::Int32
     tot::UInt8
-    trigger_mask::Int64
+    trigger_mask::UInt64
+end
+
+struct EventHeader
+    detector_id::Int32
+    run::Int32
+    frame_index::Int32
+    UTC_seconds::UInt32
+    UTC_16nanosecondcycles::UInt32
+    trigger_counter::UInt64
+    trigger_mask::UInt64
+    overlays::UInt32
+end
+
+struct DAQEvent
+    header::EventHeader
+    snapshot_hits::Vector{SnapshotHit}
+    triggered_hits::Vector{TriggeredHit}
 end

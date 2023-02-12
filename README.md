@@ -50,12 +50,12 @@ julia> event = f.events[1]
 KM3io.DAQEvent with 96 snapshot and 18 triggered hits
 
 julia> event.triggered_hits[4:8]
-5-element Vector{KM3io.KM3NETDAQTriggeredHit}:
- KM3io.KM3NETDAQTriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
- KM3io.KM3NETDAQTriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
- KM3io.KM3NETDAQTriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
- KM3io.KM3NETDAQTriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
- KM3io.KM3NETDAQTriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
+5-element Vector{KM3io.TriggeredHit}:
+ KM3io.TriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
+ KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
 
 julia> for event ∈ f.events
            @show event.header.frame_index length(event.snapshot_hits)
