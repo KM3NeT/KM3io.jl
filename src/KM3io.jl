@@ -17,10 +17,12 @@ export is3dshower, ismxshower, is3dmuon, isnb
 
 
 # KM3NeT Dataformat definitions
+# COV_EXCL_START
 for inc ∈ readdir(joinpath(@__DIR__, "definitions"), join=true)
     !endswith(inc, ".jl") && continue
     include(inc)
 end
+# COV_EXCL_STOP
 
 
 include("types.jl")
