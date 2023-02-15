@@ -49,6 +49,14 @@ struct EventContainer
     snapshot_hits
     triggered_hits
 end
+Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
+Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
+Base.getindex(c::EventContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+Base.length(c::EventContainer) = length(c.headers)
+Base.eltype(c::EventContainer) = DAQEvent
+function Base.iterate(c::EventContainer, state=1)
+    state > length(c) ? nothing : (DAQEvent(c.headers[state], c.snapshot_hits[state], c.triggered_hits[state]), state+1)
+end
 function Base.show(io::IO, e::EventContainer)
     print(io, "$(typeof(e)) with $(length(e.headers)) events")
 end
@@ -113,14 +121,6 @@ end
 Base.close(c::OnlineFile) = close(f._fobj)
 Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
 
-Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
-Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
-Base.getindex(c::EventContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
-Base.length(c::EventContainer) = length(c.headers)
-Base.eltype(c::EventContainer) = DAQEvent
-function Base.iterate(c::EventContainer, state=1)
-    state > length(c) ? nothing : (DAQEvent(c.headers[state], c.snapshot_hits[state], c.triggered_hits[state]), state+1)
-end
 
 function read_headers(f::OnlineFile)
     data, offsets = UnROOT.array(f.fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"; raw=true)
