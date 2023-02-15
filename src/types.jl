@@ -60,6 +60,23 @@ struct UTCExtended
     end
 end
 
+struct SummaryFrame
+    dom_id::Int32
+    dq_status::UInt32
+    hrv::UInt32
+    fifo::UInt32
+    status3::UInt32
+    status4::UInt32
+    rates::Vector{UInt8}
+end
+
+struct SummarysliceHeader
+    detector_id::Int32
+    run::Int32
+    frame_index::Int32
+    t::UTCExtended
+end
+
 struct EventHeader
     detector_id::Int32
     run::Int32
