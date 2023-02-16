@@ -97,8 +97,8 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     @test 44 == s[1].header.detector_id == s[2].header.detector_id == s[3].header.detector_id
 
     module_values = Dict(
-        808981510: (fifo = true),
-        808981523: (fifo = false),
+        808981510 => (fifo = true),
+        808981523 => (fifo = false),
     )
     det = Detector(DETX_44)
     module_ids = Set(keys(det.modules))
