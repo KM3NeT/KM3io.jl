@@ -76,7 +76,7 @@ function UnROOT.interped_data(rawdata, rawoffsets, ::Type{SummarysliceHeader}, :
     UnROOT.splitup(rawdata, rawoffsets, SummarysliceHeader, jagged=false)
 end
 
-UnROOT.packedsizeof(::Type{SummaryFrame}) = 79  # incl. cnt and vers
+UnROOT.packedsizeof(::Type{SummaryFrame}) = 55  # incl. cnt and vers
 function UnROOT.readtype(io, T::Type{SummaryFrame})
     dom_id = UnROOT.readtype(io, Int32)
     dq_status = UnROOT.readtype(io, UInt32)

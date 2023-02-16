@@ -5,6 +5,7 @@ using Test
 
 
 const DETX = datapath("detx", "detx_v3.detx")
+const DETX_44 = datapath("detx", "km3net_offline.detx")
 const ONLINEFILE = datapath("online", "km3net_online.root")
 const OFFLINEFILE = datapath("offline", "km3net_offline.root")
 const IO_EVT = datapath("daq", "IO_EVT.dat")
@@ -88,4 +89,22 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     end
 
     @test 2 == length(events)
+
+    s = f.summaryslices
+    @test 64 == length(s[1].frames)
+    @test 66 == length(s[2].frames)
+    @test 68 == length(s[3].frames)
+    @test 44 == s[1].header.detector_id == s[2].header.detector_id == s[3].header.detector_id
+
+    module_values = Dict(
+        808981510: (fifo = true),
+        808981523: (fifo = false),
+    )
+    det = Detector(DETX_44)
+    module_ids = Set(keys(det.modules))
+    for (s_idx, s) ∈ enumerate(f.summaryslices)
+        for (f_idx, frame) in enumerate(s.frames)
+            @test frame.dom_id ∈ module_ids
+        end
+    end
 end
