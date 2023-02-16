@@ -68,3 +68,36 @@ event.header.frame_index = 129
 length(event.snapshot_hits) = 78
 ```
 
+### Summaryslices and Summary Frames
+
+Summaryslices are generated from timeslices (raw hit data) and are produced by
+the DataFilter. A slice contains the data of 100ms and is divided into so-called
+frames, each corresponding to the data of a single optical module. Due to the
+high amount of data, the storage of timeslices is usually reduced by a factor of
+10-100 after the event triggering stage. However, summaryslices are covering the
+full data taking period. They however do not contain hit data but only the rates
+of the PMTs encoded into a single byte, which therefore is only capable to store
+256 different values. The actual rate is calcuated by a helper function (TODO).
+
+The summaryslices are accessible using the `.summaryslices` attribute of the
+`OnlineFile` instance:
+
+``` julia
+julia> using KM3io, UnROOT, KM3NeTTestData
+
+julia> f = OnlineFile(datapath("online", "km3net_online.root"))
+OnlineFile with 3 events
+
+julia> f.summaryslices
+KM3io.SummarysliceContainer with 3 summaryslices
+
+julia> for s ∈ f.summaryslices
+           @show s.header
+       end
+s.header = KM3io.SummarysliceHeader(44, 6633, 126, KM3io.UTCExtended(0x5dc6018c, 0x23c34600, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c, 0x29b92700, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))
+```
+
+To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO
+status), the `s.frames` can be used (TODO).
