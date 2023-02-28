@@ -5,6 +5,7 @@ version = "0.2.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
@@ -12,8 +13,8 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 UnROOT = "3cd96dde-e98d-4713-81e9-a4a1b0235ce9"
 
 [compat]
-julia = "1"
 UnROOT = "^0.9"
+julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

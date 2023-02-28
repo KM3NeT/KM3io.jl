@@ -3,6 +3,8 @@ module KM3io
 import Base: read, write
 import Statistics: mean
 
+using DocStringExtensions
+
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using StaticArrays: FieldVector
