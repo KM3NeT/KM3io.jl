@@ -48,6 +48,33 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
+struct MCHit <: AbstractMCHit
+    a::Float32
+    origin::UInt32
+    pmt_id::UInt32
+    t::HitTime
+end
+
+mutable struct Multiplicity
+    count::Int32
+    id::Int64
+end
+
+struct CalibratedHit <: AbstractDAQHit
+    channel_id::UInt32
+    dom_id::UInt32
+    du::UInt8
+    floor::UInt8
+    t::Float64
+    tot::UInt8
+    pos::Position
+    dir::Direction
+    t0::Float64
+    trigger_mask::UInt64
+    multiplicity::Multiplicity
+end
+
+
 struct UTCExtended
     s::UInt32
     ns::UInt32
