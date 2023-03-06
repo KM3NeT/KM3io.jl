@@ -1,6 +1,7 @@
 stages:
   - test
   - docs
+  - deploy
 
 before_script:
   # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
@@ -65,3 +66,20 @@ docs:
   only:
     - main
     - tags
+
+register:
+  image: docker.km3net.de/base/julia:1.8
+  stage: deploy
+  script:
+    - |
+      julia --project=. -e '
+        using Pkg
+        Pkg.update()
+        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
+        Pkg.add("LocalRegistry")
+        using LocalRegistry
+        register(KM3io; registry="KM3NeT", create_gitlab_mr=true)
+        '
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+-?.*$/
