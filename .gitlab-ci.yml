@@ -62,9 +62,6 @@ docs:
         using KM3io
         doctest(KM3io)
         include("docs/make.jl")'
-  artifacts:
-    paths:
-      - public
   only:
     - main
     - tags
