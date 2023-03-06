@@ -198,7 +198,8 @@ struct Detector
     utm_ref_grid::Union{String, Missing}
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
-    strings::Vector{Int8}
+    locations::Dict{Tuple{Int, Int}, DetectorModule}
+    strings::Vector{Int}
     comments::Vector{String}
 end
 Base.show(io::IO, d::Detector) = print(io, "Detector with $(length(d.strings)) strings and $(d.n_modules) modules.")
@@ -258,10 +259,7 @@ function Detector(io::IO)
     end
 
     modules = Dict{Int32, DetectorModule}()
-
-    t₀_warning = false
-    pos_warning = false
-
+    locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int8[]
 
     for mod ∈ 1:n_modules
@@ -320,11 +318,13 @@ function Detector(io::IO)
             end
         end
 
-        modules[module_id] = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
+        m = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
+        modules[module_id] = m
+        locations[(string, floor)] = m
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
 end
 
 
