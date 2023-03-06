@@ -11,10 +11,18 @@ using StaticArrays: FieldVector
 using UnROOT
 
 export OnlineFile
-export Position, UTMPosition, Location, Quaternion
+
+export Direction, Position, UTMPosition, Location, Quaternion
+
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
+
 export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
+
 export is3dshower, ismxshower, is3dmuon, isnb
+
+export Hit, TriggeredHit
+
+export calibrate, floordist
 
 
 
@@ -34,6 +42,7 @@ include("root/online.jl")
 include("root/offline.jl")
 include("daq.jl")
 include("acoustics.jl")
+include("calibration.jl")
 
 include("tools.jl")
 

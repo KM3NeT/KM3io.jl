@@ -212,6 +212,7 @@ function Base.iterate(d::Detector, state=(Int[], 1))
     end
     (d.modules[module_ids[count]], (module_ids, count + 1))
 end
+Base.getindex(d::Detector, module_id) = d.modules[module_id]
 
 
 """

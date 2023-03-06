@@ -17,6 +17,12 @@ struct Direction{T} <: FieldVector{3, T}
 end
 Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 
+struct Track
+    dir::Direction
+    pos::Position
+    time
+end
+
 struct Quaternion{T} <: FieldVector{4, T}
     q0::T
     qx::T
@@ -48,22 +54,30 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
+struct Hit <: AbstractDAQHit
+    dom_id::Int32
+    channel_id::UInt8
+    t::Int32
+    tot::UInt8
+    trigger_mask::UInt64
+end
+
 mutable struct Multiplicity
     count::Int32
     id::Int64
 end
 
 struct CalibratedHit <: AbstractDAQHit
-    channel_id::UInt32
     dom_id::UInt32
-    du::UInt8
-    floor::UInt8
+    channel_id::UInt32
     t::Float64
     tot::UInt8
+    trigger_mask::UInt64
     pos::Position
     dir::Direction
     t0::Float64
-    trigger_mask::UInt64
+    du::UInt8
+    floor::UInt8
     multiplicity::Multiplicity
 end
 
