@@ -12,3 +12,8 @@ makedocs(;
     authors="Tamas Gal",
     assets=String[],
 )
+
+deploydocs(;
+  repo = "git.km3net.de/common/KM3io.jl",
+  devbranch = "main",
+)
