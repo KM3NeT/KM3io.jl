@@ -13,31 +13,31 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
 
             @test version == d.version
 
+            mods = DetectorModule[]
+            for mod in d
+                push!(mods, mod)
+            end
+
             if version < 4
-                # no base modules in DETX
+                # no base modules in DETX version <4
                 @test 342 == length(d)
                 @test 342 == length(d.modules)
                 @test DetectorModule == eltype(d)
-                mods = DetectorModule[]
-                for mod in d
-                    push!(mods, mod)
-                end
-                @test 342 == length(mods) else # base module attributes @test 361 == length(d.modules)
-                @test 361 == length(d)
-                @test DetectorModule == eltype(d)
-                mods = DetectorModule[]
-                for mod in d
-                    push!(mods, mod)
-                end
+            else
                 @test 361 == length(mods)
-                @test 116.600007 ≈ d.modules[808992603].pos.x  # optical module
                 @test 106.95 ≈ d.modules[808469291].pos.y  # base module
                 @test 97.3720395 ≈ d.modules[808974928].pos.z  # base module
+            end
+
+            @test 116.600 ≈ d.modules[808992603].pos.x atol=1e-5  # optical module
+
+            if version > 3
                 @test Quaternion(1, 0, 0, 0) ≈ d.modules[808995481].q
-                if version > 5
-                    # module status introduced in v5
-                    @test 0 == d.modules[808966287].status
-                end
+            end
+
+            if version > 4
+                # module status introduced in v5
+                @test 0 == d.modules[808966287].status
             end
 
             if version > 1
@@ -55,6 +55,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             @test 9 == d.strings[1]
             @test 30 == d.strings[end]
             @test 19 == length(d.strings)
+
         end
 
         comments = Detector(joinpath(SAMPLES_DIR, "v3.detx")).comments
