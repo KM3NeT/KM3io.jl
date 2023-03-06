@@ -34,21 +34,21 @@ before_script:
         @printf "Test coverage %.2f%%\n" 100c / t'
 
 Julia 1.6:
-  image: julia:1.6
+  image: docker.km3net.de/base/julia:1.6
   stage: test
   extends:
     - .script
     - .coverage
 
 Julia 1.8:
-  image: julia:1.8
+  image: docker.km3net.de/base/julia:1.8
   stage: test
   extends:
     - .script
     - .coverage
 
 docs:
-  image: julia:1.6
+  image: docker.km3net.de/base/julia:1.8
   stage: docs
   script:
     - |
