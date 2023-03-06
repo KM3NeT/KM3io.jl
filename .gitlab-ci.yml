@@ -1,3 +1,7 @@
+stages:
+  - test
+  - docs
+
 before_script:
   # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
   - apt-get -qq update; apt-get -y install git
@@ -30,20 +34,22 @@ before_script:
         @printf "Test coverage %.2f%%\n" 100c / t'
 
 Julia 1.6:
-  image: julia:1.6
+  image: docker.km3net.de/base/julia:1.6
+  stage: test
   extends:
     - .script
     - .coverage
 
 Julia 1.8:
-  image: julia:1.8
+  image: docker.km3net.de/base/julia:1.8
+  stage: test
   extends:
     - .script
     - .coverage
 
-pages:
-  image: julia:1.6
-  stage: deploy
+docs:
+  image: docker.km3net.de/base/julia:1.8
+  stage: docs
   script:
     - |
       julia --project=docs -e '
@@ -56,10 +62,9 @@ pages:
         using KM3io
         doctest(KM3io)
         include("docs/make.jl")'
-    - mkdir -p public
-    - mv docs/build public/dev
   artifacts:
     paths:
       - public
   only:
     - main
+    - tags
