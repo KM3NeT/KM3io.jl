@@ -17,7 +17,7 @@ export Detector, DetectorModule, PMT, Tripod, Hydrophone
 export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
 export Hit, TriggeredHit
 
-export calibrate, floordist
+export calibrate, floordist, slew
 export is3dshower, ismxshower, is3dmuon, isnb
 export most_frequent, categorize
 
