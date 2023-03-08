@@ -1,4 +1,4 @@
-import KM3io: nthbitset
+import KM3io: nthbitset, SnapshotHit
 using Test
 
 @testset "tools" begin
@@ -11,4 +11,30 @@ using Test
             @test nthbitset(n, 123456789011121314)
         end
     end
+end
+
+@testset "most_frequent()" begin
+    a = [1, 1, 2, 3, 1, 5]
+    @test 1 == most_frequent(a)
+
+    a = [[1, 2], [1, 2, 3], [1, 2], [1, 2], [1], [1]]
+    @test 3 == most_frequent(sum, a)
+
+    a = ['a', 'b', 'c', 'b', 'b', 'd']
+    @test 'b' == most_frequent(a)
+    @test 'B' == most_frequent(c -> uppercase(c), a; rettype=Char)
+end
+
+@testset "categorize()" begin
+    hits = [
+        SnapshotHit(1, 0, 123, 22),
+        SnapshotHit(2, 2, 124, 25),
+        SnapshotHit(1, 1, 125, 24),
+        SnapshotHit(1, 0, 126, 28),
+        SnapshotHit(4, 0, 126, 34),
+    ]
+    c = categorize(:dom_id, hits)
+    @test 3 == length(c[1])
+    @test 1 == length(c[2])
+    @test 1 == length(c[4])
 end

@@ -13,16 +13,13 @@ using UnROOT
 export OnlineFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
-
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
-
 export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
-
-export is3dshower, ismxshower, is3dmuon, isnb
-
 export Hit, TriggeredHit
 
 export calibrate, floordist
+export is3dshower, ismxshower, is3dmuon, isnb
+export most_frequent, categorize
 
 
 
