@@ -1,3 +1,15 @@
+struct EvtHit
+end
+
+struct MCHit
+end
+
+struct Trk
+end
+
+struct MCTrk
+end
+
 struct Evt
     id::Int64  # offline event identifier
     det_id::Int64
@@ -14,7 +26,7 @@ struct Evt
 
     header_uuid::UUID
 
-    hits::Vector{Hit}
+    hits::Vector{EvtHit}
     trks::Vector{Trk}
 
     # MC related fields
@@ -25,7 +37,7 @@ struct Evt
     mc_event_time::UTCTime
     mc_t::Float64
     mc_hits::Vector{MCHit}
-    mc_trks::Vector{MCTrks}
+    mc_trks::Vector{MCTrk}
 
     comment::AbstractString
     index::Int64
