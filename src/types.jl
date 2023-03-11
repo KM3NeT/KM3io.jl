@@ -81,6 +81,10 @@ struct CalibratedHit <: AbstractDAQHit
     multiplicity::Multiplicity
 end
 
+struct UTCTime
+    s::UInt64
+    ns::UInt64
+end
 
 struct UTCExtended
     s::UInt32
