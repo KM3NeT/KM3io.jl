@@ -145,19 +145,3 @@ struct OnlineFile
 end
 Base.close(c::OnlineFile) = close(f._fobj)
 Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
-
-
-function read_headers(f::OnlineFile)
-    data, offsets = UnROOT.array(f.fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"; raw=true)
-    UnROOT.splitup(data, offsets, EventHeader; jagged=false)
-end
-
-function read_snapshot_hits(f::OnlineFile)
-    data, offsets = UnROOT.array(f.fobj, "KM3NET_EVENT/KM3NET_EVENT/snapshotHits"; raw=true)
-    UnROOT.splitup(data, offsets, SnapshotHit, skipbytes=10)
-end
-
-function read_triggered_hits(f::OnlineFile)
-    data, offsets = UnROOT.array(f.fobj, "KM3NET_EVENT/KM3NET_EVENT/triggeredHits"; raw=true)
-    UnROOT.splitup(data, offsets, TriggeredHit, skipbytes=10)
-end
