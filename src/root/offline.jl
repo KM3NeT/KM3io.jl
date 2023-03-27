@@ -43,3 +43,26 @@ struct Evt
     index::Int64
     flags::Int64
 end
+
+struct EvtContainer
+
+end
+
+struct OfflineFile
+    _fobj::UnROOT.ROOTFile
+
+    function OfflineFile(filename::AbstractString)
+        fobj = UnROOT.ROOTFile(filename)
+
+        new(fobj)
+    end
+end
+
+Base.close(c::OfflineFile) = close(f._fobj)
+
+
+
+function Base.getindex(f::OfflineFile, idx::Integer)
+    bpath = ROOT.TTREE_OFFLINE_EVENT * "/" * ROOT.TBRANCH_OFFLINE_EVENT
+    LazyBranch(f._fobj, bpath * "/trks/trks.id")[idx]
+end

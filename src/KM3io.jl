@@ -10,7 +10,7 @@ using DocStringExtensions
 using StaticArrays: FieldVector
 using UnROOT
 
-export OnlineFile
+export OnlineFile, OfflineFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
