@@ -140,6 +140,8 @@ function Base.show(io::IO, f::OfflineFile)
     print(io, "OfflineFile with $(length(f)) events")
 end
 
+Base.getindex(f::OfflineFile, r::UnitRange) = [f[idx] for idx ∈ r]
+Base.getindex(f::OfflineFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.getindex(f::OfflineFile, idx::Integer)
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
