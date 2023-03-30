@@ -32,6 +32,8 @@ struct Trk
     len::Float64
     lik::Float64
     rec_type::Int32
+    rec_stages::Vector{Int32}
+    fitinf::Vector{Float64}
 end
 
 struct MCTrk
@@ -68,9 +70,9 @@ struct Evt
     trks::Vector{Trk}
 
     # MC related fields
-    # w::Vector{Float64}
-    # w2list::Vector{Float64}  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
-    # w3list::Vector{Float64}  # atmospheric flux information
+    w::Vector{Float64}
+    w2list::Vector{Float64}  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
+    w3list::Vector{Float64}  # atmospheric flux information
 
     # mc_event_time::UTCTime
     mc_t::Float64
@@ -109,12 +111,11 @@ struct OfflineFile{T}
             # bpath * "/header_uuid",
             Regex(bpath * "/hits/hits.(id|dom_id|channel_id|tdc|tot|trig|t)\$") => s"hits_\1",
             Regex(bpath * "/hits/hits.(pos|dir).([xyz])\$") => s"hits_\1_\2",
-            Regex(bpath * "/trks/trks.(id|t|E|len|lik|rec_type)\$") => s"trks_\1",
+            Regex(bpath * "/trks/trks.(id|t|E|len|lik|rec_type|rec_stages|fitinf)\$") => s"trks_\1",
             Regex(bpath * "/trks/trks.(pos|dir).([xyz])\$") => s"trks_\1_\2",
-            # TODO: weights are not read by UnROOT
-            # bpath * "/w",
-            # bpath * "/w2list",
-            # bpath * "/w3list",
+            bpath * "/w",
+            bpath * "/w2list",
+            bpath * "/w3list",
             # TODO: no idea where this should come from, it should be a UTCTime, just like t
             #bpath * "/mc_event_time",
             bpath * "/mc_t",
@@ -180,6 +181,10 @@ function Base.getindex(f::OfflineFile, idx::Integer)
 
     n = length(e.mc_trks_id)
     mc_trks = sizehint!(Vector{MCTrk}(), n)
+    # legacy format support
+    skip_mc_trks_status = !hasfield(typeof(e), :mc_trks_status)
+    skip_mc_trks_mother_id = !hasfield(typeof(e), :mc_trks_mother_id)
+    skip_mc_trks_counter = !hasfield(typeof(e), :mc_trks_counter)
     for i ∈ 1:n
         push!(mc_trks,
             MCTrk(
@@ -190,9 +195,9 @@ function Base.getindex(f::OfflineFile, idx::Integer)
                 e.mc_trks_E[i],
                 e.mc_trks_len[i],
                 e.mc_trks_type[i],
-                e.mc_trks_status[i],
-                e.mc_trks_mother_id[i],
-                e.mc_trks_counter[i],
+                skip_mc_trks_status ? 0 : e.mc_trks_status[i],
+                skip_mc_trks_mother_id ? 0 : e.mc_trks_mother_id[i],
+                skip_mc_trks_counter ? 0 : e.mc_trks_counter[i],
             )
         )
     end
@@ -210,6 +215,8 @@ function Base.getindex(f::OfflineFile, idx::Integer)
                 e.trks_len[i],
                 e.trks_lik[i],
                 e.trks_rec_type[i],
+                e.trks_rec_stages[i],
+                e.trks_fitinf[i],
             )
         )
     end
@@ -227,6 +234,9 @@ function Base.getindex(f::OfflineFile, idx::Integer)
         UTCTime(e.t_Sec, e.t_NanoSec),
         hits,
         trks,
+        e.Evt_w,
+        e.Evt_w2list,
+        e.Evt_w3list,
         e.Evt_mc_t,
         mc_hits,
         mc_trks,
