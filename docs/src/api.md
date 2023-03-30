@@ -18,6 +18,10 @@ Location
 PMT
 DetectorModule
 Detector
+Hydrophone
+Tripod
+piezoenabled
+hydrophoneenabled
 ```
 
 ## Acoustics
@@ -25,7 +29,29 @@ Detector
 ```@docs
 Waveform
 AcousticSignal
-Hydrophone
-Tripod
+AcousticsTriggerParameter
+```
+
+## Calibration
+```@docs
+calibrate
+floordist
+slew
+```
+
+## Trigger
+```@docs
+is3dmuon
+is3dshower
+ismxshower
+isnb
+```
+
+## Utilities
+
+```@docs
+categorize
+nthbitset
+most_frequent
 ```
 

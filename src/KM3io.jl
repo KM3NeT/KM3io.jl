@@ -14,23 +14,27 @@ export OnlineFile, OfflineFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
-export Waveform, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
+export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
 export Hit, TriggeredHit
 
 export calibrate, floordist, slew
 export is3dshower, ismxshower, is3dmuon, isnb
-export most_frequent, categorize
+export most_frequent, categorize, nthbitset
 
-@template DEFAULT = """
-$(DOCSTRING)
-"""
+@template (FUNCTIONS, METHODS, MACROS) =
+    """
+    $(TYPEDSIGNATURES)
+    $(DOCSTRING)
+    """
 
 @template TYPES = """
-$(DOCSTRING)
+    $(TYPEDEF)
 
-# Fields
-$(TYPEDFIELDS)
-"""
+    # Fields
+    $(TYPEDFIELDS)
+
+    $(DOCSTRING)
+    """
 
 
 # KM3NeT Dataformat definitions

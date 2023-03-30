@@ -1,6 +1,4 @@
 """
-$(SIGNATURES)
-
 Apply geometry and time calibration to given hits.
 """
 function calibrate(det::Detector, hits)
@@ -30,8 +28,6 @@ end
 
 
 """
-    function floordist(calib::Calibration)
-
 Calculates the average floor distance between neighboured modules.
 """
 function floordist(det::Detector)
@@ -46,8 +42,6 @@ function floordist(det::Detector)
 end
 
 """
-$(SIGNATURES)
-
 Return the time slewing for a ToT.
 """
 slew(tot::Integer) = @inbounds ifelse(tot < 256, SLEWS[tot + 1], SLEWS[end])
