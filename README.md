@@ -34,11 +34,62 @@ instructions in its
 
 # ROOT Files
 
+The two main types of ROOT files in KM3NeT are the online and offline files.
+This section describes what they are and how to access them.
+
 ## Offline Dataformat
 
 The [offline
 dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline)
-is used to store Monte Carlo (MC) simulations and reconstruction results.
+is used to store Monte Carlo (MC) simulations and reconstruction results. The
+`OfflineFile` type represents an actual offline file and it is essentially a
+vector of events (`Vector{Evt}`) with some fancy caching, lazy access and
+slicing magic.
+
+The following REPL session shows how to open a file, access individual events or slices of events, loop through events and access e.g. the tracks which are stored in the events.
+
+``` julia-repl
+julia> using KM3io, KM3NeTTestData
+
+julia> f = OfflineFile(datapath("offline", "km3net_offline.root"))
+OfflineFile with 10 events
+
+julia> f[5]
+KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia> f[3:5]
+3-element Vector{KM3io.Evt}:
+ KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia> event = f[1]
+KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia> event.trks[:4]
+KM3io.Trk(4, [448.25834890057024, ... , 291.64653112688273, 4000)
+
+julia> event.trks[1:4]
+4-element Vector{KM3io.Trk}:
+ KM3io.Trk(1, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(2, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
+ KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
+
+julia> for event in f
+           @show event
+       end
+event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+event = KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+```
 
 ## Online Dataformat
 
