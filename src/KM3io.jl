@@ -21,6 +21,16 @@ export calibrate, floordist, slew
 export is3dshower, ismxshower, is3dmuon, isnb
 export most_frequent, categorize
 
+@template DEFAULT = """
+$(DOCSTRING)
+"""
+
+@template TYPES = """
+$(DOCSTRING)
+
+# Fields
+$(TYPEDFIELDS)
+"""
 
 
 # KM3NeT Dataformat definitions

@@ -4,12 +4,18 @@ struct UTMPosition{T} <: FieldVector{3, T}
     z::T
 end
 
+"""
+A vector to represent a position in 3D.
+"""
 struct Position{T} <: FieldVector{3, T}
     x::T
     y::T
     z::T
 end
 
+"""
+A vector to represent a direction in 3D.
+"""
 struct Direction{T} <: FieldVector{3, T}
     x::T
     y::T
