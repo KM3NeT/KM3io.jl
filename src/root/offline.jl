@@ -1,0 +1,236 @@
+struct EvtHit
+    dom_id::Int32
+    channel_id::UInt32
+    tdc::UInt32
+    tot::UInt32
+    trig::UInt64
+
+    # only set when calibrated
+    t::Float64  # tdc + calibration(i.e. t₀)
+    pos::Position
+    dir::Direction
+end
+
+struct MCHit
+    pmt_id::Int32
+    t::Float64  # MC truth
+    a::Float64  # amplitude (in p.e.)
+    type::Int32  # particle type or parametrisation used for hit
+    origin::Int32  # track id of the track that created the hit
+
+    # only set when calibrated
+    pos::Position
+    dir::Direction
+end
+
+struct Trk
+    id::Int
+    pos::Position
+    dir::Direction
+    t::Float64
+    E::Float64  # [GeV]
+    len::Float64
+    lik::Float64
+    rec_type::Int32
+end
+
+struct MCTrk
+    id::Int
+    pos::Position
+    dir::Direction
+    t::Float64
+    E::Float64  # [GeV]
+    len::Float64
+    type::Int32  # PDG id
+    status::Int32  # see KM3io.TRKMEMBERS
+    mother_id::Int32  # MC id of the parent particle
+    counter::Int32  # used by Corsika7 MC generation to store interaction counters
+end
+
+struct Evt
+    id::Int64  # offline event identifier
+    det_id::Int64
+    mc_id::Int64
+
+    run_id::Int64
+    mc_run_id::Int64
+
+    frame_index::Int64
+    trigger_mask::UInt64
+    trigger_counter::UInt64
+    overlays::UInt64
+    t::UTCTime
+
+    # TODO: unclear how UUID is set
+    # header_uuid::UUID
+
+    hits::Vector{EvtHit}
+    trks::Vector{Trk}
+
+    # MC related fields
+    # w::Vector{Float64}
+    # w2list::Vector{Float64}  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
+    # w3list::Vector{Float64}  # atmospheric flux information
+
+    # mc_event_time::UTCTime
+    mc_t::Float64
+    mc_hits::Vector{MCHit}
+    mc_trks::Vector{MCTrk}
+
+    # comment::AbstractString
+    index::Int64
+    flags::Int64
+end
+function Base.show(io::IO, e::Evt)
+    print(io, "$(typeof(e)) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) tracks, $(length(e.mc_trks)) MC tracks)")
+end
+
+struct OfflineFile{T}
+    _fobj::UnROOT.ROOTFile
+    _t::T
+
+    function OfflineFile(filename::AbstractString)
+        tpath = ROOT.TTREE_OFFLINE_EVENT
+        bpath = ROOT.TBRANCH_OFFLINE_EVENT
+
+        fobj = UnROOT.ROOTFile(filename)
+
+        t = LazyTree(fobj, tpath, [
+            bpath * "/id",
+            bpath * "/det_id",
+            bpath * "/mc_id",
+            bpath * "/run_id",
+            bpath * "/mc_run_id",
+            bpath * "/frame_index",
+            bpath * "/trigger_mask",
+            bpath * "/trigger_counter",
+            bpath * "/overlays",
+            Regex(bpath * "/t/t.f(Sec|NanoSec)\$") => s"t_\1",
+            # bpath * "/header_uuid",
+            Regex(bpath * "/hits/hits.(id|dom_id|channel_id|tdc|tot|trig|t)\$") => s"hits_\1",
+            Regex(bpath * "/hits/hits.(pos|dir).([xyz])\$") => s"hits_\1_\2",
+            Regex(bpath * "/trks/trks.(id|t|E|len|lik|rec_type)\$") => s"trks_\1",
+            Regex(bpath * "/trks/trks.(pos|dir).([xyz])\$") => s"trks_\1_\2",
+            # TODO: weights are not read by UnROOT
+            # bpath * "/w",
+            # bpath * "/w2list",
+            # bpath * "/w3list",
+            # TODO: no idea where this should come from, it should be a UTCTime, just like t
+            #bpath * "/mc_event_time",
+            bpath * "/mc_t",
+            Regex(bpath * "/mc_hits/mc_hits.(id|pmt_id|t|a|pure_t|pure_a|type|origin)\$") => s"mc_hits_\1",
+            Regex(bpath * "/mc_hits/mc_hits.(pos|dir).([xyz])\$") => s"mc_hits_\1_\2",
+            Regex(bpath * "/mc_trks/mc_trks.(id|t|E|len|type|status|mother_id|counter)\$") => s"mc_trks_\1",
+            Regex(bpath * "/mc_trks/mc_trks.(pos|dir).([xyz])\$") => s"mc_trks_\1_\2",
+            bpath * "/index",
+            bpath * "/flags",
+        ])
+
+        new{typeof(t)}(fobj, t)
+    end
+end
+
+Base.close(f::OfflineFile) = close(f._fobj)
+Base.length(f::OfflineFile) = length(f._t.Evt_id)
+Base.eltype(::OfflineFile) = Evt
+function Base.iterate(f::OfflineFile, state=1)
+    state > length(f) ? nothing : (f[state], state+1)
+end
+function Base.show(io::IO, f::OfflineFile)
+    print(io, "OfflineFile with $(length(f)) events")
+end
+
+Base.getindex(f::OfflineFile, r::UnitRange) = [f[idx] for idx ∈ r]
+Base.getindex(f::OfflineFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+function Base.getindex(f::OfflineFile, idx::Integer)
+    e = f._t[idx]  # the event as NamedTuple: struct of arrays
+
+    n = length(e.mc_hits_id)
+    mc_hits = sizehint!(Vector{MCHit}(), n)
+    for i ∈ 1:n
+        push!(mc_hits,
+              MCHit(
+                  e.mc_hits_id[i],
+                  e.mc_hits_t[i],
+                  e.mc_hits_a[i],
+                  e.mc_hits_type[i],
+                  e.mc_hits_origin[i],
+                  Position(e.mc_hits_pos_x[i], e.mc_hits_pos_y[i], e.mc_hits_pos_z[i]),
+                  Direction(e.mc_hits_dir_x[i], e.mc_hits_dir_y[i], e.mc_hits_dir_z[i])
+              )
+        )
+    end
+
+    n = length(e.hits_id)
+    hits = sizehint!(Vector{EvtHit}(), n)
+    for i ∈ 1:n
+        push!(hits,
+              EvtHit(
+                  e.hits_dom_id[i],
+                  e.hits_channel_id[i],
+                  e.hits_tdc[i],
+                  e.hits_tot[i],
+                  e.hits_trig[i],
+                  e.hits_t[i],
+                  Position(e.hits_pos_x[i], e.hits_pos_y[i], e.hits_pos_z[i]),
+                  Direction(e.hits_dir_x[i], e.hits_dir_y[i], e.hits_dir_z[i])
+              )
+        )
+    end
+
+    n = length(e.mc_trks_id)
+    mc_trks = sizehint!(Vector{MCTrk}(), n)
+    for i ∈ 1:n
+        push!(mc_trks,
+            MCTrk(
+                e.mc_trks_id[i],
+                Position(e.mc_trks_pos_x[i], e.mc_trks_pos_y[i], e.mc_trks_pos_z[i]),
+                Direction(e.mc_trks_dir_x[i], e.mc_trks_dir_y[i], e.mc_trks_dir_z[i]),
+                e.mc_trks_t[i],
+                e.mc_trks_E[i],
+                e.mc_trks_len[i],
+                e.mc_trks_type[i],
+                e.mc_trks_status[i],
+                e.mc_trks_mother_id[i],
+                e.mc_trks_counter[i],
+            )
+        )
+    end
+
+    n = length(e.trks_id)
+    trks = sizehint!(Vector{Trk}(), n)
+    for i ∈ 1:n
+        push!(trks,
+            Trk(
+                e.trks_id[i],
+                Position(e.trks_pos_x[i], e.trks_pos_y[i], e.trks_pos_z[i]),
+                Direction(e.trks_dir_x[i], e.trks_dir_y[i], e.trks_dir_z[i]),
+                e.trks_t[i],
+                e.trks_E[i],
+                e.trks_len[i],
+                e.trks_lik[i],
+                e.trks_rec_type[i],
+            )
+        )
+    end
+
+    Evt(
+        e.Evt_id,
+        e.Evt_det_id,
+        e.Evt_mc_id,
+        e.Evt_run_id,
+        e.Evt_mc_run_id,
+        e.Evt_frame_index,
+        e.Evt_trigger_mask,
+        e.Evt_trigger_counter,
+        e.Evt_overlays,
+        UTCTime(e.t_Sec, e.t_NanoSec),
+        hits,
+        trks,
+        e.Evt_mc_t,
+        mc_hits,
+        mc_trks,
+        e.Evt_index,
+        e.Evt_flags
+    )
+end

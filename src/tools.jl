@@ -68,14 +68,6 @@ end
 
 
 """
-    nthbitset(n, a) = !Bool((a >> (n - 1)) & 1)
-
-Return `true` if the n-th bit of `a` is set, `false` otherwise.
-"""
-nthbitset(n, a) = Bool((a >> n) & 1)
-
-
-"""
 $(METHODLIST)
 
 Categorise the struct elements of a vector by a given field into a dictionary of

@@ -63,9 +63,9 @@ docs:
         using KM3io
         doctest(KM3io)
         include("docs/make.jl")'
-  only:
-    - main
-    - tags
+#  only:
+#    - main
+#    - tags
 
 #register:
 #  image: docker.km3net.de/base/julia:1.8

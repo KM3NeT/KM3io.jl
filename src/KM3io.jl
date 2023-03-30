@@ -2,15 +2,15 @@ module KM3io
 
 import Base: read, write
 import Statistics: mean
-
-using DocStringExtensions
-
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
+using UUIDs
+
+using DocStringExtensions
 using StaticArrays: FieldVector
 using UnROOT
 
-export OnlineFile
+export OnlineFile, OfflineFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
@@ -21,6 +21,16 @@ export calibrate, floordist, slew
 export is3dshower, ismxshower, is3dmuon, isnb
 export most_frequent, categorize
 
+@template DEFAULT = """
+$(DOCSTRING)
+"""
+
+@template TYPES = """
+$(DOCSTRING)
+
+# Fields
+$(TYPEDFIELDS)
+"""
 
 
 # KM3NeT Dataformat definitions

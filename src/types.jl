@@ -4,12 +4,18 @@ struct UTMPosition{T} <: FieldVector{3, T}
     z::T
 end
 
+"""
+A vector to represent a position in 3D.
+"""
 struct Position{T} <: FieldVector{3, T}
     x::T
     y::T
     z::T
 end
 
+"""
+A vector to represent a direction in 3D.
+"""
 struct Direction{T} <: FieldVector{3, T}
     x::T
     y::T
@@ -20,7 +26,7 @@ Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 struct Track
     dir::Direction
     pos::Position
-    time
+    time::AbstractFloat
 end
 
 struct Quaternion{T} <: FieldVector{4, T}
@@ -81,6 +87,10 @@ struct CalibratedHit <: AbstractDAQHit
     multiplicity::Multiplicity
 end
 
+struct UTCTime
+    s::UInt64
+    ns::UInt64
+end
 
 struct UTCExtended
     s::UInt32
