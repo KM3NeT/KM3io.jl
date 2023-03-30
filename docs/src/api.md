@@ -24,6 +24,11 @@ piezoenabled
 hydrophoneenabled
 ```
 
+## Optical Data
+```@docs
+
+```
+
 ## Acoustics
 
 ```@docs
