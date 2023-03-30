@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · KM3io.jl</title><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><script src="assets/extra_styles.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>KM3io.jl</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li class="toplevel"><a class="tocitem" href="#ROOT-Files"><span>ROOT Files</span></a></li><li><a class="tocitem" href="#Offline-Dataformat"><span>Offline Dataformat</span></a></li><li><a class="tocitem" href="#Online-Dataformat"><span>Online Dataformat</span></a></li></ul></li><li><a class="tocitem" href="api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://git.km3net.de/common/KM3io.jl/blob/main/README.md#L" title="Edit source"><span class="docs-icon fa"></span><span class="docs-label is-hidden-touch">Edit source</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="KM3io.jl"><a class="docs-heading-anchor" href="#KM3io.jl">KM3io.jl</a><a id="KM3io.jl-1"></a><a class="docs-heading-anchor-permalink" href="#KM3io.jl" title="Permalink"></a></h1><p><a href="https://common.pages.km3net.de/KM3io.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Stable"/></a> <a href="https://common.pages.km3net.de/KM3io.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Dev"/></a> <a href="https://git.km3net.de/common/KM3io.jl/pipelines"><img src="https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg" alt="Build Status"/></a> <a href="https://git.km3net.de/common/KM3io.jl/commits/main"><img src="https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg" alt="Coverage"/></a></p><p><code>KM3io.jl</code> is a Julia library which implements high-performance I/O functions and additional utilities to deal with dataformats used in KM3NeT, e.g. <a href="https://root.cern.ch">ROOT</a> (online/offline files), <a href="https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29">DETX</a> (detector geometry and calibrations) and acoustics (waveforms and hardware). In contrast to Python, you are free to utilise as many (nested) <code>for</code>-loops as you like while still being as fast as in e.g. in C++.</p><p>Apropos <a href="https://root.cern.ch">ROOT</a> and C++, the <a href="https://git.km3net.de/common/km3net-dataformat">KM3NeT Dataformat</a> is defined in C++ and uses the I/O functionality of the ROOT framework to create the online and offline ROOT files. Luckily, there is a pure Julia library named <a href="https://github.com/JuliaHEP/UnROOT.jl">UnROOT.jl</a> that provides access the the ROOT files without the need to install ROOT or the corresponding C++ library. This allows <code>KM3io.jl</code> to be completely free from these external dependencies.</p><p>The library is still under development so that the API might slightly change. Feedback and contributions are highly welcome!</p><h1 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h1><p><code>KM3io.jl</code> is not an officially registered Julia package but it&#39;s available via the <a href="https://git.km3net.de/common/julia-registry">KM3NeT Julia registry</a>. To add the KM3NeT Julia registry to your local Julia registry list, follow the instructions in its <a href="https://git.km3net.de/common/julia-registry#adding-the-registry">README</a>.</p><h1 id="ROOT-Files"><a class="docs-heading-anchor" href="#ROOT-Files">ROOT Files</a><a id="ROOT-Files-1"></a><a class="docs-heading-anchor-permalink" href="#ROOT-Files" title="Permalink"></a></h1><p>The two main types of ROOT files in KM3NeT are the online and offline files. This section describes what they are and how to access them.</p><h2 id="Offline-Dataformat"><a class="docs-heading-anchor" href="#Offline-Dataformat">Offline Dataformat</a><a id="Offline-Dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#Offline-Dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline">offline dataformat</a> is used to store Monte Carlo (MC) simulations and reconstruction results. The <code>OfflineFile</code> type represents an actual offline file and it is essentially a vector of events (<code>Vector{Evt}</code>) with some fancy caching, lazy access and slicing magic.</p><p>The following REPL session shows how to open a file, access individual events or slices of events, loop through events and access e.g. the tracks which are stored in the events.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = OfflineFile(datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;))
+OfflineFile with 10 events
+
+julia&gt; f[5]
+KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; f[3:5]
+3-element Vector{KM3io.Evt}:
+ KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event = f[1]
+KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event.trks[:4]
+KM3io.Trk(4, [448.25834890057024, ... , 291.64653112688273, 4000)
+
+julia&gt; event.trks[1:4]
+4-element Vector{KM3io.Trk}:
+ KM3io.Trk(1, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(2, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
+ KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
+
+julia&gt; for event in f
+           @show event
+       end
+event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+event = KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><h2 id="Online-Dataformat"><a class="docs-heading-anchor" href="#Online-Dataformat">Online Dataformat</a><a id="Online-Dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#Online-Dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/online">online dataformat</a> refers to the dataformat which is written by the data acquisition system (DAQ) of the KM3NeT detectors, more precisely, the ROOT files produced by the <code>JDataFilter</code> which is part of the <a href="https://git.km3net.de/common/jpp"><code>Jpp</code></a> framework. The very same format is used in run-by-run (RBR) Monte Carlo (MC) productions, which mimic the detector response and therefore produce similarly structured data.</p><h3 id="Event-data"><a class="docs-heading-anchor" href="#Event-data">Event data</a><a id="Event-data-1"></a><a class="docs-heading-anchor-permalink" href="#Event-data" title="Permalink"></a></h3><p>Accessing the data is as easy as opening it via <code>OnlineFile(&quot;path/to/file.root&quot;)</code> and using indices/slices or iteration. Everything is lazily loaded so that the data is only occupying memory when it&#39;s actually accessed. In the examples below, we use <strong><a href="https://git.km3net.de/km3py/km3net-testdata"><code>KM3NeTTestdata</code></a></strong> to get access to small sample files.</p><pre><code class="language-julia hljs">julia&gt; using KM3io
+
+julia&gt; using KM3NeTTestData
+
+julia&gt; f = OnlineFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+OnlineFile with 3 events
+
+julia&gt; event = f.events[1]
+KM3io.DAQEvent with 96 snapshot and 18 triggered hits
+
+julia&gt; event.triggered_hits[4:8]
+5-element Vector{KM3io.TriggeredHit}:
+ KM3io.TriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
+ KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
+
+julia&gt; for event ∈ f.events
+           @show event.header.frame_index length(event.snapshot_hits)
+       end
+event.header.frame_index = 127
+length(event.snapshot_hits) = 96
+event.header.frame_index = 127
+length(event.snapshot_hits) = 124
+event.header.frame_index = 129
+length(event.snapshot_hits) = 78</code></pre><h3 id="Summaryslices-and-Summary-Frames"><a class="docs-heading-anchor" href="#Summaryslices-and-Summary-Frames">Summaryslices and Summary Frames</a><a id="Summaryslices-and-Summary-Frames-1"></a><a class="docs-heading-anchor-permalink" href="#Summaryslices-and-Summary-Frames" title="Permalink"></a></h3><p>Summaryslices are generated from timeslices (raw hit data) and are produced by the DataFilter. A slice contains the data of 100ms and is divided into so-called frames, each corresponding to the data of a single optical module. Due to the high amount of data, the storage of timeslices is usually reduced by a factor of 10-100 after the event triggering stage. However, summaryslices are covering the full data taking period. They however do not contain hit data but only the rates of the PMTs encoded into a single byte, which therefore is only capable to store 256 different values. The actual rate is calcuated by a helper function (TODO).</p><p>The summaryslices are accessible using the <code>.summaryslices</code> attribute of the <code>OnlineFile</code> instance:</p><pre><code class="language-julia hljs">julia&gt; using KM3io, UnROOT, KM3NeTTestData
+
+julia&gt; f = OnlineFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+OnlineFile with 3 events
+
+julia&gt; f.summaryslices
+KM3io.SummarysliceContainer with 3 summaryslices
+
+julia&gt; for s ∈ f.summaryslices
+           @show s.header
+       end
+s.header = KM3io.SummarysliceHeader(44, 6633, 126, KM3io.UTCExtended(0x5dc6018c, 0x23c34600, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c, 0x29b92700, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))</code></pre><p>To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO status), the <code>s.frames</code> can be used (TODO).</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 30 March 2023 15:11">Thursday 30 March 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
