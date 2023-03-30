@@ -16,4 +16,5 @@ makedocs(;
 deploydocs(;
   repo = "git.km3net.de/common/KM3io.jl",
   devbranch = "main",
+  push_preview=true
 )
