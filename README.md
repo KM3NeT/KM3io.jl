@@ -5,32 +5,53 @@
 [![Build Status](https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg)](https://git.km3net.de/common/KM3io.jl/pipelines)
 [![Coverage](https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg)](https://git.km3net.de/common/KM3io.jl/commits/main)
 
-`KM3io.jl` is a pure Julia library which implements high-performance I/O
-functions and utilities to deal with dataformats used in KM3NeT, e.g. `ROOT`
-(online/offline), `detx` and acoustics. In contrast to Python, you are free to
-utilise as many (nested) `for`-loops as you like while still being as fast as
-C++ counterparts.
+`KM3io.jl` is a Julia library which implements high-performance I/O functions
+and additional utilities to deal with dataformats used in KM3NeT, e.g.
+[ROOT](https://root.cern.ch) (online/offline files),
+[DETX](https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29)
+(detector geometry and calibrations) and acoustics (waveforms and hardware). In
+contrast to Python, you are free to utilise as many (nested) `for`-loops as you
+like while still being as fast as in e.g. in C++.
+
+Apropos [ROOT](https://root.cern.ch) and C++, the [KM3NeT
+Dataformat](https://git.km3net.de/common/km3net-dataformat) is defined in C++
+and uses the I/O functionality of the ROOT framework to create the online and
+offline ROOT files. Luckily, there is a pure Julia library named
+[UnROOT.jl](https://github.com/JuliaHEP/UnROOT.jl) that provides access the the
+ROOT files without the need to install ROOT or the corresponding C++ library.
+This allows `KM3io.jl` to be completely free from these external dependencies.
 
 The library is still under development so that the API might slightly change.
+Feedback and contributions are highly welcome!
 
-## Installation
+# Installation
 
-`KM3io.jl` is not an officially registered Julia package but it's
-available via the KM3NeT Julia registry. To add the KM3NeT Julia registry,
-run:
+`KM3io.jl` is not an officially registered Julia package but it's available via
+the [KM3NeT Julia registry](https://git.km3net.de/common/julia-registry). To add
+the KM3NeT Julia registry to your local Julia registry list, follow the
+instructions in its
+[README](https://git.km3net.de/common/julia-registry#adding-the-registry).
 
-    git clone https://git.km3net.de/common/julia-registry ~/.julia/registries/KM3NeT
+# ROOT Files
 
-Once the registry is added, Julia will make sure to keep it up to date and pick
-it whenever you install a package which is registered there.
+## Offline Dataformat
 
-To install `KM3io.jl`:
+The [offline
+dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline)
+is used to store Monte Carlo (MC) simulations and reconstruction results.
 
-    julia> import Pkg; Pkg.add("KM3io")
+## Online Dataformat
 
-## Quickstart
+The [online
+dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/online)
+refers to the dataformat which is written by the data acquisition system (DAQ)
+of the KM3NeT detectors, more precisely, the ROOT files produced by the
+`JDataFilter` which is part of the [`Jpp`](https://git.km3net.de/common/jpp)
+framework. The very same format is used in run-by-run (RBR) Monte Carlo (MC)
+productions, which mimic the detector response and therefore produce similarly
+structured data.
 
-### Reading online (DAQ or RBR) event data
+### Event data
 
 Accessing the data is as easy as opening it via
 `OnlineFile("path/to/file.root")` and using indices/slices or iteration.
