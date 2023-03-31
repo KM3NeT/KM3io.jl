@@ -125,3 +125,16 @@ function _categorize(field::Val{F}, elements::Vector{T}) where {T,F}
     end
     out
 end
+
+
+function tonumifpossible(v)
+    try
+        return parse(Int, v)
+    catch ArgumentError
+    end
+    try
+        return parse(Float64, v)
+    catch ArgumentError
+    end
+    v
+end

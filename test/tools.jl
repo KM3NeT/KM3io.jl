@@ -1,4 +1,4 @@
-import KM3io: nthbitset, SnapshotHit
+import KM3io: nthbitset, SnapshotHit, tonumifpossible
 using Test
 
 @testset "tools" begin
@@ -37,4 +37,10 @@ end
     @test 3 == length(c[1])
     @test 1 == length(c[2])
     @test 1 == length(c[4])
+end
+
+@testset "tonumifpossible()" begin
+    @test 1 == tonumifpossible("1")
+    @test 1.1 == tonumifpossible("1.1")
+    @test "1.1.1" == tonumifpossible("1.1.1")
 end
