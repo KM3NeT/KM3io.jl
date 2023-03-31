@@ -56,7 +56,67 @@ is used to store Monte Carlo (MC) simulations and reconstruction results. The
 vector of events (`Vector{Evt}`) with some fancy caching, lazy access and
 slicing magic.
 
-The following REPL session shows how to open a file, access individual events or slices of events, loop through events and access e.g. the tracks which are stored in the events.
+### MC Header
+
+The MC header stores metadata related to the simulation chain. The individual entries
+can be accessed as properties, as shown below.
+
+``` julia-repl
+julia> using KM3io, KM3NeTTestData
+
+julia> f = OfflineFile(datapath("offline", "numucc.root"))
+OfflineFile with 10 events
+
+julia> f.header
+MCHeader
+  DAQ => (livetime = 394,)
+  PDF => (i1 = 4, i2 = 58)
+  XSecFile => Any[]
+  can => (zmin = 0, zmax = 1027, r = 888.4)
+  can_user => [0.0, 1027.0, 888.4]
+  coord_origin => (x = 0, y = 0, z = 0)
+  cut_in => (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu => (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary => (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon => (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay => ["doesnt", "happen"]
+  detector => NOT
+  drawing => Volume
+  end_event => Any[]
+  genhencut => (gDir = 2000, Emin = 0)
+  genvol => (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut => 2
+  livetime => (numberOfSeconds = 0, errorOfSeconds = 0)
+  model => (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file => Any[]
+  ngen => 100000.0
+  norma => (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux => Real[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics => (program = "GENHEN", version = "7.2-220514", date = 181116, time = 1138)
+  seed => (program = "GENHEN", level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul => (program = "JSirene", version = 11012, date = "11/17/18", time = 7)
+  sourcemode => diffuse
+  spectrum => (alpha = -1.4,)
+  start_run => 1
+  target => isoscalar
+  usedetfile => false
+  xlat_user => 0.63297
+  xparam => OFF
+  zed_user => [0.0, 3450.0]
+
+
+julia> f.header.genvol
+(zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+
+julia> f.header.genvol.volume
+2.649e9
+```
+
+### Event data
+
+The following REPL session shows how to open a file, access individual events or
+slices of events, loop through events and access e.g. the tracks which are
+stored in the events.
 
 ``` julia-repl
 julia> using KM3io, KM3NeTTestData
