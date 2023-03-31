@@ -143,5 +143,5 @@ struct OnlineFile
 
     end
 end
-Base.close(c::OnlineFile) = close(f._fobj)
+Base.close(f::OnlineFile) = close(f._fobj)
 Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
