@@ -12,7 +12,27 @@ const IO_EVT = datapath("daq", "IO_EVT.dat")
 const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
 
 
-@testset "KM3NeT online files" begin
+@testset "Offline files" begin
+    f = OfflineFile(OFFLINEFILE)
+    @test 10 == length(f)
+    @test 56 == length(f[1].trks)
+    @test 0 == length(f[1].w)
+    @test 17 == length(f[1].trks[1].fitinf)
+    close(f)
+
+    f = OfflineFile(datapath("offline", "numucc.root"))
+    h = f.header
+    @test 34 == length(propertynames(h))
+    @test "NOT" == h.detector
+    @test (x = 0, y = 0, z = 0) == h.coord_origin
+    @test (program="GENHEN", version="7.2-220514", date=181116, time=1138) == h.physics
+    @test (Emin=100, Emax=100000000.0, cosTmin=-1, cosTmax=1) == h.cut_nu
+    @test (interaction=1, muon=2, scattering=0, numberOfEnergyBins=1, field_4=12) == h.model
+    close(f)
+end
+
+
+@testset "Online files" begin
     f = OnlineFile(ONLINEFILE)
     hits = f.events.snapshot_hits
     @test 3 == length(hits)  # grouped by event
@@ -107,4 +127,6 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
             @test frame.dom_id ∈ module_ids
         end
     end
+
+    close(f)
 end

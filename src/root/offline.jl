@@ -87,8 +87,44 @@ function Base.show(io::IO, e::Evt)
     print(io, "$(typeof(e)) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) tracks, $(length(e.mc_trks)) MC tracks)")
 end
 
+struct MCHeader
+    _raw::Dict{String, String}
+end
+function Base.show(io::IO, h::MCHeader)
+    println(io, "MCHeader")
+    for prop ∈ sort(propertynames(h))
+        println(io, "  $(prop) => $(getproperty(h, prop))")
+    end
+end
+Base.propertynames(h::MCHeader) = Symbol.(keys(h._raw))
+function Base.getproperty(h::MCHeader, s::Symbol)
+    s == :_raw && return getfield(h, s)
+    if s ∈ propertynames(h)
+        values = [tonumifpossible(String(v)) for v ∈ split(strip(h._raw[String(s)]))]
+        if s ∈ keys(MCHEADERDEF)
+            fieldnames = collect(MCHEADERDEF[s])
+            # fill up with missing if not all fields are provided
+            while length(values) < length(fieldnames)
+                push!(values, missing)
+            end
+            # fill up with enumerated fieldnames if more values are provided
+            # using the same indexing as in km3io
+            i = length(fieldnames)
+            while length(fieldnames) < length(values)
+                push!(fieldnames, Symbol("field_$(i)"))
+                i += 1
+            end
+            return NamedTuple(zip(fieldnames, values))
+        end
+        length(values) == 1 && return values[1]
+        return values
+    end
+    error("no MC header entry found for '$(String(s))'")
+end
+
 struct OfflineFile{T}
     _fobj::UnROOT.ROOTFile
+    header::Union{MCHeader, Missing}
     _t::T
 
     function OfflineFile(filename::AbstractString)
@@ -127,7 +163,9 @@ struct OfflineFile{T}
             bpath * "/flags",
         ])
 
-        new{typeof(t)}(fobj, t)
+        header = "Head" ∈ keys(fobj) ? MCHeader(fobj["Head"]) : missing
+
+        new{typeof(t)}(fobj, header, t)
     end
 end
 
