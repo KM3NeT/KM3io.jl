@@ -2,6 +2,7 @@ module KM3io
 
 import Base: read, write
 import Statistics: mean
+using LinearAlgebra
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using UUIDs
@@ -46,6 +47,8 @@ end
 # COV_EXCL_STOP
 
 
+include("constants.jl")
+
 include("types.jl")
 
 include("hardware.jl")
@@ -56,5 +59,6 @@ include("acoustics.jl")
 include("calibration.jl")
 
 include("tools.jl")
+include("physics.jl")
 
 end # module
