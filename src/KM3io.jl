@@ -16,11 +16,13 @@ export OnlineFile, OfflineFile
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
-export Hit, TriggeredHit
+export Hit, TriggeredHit, Trk, MCHit, MCTrk, EvtHit
 
 export calibrate, floordist, slew
 export is3dshower, ismxshower, is3dmuon, isnb
 export most_frequent, categorize, nthbitset
+
+export cherenkov
 
 @template (FUNCTIONS, METHODS, MACROS) =
     """

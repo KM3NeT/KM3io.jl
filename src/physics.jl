@@ -7,6 +7,10 @@ struct CherenkovPhoton
     dir::Direction
 end
 
+"""
+Calculates the parameters of cherenkov photons emitted from a track and hitting
+the PMTs.
+"""
 function cherenkov(track, hits)
     cphotons = sizehint!(Vector{CherenkovPhoton}(), length(hits))
     for hit ∈ hits
@@ -18,7 +22,7 @@ function cherenkov(track, hits)
         t = track.t + d_track / C_LIGHT + d_photon / V_LIGHT_WATER
         pos = V - (d_track * track.dir)
         dir = normalize(pos)
-        impact_angle = pos ⋅ hit.dir
+        impact_angle = dir ⋅ hit.dir
         push!(cphotons, CherenkovPhoton(
             d_closest,
             d_photon,
