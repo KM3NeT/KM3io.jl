@@ -44,6 +44,7 @@ end
 abstract type AbstractHit end
 abstract type AbstractDAQHit<:AbstractHit end
 abstract type AbstractMCHit<:AbstractHit end
+abstract type AbstractCalibratedHit <: AbstractDAQHit end
 
 struct SnapshotHit <: AbstractDAQHit
     dom_id::UInt32
@@ -73,7 +74,8 @@ mutable struct Multiplicity
     id::Int64
 end
 
-struct CalibratedHit <: AbstractDAQHit
+
+struct CalibratedDAQHit <: AbstractCalibratedHit
     dom_id::UInt32
     channel_id::UInt32
     t::Float64

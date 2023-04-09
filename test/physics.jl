@@ -1,4 +1,5 @@
 using KM3io
+import KM3io: CherenkovPhoton
 using Test
 
 @testset "cherenkov()" begin
@@ -39,5 +40,16 @@ using Test
     @test Direction(0.45964884122649263, -0.8001372907490844, -0.3853612055096594) ≈ γs[1].dir
     @test Direction(0.45652355929477095,-0.8025165828910586, -0.38412676812960095) ≈ γs[2].dir
 
+    @test γs[1] == cherenkov(track, hits[1])
+    @test γs[2] == cherenkov(track, hits[2])
+
+    cγ = cherenkov(track, hits[1].pos)
+    for fieldname ∈ fieldnames(CherenkovPhoton)
+        if fieldname == :impact_angle
+            @test ismissing(getfield(cγ, fieldname))
+            continue
+        end
+        @test getfield(γs[1], fieldname) == getfield(cγ, fieldname)
+    end
 
 end

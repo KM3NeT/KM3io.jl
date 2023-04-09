@@ -1,4 +1,4 @@
-struct EvtHit
+struct EvtHit <: AbstractCalibratedHit
     dom_id::Int32
     channel_id::UInt32
     tdc::UInt32
@@ -7,8 +7,8 @@ struct EvtHit
 
     # only set when calibrated
     t::Float64  # tdc + calibration(i.e. t₀)
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
 end
 
 struct MCHit
@@ -19,14 +19,14 @@ struct MCHit
     origin::Int32  # track id of the track that created the hit
 
     # only set when calibrated
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
 end
 
 struct Trk
     id::Int
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
     t::Float64
     E::Float64  # [GeV]
     len::Float64
@@ -38,8 +38,8 @@ end
 
 struct MCTrk
     id::Int
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
     t::Float64
     E::Float64  # [GeV]
     len::Float64
