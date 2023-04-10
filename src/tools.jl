@@ -1,4 +1,9 @@
 """
+Return `true` if the passed object (hit, event, ...) was triggered by any trigger algorithm.
+"""
+triggered(e) = e.trigger_mask > 0
+
+"""
 Return `true` if the n-th bit of `a` is set, `false` otherwise.
 """
 nthbitset(n, a) = Bool((a >> n) & 1)
