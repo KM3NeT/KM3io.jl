@@ -3,7 +3,7 @@ struct EvtHit <: AbstractCalibratedHit
     channel_id::UInt32
     tdc::UInt32
     tot::UInt32
-    trig::UInt64
+    trigger_mask::UInt64
 
     # only set when calibrated
     t::Float64  # tdc + calibration(i.e. t₀)
