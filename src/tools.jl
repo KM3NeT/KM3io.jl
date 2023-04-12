@@ -132,7 +132,10 @@ function _categorize(field::Val{F}, elements::Vector{T}) where {T,F}
 end
 
 
-function tonumifpossible(v)
+"""
+Convert a string to a number-type if possible, otherwise return it back.
+"""
+function tonumifpossible(v::AbstractString)
     try
         return parse(Int, v)
     catch ArgumentError
