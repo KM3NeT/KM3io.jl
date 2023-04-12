@@ -11,7 +11,7 @@ using DocStringExtensions
 using StaticArrays: FieldVector
 import UnROOT
 
-export ROOTFile, OnlineFile, OfflineFile
+export ROOTFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone
@@ -56,6 +56,7 @@ include("types.jl")
 include("hardware.jl")
 include("root/online.jl")
 include("root/offline.jl")
+include("root/root.jl")
 include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")

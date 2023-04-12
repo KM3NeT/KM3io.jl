@@ -1,5 +1,5 @@
 using KM3io
-using UnROOT
+import UnROOT
 using KM3NeTTestData
 using Test
 
@@ -13,15 +13,16 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
 
 
 @testset "Offline files" begin
-    f = OfflineFile(OFFLINEFILE)
-    @test 10 == length(f)
-    @test 56 == length(f[1].trks)
-    @test 0 == length(f[1].w)
-    @test 17 == length(f[1].trks[1].fitinf)
+    f = ROOTFile(OFFLINEFILE)
+    t = f.offline
+    @test 10 == length(t)
+    @test 56 == length(t[1].trks)
+    @test 0 == length(t[1].w)
+    @test 17 == length(t[1].trks[1].fitinf)
     close(f)
 
-    f = OfflineFile(datapath("offline", "numucc.root"))
-    h = f.header
+    f = ROOTFile(datapath("offline", "numucc.root"))
+    h = f.offline.header
     @test 34 == length(propertynames(h))
     @test "NOT" == h.detector
     @test (x = 0, y = 0, z = 0) == h.coord_origin
@@ -33,8 +34,8 @@ end
 
 
 @testset "Online files" begin
-    f = OnlineFile(ONLINEFILE)
-    hits = f.events.snapshot_hits
+    f = ROOTFile(ONLINEFILE)
+    hits = f.online.events.snapshot_hits
     @test 3 == length(hits)  # grouped by event
     @test 96 == length(hits[1])
     @test [806451572, 806451572, 806455814] == [h.dom_id for h in hits[1][1:3]]
@@ -64,13 +65,13 @@ end
     @test [26, 29, 30, 23, 30] == [h.tot for h in hits[3][1:5]]
     @test [28, 11, 27, 24, 23] == [h.tot for h in hits[3][end-4:end]]
 
-    thits = f.events.triggered_hits
+    thits = f.online.events.triggered_hits
     @test 3 == length(thits)
     @test 18 == length(thits[1])
     @test 53 == length(thits[2])
     @test 9 == length(thits[3])
 
-    headers = f.events.headers
+    headers = f.online.events.headers
     @test length(headers) == 3
     for header in headers
         @test header.run == 6633
@@ -94,23 +95,23 @@ end
     @test headers[3].overlays == 0
 
     events = []
-    for event in f.events
+    for event in f.online.events
         push!(events, event)
     end
 
     @test 3 == length(events)
-    @test length(f.events.snapshot_hits[1]) == length(events[1].snapshot_hits)
-    @test length(f.events.triggered_hits[1]) == length(events[1].triggered_hits)
-    @test f.events.headers[3].frame_index == events[3].header.frame_index
+    @test length(f.online.events.snapshot_hits[1]) == length(events[1].snapshot_hits)
+    @test length(f.online.events.triggered_hits[1]) == length(events[1].triggered_hits)
+    @test f.online.events.headers[3].frame_index == events[3].header.frame_index
 
     events = []
-    for event in f.events[1:2]
+    for event in f.online.events[1:2]
         push!(events, event)
     end
 
     @test 2 == length(events)
 
-    s = f.summaryslices
+    s = f.online.summaryslices
     @test 64 == length(s[1].frames)
     @test 66 == length(s[2].frames)
     @test 68 == length(s[3].frames)
@@ -122,7 +123,7 @@ end
     )
     det = Detector(DETX_44)
     module_ids = Set(keys(det.modules))
-    for (s_idx, s) ∈ enumerate(f.summaryslices)
+    for (s_idx, s) ∈ enumerate(f.online.summaryslices)
         for (f_idx, frame) in enumerate(s.frames)
             @test frame.dom_id ∈ module_ids
         end

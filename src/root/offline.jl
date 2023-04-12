@@ -123,12 +123,12 @@ function Base.getproperty(h::MCHeader, s::Symbol)
 end
 
 
-struct OfflineFile{T}
+struct OfflineTree{T}
     _fobj::UnROOT.ROOTFile
     header::Union{MCHeader, Missing}
     _t::T  # carry the type to ensure type-safety
 
-    function OfflineFile(fobj::UnROOT.ROOTFile)
+    function OfflineTree(fobj::UnROOT.ROOTFile)
         tpath = ROOT.TTREE_OFFLINE_EVENT
         bpath = ROOT.TBRANCH_OFFLINE_EVENT
 
@@ -167,21 +167,21 @@ struct OfflineFile{T}
         new{typeof(t)}(fobj, header, t)
     end
 end
-OfflineFile(filename::AbstractString) = OfflineFile(UnROOT.ROOTFile(filename))
+OfflineTree(filename::AbstractString) = OfflineTree(UnROOT.ROOTFile(filename))
 
-Base.close(f::OfflineFile) = close(f._fobj)
-Base.length(f::OfflineFile) = length(f._t.Evt_id)
-Base.eltype(::OfflineFile) = Evt
-function Base.iterate(f::OfflineFile, state=1)
+Base.close(f::OfflineTree) = close(f._fobj)
+Base.length(f::OfflineTree) = length(f._t.Evt_id)
+Base.eltype(::OfflineTree) = Evt
+function Base.iterate(f::OfflineTree, state=1)
     state > length(f) ? nothing : (f[state], state+1)
 end
-function Base.show(io::IO, f::OfflineFile)
-    print(io, "OfflineFile with $(length(f)) events")
+function Base.show(io::IO, f::OfflineTree)
+    print(io, "OfflineTree ($(length(f)) events)")
 end
 
-Base.getindex(f::OfflineFile, r::UnitRange) = [f[idx] for idx ∈ r]
-Base.getindex(f::OfflineFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
-function Base.getindex(f::OfflineFile, idx::Integer)
+Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
+Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+function Base.getindex(f::OfflineTree, idx::Integer)
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
     n = length(e.mc_hits_id)
@@ -284,23 +284,3 @@ function Base.getindex(f::OfflineFile, idx::Integer)
 end
 
 
-struct ROOTFile
-    _fobj::UnROOT.ROOTFile
-    online::Union{OnlineFile, Missing}
-    offline::Union{OfflineFile, Missing}
-
-    function ROOTFile(filename::AbstractString)
-        fobj = UnROOT.ROOTFile(filename)
-        tpath_offline = ROOT.TTREE_OFFLINE_EVENT
-        offline = tpath_offline ∈ keys(fobj) ? OfflineFile(fobj) : missing
-        tpath_online = ROOT.TTREE_ONLINE_EVENT
-        online = tpath_online ∈ keys(fobj) ? OnlineFile(fobj) : missing
-        new(fobj, online, offline)
-    end
-end
-Base.close(f::ROOTFile) = close(f._fobj)
-function Base.show(io::IO, f::ROOTFile)
-    println(io, "ROOTFile")
-    !ismissing(f.online) && println(io, "  $(f.online)")
-    !ismissing(f.offline) && println(io, "  $(f.offline)")
-end

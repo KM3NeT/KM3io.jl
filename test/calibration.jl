@@ -3,8 +3,8 @@ using KM3NeTTestData
 using Test
 
 @testset "Hit calibration" begin
-    f = OnlineFile(datapath("online", "km3net_online.root"))
-    hits = f.events[1].snapshot_hits
+    f = ROOTFile(datapath("online", "km3net_online.root"))
+    hits = f.online.events[1].snapshot_hits
     det = Detector(datapath("detx", "km3net_offline.detx"))
     chits = calibrate(det, hits)
     @test 96 == length(hits)

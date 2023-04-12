@@ -114,12 +114,12 @@ end
 
 
 
-struct OnlineFile
+struct OnlineTree
     _fobj::UnROOT.ROOTFile
     events::EventContainer
     summaryslices::SummarysliceContainer
 
-    function OnlineFile(fobj::UnROOT.ROOTFile)
+    function OnlineTree(fobj::UnROOT.ROOTFile)
         new(fobj,
             EventContainer(
                 UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"),
@@ -134,17 +134,4 @@ struct OnlineFile
 
     end
 end
-function OnlineFile(filename::AbstractString)
-    customstructs = Dict(
-        "KM3NETDAQ::JDAQEvent.snapshotHits" => Vector{SnapshotHit},
-        "KM3NETDAQ::JDAQEvent.triggeredHits" => Vector{TriggeredHit},
-        "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
-        "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
-        "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
-    )
-    fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
-
-    OnlineFile(fobj)
-end
-Base.close(f::OnlineFile) = close(f._fobj)
-Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
+Base.show(io::IO, t::OnlineTree) = print(io, "OnlineTree ($(length(t.events)) events, $(length(t.summaryslices)) summaryslices)")

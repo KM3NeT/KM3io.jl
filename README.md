@@ -44,17 +44,21 @@ instructions in its
 
 # ROOT Files
 
-The two main types of ROOT files in KM3NeT are the online and offline files.
-This section describes what they are and how to access them.
+The two main types of ROOT files in KM3NeT are the online and offline files,
+however, both types can be mixed together as the data is stored in distinct ROOT
+trees. `UnROOT` has a single `ROOTFile` type to represent a KM3NeT ROOT file
+which can be used to access both the online and offline information. This
+section describes what kind of data is stored in each tree and how to access them.
 
 ## Offline Dataformat
 
 The [offline
 dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline)
 is used to store Monte Carlo (MC) simulations and reconstruction results. The
-`OfflineFile` type represents an actual offline file and it is essentially a
+`OfflineTree` type represents an actual offline file and it is essentially a
 vector of events (`Vector{Evt}`) with some fancy caching, lazy access and
-slicing magic.
+slicing magic. The offline tree is accessible via the `.offline` field of the
+`ROOTFile` type.
 
 ### MC Header
 
@@ -64,10 +68,13 @@ can be accessed as properties, as shown below.
 ``` julia-repl
 julia> using KM3io, KM3NeTTestData
 
-julia> f = OfflineFile(datapath("offline", "numucc.root"))
-OfflineFile with 10 events
+julia> f = ROOTFile(datapath("offline", "numucc.root"))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
 
-julia> f.header
+julia> f.offline
+OfflineTree (10 events)
+
+julia> f.offline.header
 MCHeader
   DAQ => (livetime = 394,)
   PDF => (i1 = 4, i2 = 58)
@@ -105,10 +112,10 @@ MCHeader
   zed_user => [0.0, 3450.0]
 
 
-julia> f.header.genvol
+julia> f.offline.header.genvol
 (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
 
-julia> f.header.genvol.volume
+julia> f.offline.header.genvol.volume
 2.649e9
 ```
 
@@ -121,19 +128,19 @@ stored in the events.
 ``` julia-repl
 julia> using KM3io, KM3NeTTestData
 
-julia> f = OfflineFile(datapath("offline", "km3net_offline.root"))
-OfflineFile with 10 events
+julia> f = ROOTFile(datapath("offline", "km3net_offline.root"))
+ROOTFile{OfflineTree (10 events)}
 
-julia> f[5]
+julia> f.offline[5]
 KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 
-julia> f[3:5]
+julia> f.offline[3:5]
 3-element Vector{KM3io.Evt}:
  KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
  KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
  KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 
-julia> event = f[1]
+julia> event = f.offline[1]
 KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 
 julia> event.trks[:4]
@@ -146,7 +153,7 @@ julia> event.trks[1:4]
  KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
  KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
 
-julia> for event in f
+julia> for event in f.offline
            @show event
        end
 event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
@@ -170,14 +177,17 @@ of the KM3NeT detectors, more precisely, the ROOT files produced by the
 `JDataFilter` which is part of the [`Jpp`](https://git.km3net.de/common/jpp)
 framework. The very same format is used in run-by-run (RBR) Monte Carlo (MC)
 productions, which mimic the detector response and therefore produce similarly
-structured data.
+structured data. The online data can be accessed via the `.online` field of the
+`ROOTFile` type.
 
 ### Event data
 
-Accessing the data is as easy as opening it via
-`OnlineFile("path/to/file.root")` and using indices/slices or iteration.
-Everything is lazily loaded so that the data is only occupying memory when it's
-actually accessed. In the examples below, we use
+The events are accessible via `ROOTFile(filename).online.events` which supports
+indexing, slicing and iteration, just like the we have seen above, in case of
+the offline events. Notice however that the online format also contains other
+types of trees, that's why the explicit `.events` field is needed. Everything is
+lazily loaded so that the data is only occupying memory when it's actually
+accessed, similar to the offline access. In the examples below, we use
 **[`KM3NeTTestdata`](https://git.km3net.de/km3py/km3net-testdata)** to get
 access to small sample files.
 
@@ -186,10 +196,10 @@ julia> using KM3io
 
 julia> using KM3NeTTestData
 
-julia> f = OnlineFile(datapath("online", "km3net_online.root"))
-OnlineFile with 3 events
+julia> f = ROOTFile(datapath("online", "km3net_online.root"))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
 
-julia> event = f.events[1]
+julia> event = f.online.events[1]
 KM3io.DAQEvent with 96 snapshot and 18 triggered hits
 
 julia> event.triggered_hits[4:8]
@@ -200,7 +210,7 @@ julia> event.triggered_hits[4:8]
  KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
  KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
 
-julia> for event ∈ f.events
+julia> for event ∈ f.online.events
            @show event.header.frame_index length(event.snapshot_hits)
        end
 event.header.frame_index = 127
@@ -223,18 +233,18 @@ of the PMTs encoded into a single byte, which therefore is only capable to store
 256 different values. The actual rate is calcuated by a helper function (TODO).
 
 The summaryslices are accessible using the `.summaryslices` attribute of the
-`OnlineFile` instance:
+`OnlineTree` instance, which again is hidden behind the `.online` field of a `ROOTFile`:
 
 ``` julia
 julia> using KM3io, UnROOT, KM3NeTTestData
 
-julia> f = OnlineFile(datapath("online", "km3net_online.root"))
-OnlineFile with 3 events
+julia> f = ROOTFile(datapath("online", "km3net_online.root"))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
 
-julia> f.summaryslices
+julia> f.online.summaryslices
 KM3io.SummarysliceContainer with 3 summaryslices
 
-julia> for s ∈ f.summaryslices
+julia> for s ∈ f.online.summaryslices
            @show s.header
        end
 s.header = KM3io.SummarysliceHeader(44, 6633, 126, KM3io.UTCExtended(0x5dc6018c, 0x23c34600, false))
