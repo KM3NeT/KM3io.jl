@@ -97,9 +97,9 @@ Categorise the struct elements of a vector by a given field into a dictionary of
 # Examples
 
 ```
-julia> using NeRCA
+julia> using KM3io
 
-julia> struct PMT
+julia> struct PMT  # just an ad-hoc PMT struct for demonstration purposes
          dom_id
          time
        end
