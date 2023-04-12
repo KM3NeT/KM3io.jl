@@ -122,18 +122,17 @@ function Base.getproperty(h::MCHeader, s::Symbol)
     error("no MC header entry found for '$(String(s))'")
 end
 
+
 struct OfflineFile{T}
     _fobj::UnROOT.ROOTFile
     header::Union{MCHeader, Missing}
-    _t::T
+    _t::T  # carry the type to ensure type-safety
 
-    function OfflineFile(filename::AbstractString)
+    function OfflineFile(fobj::UnROOT.ROOTFile)
         tpath = ROOT.TTREE_OFFLINE_EVENT
         bpath = ROOT.TBRANCH_OFFLINE_EVENT
 
-        fobj = UnROOT.ROOTFile(filename)
-
-        t = LazyTree(fobj, tpath, [
+        t = UnROOT.LazyTree(fobj, tpath, [
             bpath * "/id",
             bpath * "/det_id",
             bpath * "/mc_id",
@@ -168,6 +167,7 @@ struct OfflineFile{T}
         new{typeof(t)}(fobj, header, t)
     end
 end
+OfflineFile(filename::AbstractString) = OfflineFile(UnROOT.ROOTFile(filename))
 
 Base.close(f::OfflineFile) = close(f._fobj)
 Base.length(f::OfflineFile) = length(f._t.Evt_id)
@@ -281,4 +281,26 @@ function Base.getindex(f::OfflineFile, idx::Integer)
         e.Evt_index,
         e.Evt_flags
     )
+end
+
+
+struct ROOTFile
+    _fobj::UnROOT.ROOTFile
+    online::Union{OnlineFile, Missing}
+    offline::Union{OfflineFile, Missing}
+
+    function ROOTFile(filename::AbstractString)
+        fobj = UnROOT.ROOTFile(filename)
+        tpath_offline = ROOT.TTREE_OFFLINE_EVENT
+        offline = tpath_offline ∈ keys(fobj) ? OfflineFile(fobj) : missing
+        tpath_online = ROOT.TTREE_ONLINE_EVENT
+        online = tpath_online ∈ keys(fobj) ? OnlineFile(fobj) : missing
+        new(fobj, online, offline)
+    end
+end
+Base.close(f::ROOTFile) = close(f._fobj)
+function Base.show(io::IO, f::ROOTFile)
+    println(io, "ROOTFile")
+    !ismissing(f.online) && println(io, "  $(f.online)")
+    !ismissing(f.offline) && println(io, "  $(f.offline)")
 end

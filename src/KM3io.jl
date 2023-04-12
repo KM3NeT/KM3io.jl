@@ -9,9 +9,9 @@ using UUIDs
 
 using DocStringExtensions
 using StaticArrays: FieldVector
-using UnROOT
+import UnROOT
 
-export OnlineFile, OfflineFile
+export ROOTFile, OnlineFile, OfflineFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone

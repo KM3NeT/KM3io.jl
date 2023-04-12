@@ -119,29 +119,32 @@ struct OnlineFile
     events::EventContainer
     summaryslices::SummarysliceContainer
 
-    function OnlineFile(filename::AbstractString)
-        customstructs = Dict(
-            "KM3NETDAQ::JDAQEvent.snapshotHits" => Vector{SnapshotHit},
-            "KM3NETDAQ::JDAQEvent.triggeredHits" => Vector{TriggeredHit},
-            "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
-            "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
-            "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
-        )
-        fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
-
+    function OnlineFile(fobj::UnROOT.ROOTFile)
         new(fobj,
             EventContainer(
-                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"),
-                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/snapshotHits"),
-                LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/triggeredHits"),
+                UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"),
+                UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/snapshotHits"),
+                UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/triggeredHits"),
             ),
             SummarysliceContainer(
-                LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/KM3NETDAQ::JDAQSummarysliceHeader"),
-                LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/vector<KM3NETDAQ::JDAQSummaryFrame>")
+                UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/KM3NETDAQ::JDAQSummarysliceHeader"),
+                UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/vector<KM3NETDAQ::JDAQSummaryFrame>")
             )
         )
 
     end
+end
+function OnlineFile(filename::AbstractString)
+    customstructs = Dict(
+        "KM3NETDAQ::JDAQEvent.snapshotHits" => Vector{SnapshotHit},
+        "KM3NETDAQ::JDAQEvent.triggeredHits" => Vector{TriggeredHit},
+        "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
+        "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
+        "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
+    )
+    fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
+
+    OnlineFile(fobj)
 end
 Base.close(f::OnlineFile) = close(f._fobj)
 Base.show(io::IO, f::OnlineFile) = print(io, "$(typeof(f)) with $(length(f.events)) events")
