@@ -100,7 +100,7 @@ Base.propertynames(h::MCHeader) = Symbol.(keys(h._raw))
 function Base.getproperty(h::MCHeader, s::Symbol)
     s == :_raw && return getfield(h, s)
     if s ∈ propertynames(h)
-        values = [ismissing(v) ? missing : tonumifpossible(v) for v ∈ split(strip(h._raw[String(s)]))]
+        values = Union{AbstractString, Missing}[tonumifpossible(v) for v ∈ split(strip(h._raw[String(s)]))]
         if s ∈ keys(MCHEADERDEF)
             fieldnames = collect(MCHEADERDEF[s])
             # fill up with missing if not all fields are provided
