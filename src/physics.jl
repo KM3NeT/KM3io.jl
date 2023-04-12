@@ -36,3 +36,6 @@ function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, 
         _dir
     )
 end
+(track::Track)(hit::AbstractCalibratedHit) = cherenkov(track, hit)
+(track::Track)(hit::Position; dir::Union{Direction, Missing}=missing, t=0) = cherenkov(track, hit; dir=dir, t=t)
+(track::Track)(hits::Vector{EvtHit}) = cherenkov(track, hits)
