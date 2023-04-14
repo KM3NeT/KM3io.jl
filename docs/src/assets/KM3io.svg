@@ -27,15 +27,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="1.909375"
-     inkscape:cx="582.12766"
-     inkscape:cy="-86.677578"
+     inkscape:zoom="2.700264"
+     inkscape:cx="152.02217"
+     inkscape:cy="-128.69112"
      inkscape:window-width="3832"
      inkscape:window-height="2134"
      inkscape:window-x="3840"
      inkscape:window-y="18"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg34" />
+     inkscape:current-layer="g32" />
   <defs
      id="defs5">
     <clipPath
@@ -94,6 +94,21 @@
        style="fill:#9259a3;stroke-width:.412882"
        id="path22" />
     <path
+       d="m 30.640463,98.056224 a 3.675,2.569137 0 1 1 3.678,-2.569136 3.679,2.5719333 0 0 1 -3.678,2.569136 z"
+       class="cls-4"
+       style="fill:#9259a3;stroke-width:0.345216"
+       id="path22-3" />
+    <path
+       d="m 25.838991,119.0792 a 3.675,2.569137 0 1 1 3.678,-2.56914 3.679,2.5719333 0 0 1 -3.678,2.56914 z"
+       class="cls-4"
+       style="fill:#9259a3;stroke-width:0.345216"
+       id="path22-3-9" />
+    <path
+       d="m 52.430215,119.08185 a 3.675,2.569137 0 1 1 3.678,-2.56914 3.679,2.5719333 0 0 1 -3.678,2.56914 z"
+       class="cls-4"
+       style="fill:#9259a3;stroke-width:0.345216"
+       id="path22-3-9-1" />
+    <path
        d="M25.843 105.85a3.675 3.675 0 1 1 3.674-3.675 3.67 3.67 0 0 1-3.674 3.674z"
        class="cls-5"
        style="fill:#399746;stroke-width:.412882"
@@ -104,6 +119,16 @@
        style="fill:#ca3c32;stroke-width:.412882"
        id="path26" />
     <path
+       d="m 48.091553,92.969702 a 3.675,2.5691377 0 1 0 3.68,2.569141 3.679,2.571934 0 0 0 -3.68,-2.569141 z"
+       class="cls-3"
+       style="fill:#ca3c32;stroke-width:0.345216"
+       id="path26-5" />
+    <path
+       d="m 34.669952,113.94093 a 3.675,2.5691377 0 1 0 3.68,2.56914 3.679,2.571934 0 0 0 -3.68,-2.56914 z"
+       class="cls-3"
+       style="fill:#ca3c32;stroke-width:0.345216"
+       id="path26-5-6" />
+    <path
        d="M43.502 98.5a3.675 3.675 0 1 0 3.679 3.675 3.679 3.679 0 0 0-3.679-3.675Z"
        class="cls-4"
        style="fill:#9259a3;stroke-width:.412882"
@@ -113,6 +138,16 @@
        class="cls-5"
        style="fill:#399746;stroke-width:.412882"
        id="path30" />
+    <path
+       d="m 39.399676,92.917932 a 3.675,2.5691842 0 1 0 3.675,2.569184 3.67,2.5656887 0 0 0 -3.675,-2.568485 z"
+       class="cls-5"
+       style="fill:#399746;stroke-width:0.345219"
+       id="path30-7" />
+    <path
+       d="m 43.506061,113.94093 a 3.675,2.5691842 0 1 0 3.675,2.56919 3.67,2.5656887 0 0 0 -3.675,-2.56849 z"
+       class="cls-5"
+       style="fill:#399746;stroke-width:0.345219"
+       id="path30-7-2" />
   </g>
   <metadata
      id="metadata319">
