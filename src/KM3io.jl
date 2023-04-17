@@ -33,10 +33,10 @@ export cherenkov
 @template TYPES = """
     $(TYPEDEF)
 
+    $(DOCSTRING)
+
     # Fields
     $(TYPEDFIELDS)
-
-    $(DOCSTRING)
     """
 
 
