@@ -61,7 +61,10 @@ include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
 
-include("tools.jl")
+include("tools/general.jl")
+include("tools/trigger.jl")
+include("tools/reconstruction.jl")
+
 include("physics.jl")
 
 end # module
