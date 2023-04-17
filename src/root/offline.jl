@@ -23,6 +23,9 @@ struct MCHit
     dir::Direction{Float64}
 end
 
+"""
+Represents a reconstructed "track", which can be e.g. a muon track but also a shower.
+"""
 struct Trk
     id::Int
     pos::Position{Float64}
