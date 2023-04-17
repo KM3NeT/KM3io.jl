@@ -46,10 +46,9 @@ for inc ∈ readdir(joinpath(@__DIR__, "definitions"), join=true)
     !endswith(inc, ".jl") && continue
     include(inc)
 end
-# COV_EXCL_STOP
-
 
 include("constants.jl")
+# COV_EXCL_STOP
 
 include("types.jl")
 
