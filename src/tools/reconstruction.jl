@@ -1,5 +1,4 @@
 """
-
 This struct is used to represent a range of reconstruction stages. These are
 well-defined integers (see [KM3NeT
 Dataformat](https://git.km3net.de/common/km3net-dataformat/-/blob/master/definitions/reconstruction.csv))
