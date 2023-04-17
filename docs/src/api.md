@@ -12,6 +12,15 @@ Direction
 Location
 ```
 
+## Offline Format
+```@docs
+Trk
+McTrk
+Evt
+```
+
+## Online Format
+
 ## Hardware Components
 
 ```@docs
@@ -52,11 +61,16 @@ ismxshower
 isnb
 ```
 
-## Utilities
+## Tools
 
+### General tools
 ```@docs
 categorize
 nthbitset
 most_frequent
 ```
 
+### Reconstruction
+```@docs
+RecStageRange
+```
