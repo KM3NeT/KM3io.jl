@@ -39,6 +39,9 @@ struct Trk
     fitinf::Vector{Float64}
 end
 
+"""
+A simulated (Monte Carlo, hence "MC") track (or shower).
+"""
 struct MCTrk
     id::Int
     pos::Position{Float64}
