@@ -72,5 +72,7 @@ most_frequent
 
 ### Reconstruction
 ```@docs
+besttrack
 RecStageRange
+hashistory
 ```

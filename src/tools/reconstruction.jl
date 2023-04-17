@@ -32,7 +32,7 @@ Base.in(rec_stage::T, rsr::RecStageRange) where T<:Integer = rsr.lower <= rec_st
 
 
 """
-Checks if a track with a given `rec_type` contains all the reconstruction stages in `rsr::RecStageRange`.
+Returns `true` if a track with a given `rec_type` contains all the reconstruction stages in `rsr::RecStageRange`.
 """
 function hashistory(t::Trk, rec_type::Integer, rsr::RecStageRange)
     rec_type != t.rec_type && return false
@@ -42,6 +42,9 @@ function hashistory(t::Trk, rec_type::Integer, rsr::RecStageRange)
     true
 end
 
+"""
+Returns `true` if a track with a given `rec_type` contains the `rec_stage`.
+"""
 function hashistory(t::Trk, rec_type::Integer, rec_stage::Integer)
     rec_type != t.rec_type && return false
     rec_stage ∈ t.rec_stages
@@ -62,6 +65,17 @@ hasreconstructedjppmuon(e::Evt) = any(hasjppmuonfit, e.trks)
 hasreconstructedjppshower(e::Evt) = any(hasshowerfit, e.trks)
 hasreconstructedaashower(e::Evt) = any(hasaashowerfit, e.trks)
 
-function besttrack(e::Evt, rsr::RecStageRange)
-    error("not implemented yet")
+
+"""
+
+Return the best reconstructed track for a given reconstruction type and
+reconstruction stage range. If no track could be found, `nothing` is returned.
+
+"""
+function besttrack(e::Evt, rec_type::Integer, rsr::RecStageRange)
+    candidates = filter(e.trks) do t
+        hashistory(t, rec_type, rsr)
+    end
+    length(candidates) == 0 && return nothing
+    sort(candidates; by=c -> (length(c.rec_stages), c.lik)) |> last
 end

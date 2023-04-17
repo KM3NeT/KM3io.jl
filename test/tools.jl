@@ -1,4 +1,6 @@
+using KM3io
 import KM3io: nthbitset, SnapshotHit, tonumifpossible
+using KM3NeTTestData
 using Test
 
 @testset "tools" begin
@@ -43,4 +45,32 @@ end
     @test 1 == tonumifpossible("1")
     @test 1.1 == tonumifpossible("1.1")
     @test "1.1.1" == tonumifpossible("1.1.1")
+end
+
+@testset "has...() helpers" begin
+    f = ROOTFile(datapath("offline", "km3net_offline.root"))
+    e = f.offline[1]
+    t = e.trks |> first
+    @test hasjppmuonprefit(t)
+    @test !hasjppmuonsimplex(t)
+    @test hasjppmuongandalf(t)
+    @test hasjppmuonenergy(t)
+    @test hasjppmuonstart(t)
+    @test hasjppmuonfit(t)
+    @test !hasshowerprefit(t)
+    @test !hasshowerpositionfit(t)
+    @test !hasshowercompletefit(t)
+    @test !hasshowerfit(t)
+    @test !hasaashowerfit(t)
+    @test hasreconstructedjppmuon(e)
+    @test !hasreconstructedjppshower(e)
+    @test !hasreconstructedaashower(e)
+    close(f)
+end
+
+@testset "besttrack()" begin
+    f = ROOTFile(datapath("offline", "km3net_offline.root"))
+    bt = besttrack(f.offline[1], KM3io.RECONSTRUCTION.JPP_RECONSTRUCTION_TYPE, RecStageRange(KM3io.RECONSTRUCTION.JMUONBEGIN, KM3io.RECONSTRUCTION.JMUONEND))
+    @test 294.6407542676734 ≈ bt.lik
+    close(f)
 end

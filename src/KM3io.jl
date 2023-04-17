@@ -19,7 +19,12 @@ export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrop
 export Hit, TriggeredHit, Trk, MCHit, MCTrk, EvtHit
 
 export calibrate, floordist, slew
-export RecStageRange, hashistory
+
+export besttrack, RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,
+       hasjppmuonenergy, hasjppmuonstart, hasjppmuonfit, hasshowerprefit, hasshowerpositionfit,
+       hasshowercompletefit, hasshowerfit, hasaashowerfit, hasreconstructedjppmuon,
+       hasreconstructedjppshower, hasreconstructedaashower
+
 export is3dshower, ismxshower, is3dmuon, isnb, triggered
 export most_frequent, categorize, nthbitset
 
