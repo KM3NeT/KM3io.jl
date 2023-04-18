@@ -65,14 +65,16 @@ Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 Calculate the centre of a module by fitting the crossing point of the PMT axes.
 
 """
-function center(m::DetectorModule)
+center(m::DetectorModule) = center(m.pmts)
+
+function center(pmts::Vector{PMT})
     x = 0.0
     y = 0.0
     z = 0.0
 
     V = zeros(Float64, 3, 3)
 
-    for pmt ∈ m
+    for pmt ∈ pmts
           xx = 1.0 - pmt.dir.x * pmt.dir.x
           yy = 1.0 - pmt.dir.y * pmt.dir.y
           zz = 1.0 - pmt.dir.z * pmt.dir.z
@@ -357,10 +359,10 @@ function Detector(io::IO)
 
         if ismissing(pos)
             # Similar to the module t₀, the module position was introduced in DETX v4.
-            # If this is missing, it will be set to the averaged PMT positions. If it's
-            # a base module, the position is set to (0, 0, 0).
+            # If this is missing, it will be set to the crossing point of the PMT axes.
+            # If it's a base module, the position is set to (0, 0, 0).
             if length(pmts) > 0
-                pos = mean([pmt.pos for pmt in pmts])
+                pos = center(pmts)
             else
                 pos = Position(0, 0, 0)
             end

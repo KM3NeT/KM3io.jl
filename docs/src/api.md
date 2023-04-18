@@ -21,7 +21,7 @@ Evt
 
 ## Online Format
 
-## Hardware Components
+## Hardware
 
 ```@docs
 PMT
@@ -31,6 +31,7 @@ Hydrophone
 Tripod
 piezoenabled
 hydrophoneenabled
+center
 ```
 
 ## Optical Data
