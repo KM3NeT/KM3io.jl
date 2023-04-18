@@ -24,8 +24,8 @@ end
 Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 
 struct Track
-    dir::Direction
-    pos::Position
+    dir::Direction{Float64}
+    pos::Position{Float64}
     time::AbstractFloat
 end
 
@@ -81,8 +81,8 @@ struct CalibratedDAQHit <: AbstractCalibratedHit
     t::Float64
     tot::UInt8
     trigger_mask::UInt64
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
     t0::Float64
     du::UInt8
     floor::UInt8

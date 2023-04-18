@@ -4,8 +4,8 @@ struct CherenkovPhoton
     d_track::Float64
     t::Float64
     Δt::Float64
-    impact_angle::Union{Float64, Missing}
-    dir::Direction
+    impact_angle::Float64
+    dir::Direction{Float64}
 end
 
 
@@ -25,7 +25,7 @@ function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, 
     Δt = t - _t
     _pos = V - (d_track * track.dir)
     _dir = normalize(_pos)
-    impact_angle = ismissing(dir) ? missing : _dir ⋅ dir
+    impact_angle = ismissing(dir) ? NaN : _dir ⋅ dir
     CherenkovPhoton(
         d_closest,
         d_photon,

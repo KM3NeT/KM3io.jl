@@ -9,8 +9,8 @@ and check them using the `nthbitset()` function).
 """
 struct PMT
     id::Int32
-    pos::Position
-    dir::Direction
+    pos::Position{Float64}
+    dir::Direction{Float64}
     t₀::Float64
     status::Union{Int32, Missing}
 end
@@ -38,7 +38,7 @@ definitions/module_status.jl for the bit positions and check them using the
 """
 struct DetectorModule
     id::Int32
-    pos::Position
+    pos::Position{Float64}
     location::Location
     n_pmts::Int8
     pmts::Vector{PMT}
@@ -61,12 +61,56 @@ The index in this context is the DAQ channel ID of the PMT, which is counting fr
 Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 
 """
+
+Calculate the centre of a module by fitting the crossing point of the PMT axes.
+
+"""
+function center(m::DetectorModule)
+    x = 0.0
+    y = 0.0
+    z = 0.0
+
+    V = zeros(Float64, 3, 3)
+
+    for pmt ∈ m
+          xx = 1.0 - pmt.dir.x * pmt.dir.x
+          yy = 1.0 - pmt.dir.y * pmt.dir.y
+          zz = 1.0 - pmt.dir.z * pmt.dir.z
+
+          xy = -pmt.dir.x * pmt.dir.z
+          xz = -pmt.dir.x * pmt.dir.z
+          yz = -pmt.dir.y * pmt.dir.z
+
+          V[1,1] += xx
+          V[1,2] += xy
+          V[1,3] += xz
+
+          V[2,2] += yy
+          V[2,3] += yz
+
+          V[3,3] += zz
+
+          x  +=  xx * pmt.pos.x + xy * pmt.pos.y + xz * pmt.pos.z
+          y  +=  xy * pmt.pos.x + yy * pmt.pos.y + yz * pmt.pos.z
+          z  +=  xz * pmt.pos.x + yz * pmt.pos.y + zz * pmt.pos.z
+    end
+
+    M = inv(Symmetric(V))
+
+    Position(
+        M[1,1] * x + M[1,2] * y + M[1,3] * z,
+        M[2,1] * x + M[2,2] * y + M[2,3] * z,
+        M[3,1] * x + M[3,2] * y + M[3,3] * z,
+    )
+end
+
+"""
 A hydrophone, typically installed in the base module of a KM3NeT detector's
 string.
 """
 struct Hydrophone
     location::Location
-    pos::Position
+    pos::Position{Float64}
 end
 
 """
@@ -92,7 +136,7 @@ A tripod installed on the seabed which sends acoustic signals to modules.
 """
 struct Tripod
     id::Int8
-    pos::Position
+    pos::Position{Float64}
 end
 """
     function read(filename:AbstractString, T::Type{Tripod})
