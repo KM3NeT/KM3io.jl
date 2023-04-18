@@ -42,7 +42,7 @@ struct DetectorModule
     location::Location
     n_pmts::Int8
     pmts::Vector{PMT}
-    q::Union{Quaternion, Missing}
+    q::Union{Quaternion{Float64}, Missing}
     status::Int32
     t₀::Float64
 end
@@ -240,7 +240,7 @@ struct Detector
     version::Int8
     id::Int32
     validity::Union{DateRange, Missing}
-    pos::Union{UTMPosition, Missing}
+    pos::Union{UTMPosition{Float64}, Missing}
     utm_ref_grid::Union{String, Missing}
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
