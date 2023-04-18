@@ -46,7 +46,7 @@ using Test
     cγ = cherenkov(track, hits[1].pos)
     for fieldname ∈ fieldnames(CherenkovPhoton)
         if fieldname == :impact_angle
-            @test ismissing(getfield(cγ, fieldname))
+            @test isnan(getfield(cγ, fieldname))
             continue
         end
         @test getfield(γs[1], fieldname) == getfield(cγ, fieldname)
