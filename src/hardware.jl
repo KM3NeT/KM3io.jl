@@ -299,12 +299,16 @@ function Detector(io::IO)
             push!(pmts, PMT(pmt_id, Position(x, y, z), Direction(dx, dy, dz), t0, pmt_status))
         end
 
-        if ismissing(t₀) || t₀ == 0.0
+        if (ismissing(t₀) || t₀ == 0.0) && floor > 0
             # t₀ is only available in DETX v4+ and even with supported versions, the value is
             # sometimes 0 when e.g. the DETX was converted with Jpp from a version which did
             # not include that informatino (v3 and below). Here, we are using the averaged
             # PMT t₀s for the module t₀, just like Jpp does nowadays.
             t₀ = mean([pmt.t₀ for pmt in pmts])
+        end
+
+        if ismissing(t₀) && floor == 0
+            t₀ = 0.0
         end
 
         if ismissing(pos)

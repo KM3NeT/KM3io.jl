@@ -27,6 +27,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
                 @test 361 == length(mods)
                 @test 106.95 ≈ d.modules[808469291].pos.y  # base module
                 @test 97.3720395 ≈ d.modules[808974928].pos.z  # base module
+                @test 0.0 == d.modules[808469291].t₀  # base module
             end
 
             @test 116.600 ≈ d.modules[808992603].pos.x atol=1e-5  # optical module
