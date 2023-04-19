@@ -20,7 +20,8 @@ export Hit, TriggeredHit, Trk, MCHit, MCTrk, EvtHit
 
 export calibrate, floordist, slew
 
-export besttrack, RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,
+export besttrack, bestjppmuon, bestjppshower, bestaashower,
+       RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,
        hasjppmuonenergy, hasjppmuonstart, hasjppmuonfit, hasshowerprefit, hasshowerpositionfit,
        hasshowercompletefit, hasshowerfit, hasaashowerfit, hasreconstructedjppmuon,
        hasreconstructedjppshower, hasreconstructedaashower

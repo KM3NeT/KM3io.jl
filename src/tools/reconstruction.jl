@@ -72,10 +72,23 @@ Return the best reconstructed track for a given reconstruction type and
 reconstruction stage range. If no track could be found, `nothing` is returned.
 
 """
-function besttrack(e::Evt, rec_type::Integer, rsr::RecStageRange)
-    candidates = filter(e.trks) do t
+besttrack(e::Evt, rec_type::Integer, rsr::RecStageRange) = besttrack(e.trks, rec_type, rsr)
+
+function besttrack(trks::Vector{Trk}, rec_type::Integer, rsr::RecStageRange)
+    candidates = filter(trks) do t
         hashistory(t, rec_type, rsr)
     end
-    length(candidates) == 0 && return nothing
-    sort(candidates; by=c -> (length(c.rec_stages), c.lik)) |> last
+    _besttrack(candidates)
 end
+
+function _besttrack(trks::Vector{Trk})
+    length(trks) == 0 && return nothing
+    sort(trks; by=c -> (length(c.rec_stages), c.lik)) |> last
+end
+
+bestjppmuon(e::Evt) = bestjppmuon(e.trks)
+bestjppmuon(trks::Vector{Trk}) = filter(hasjppmuonfit, trks) |> _besttrack
+bestjppshower(e::Evt) = bestjppshower(e.trks)
+bestjppshower(trks::Vector{Trk}) = filter(hasshowerfit, trks) |> _besttrack
+bestaashower(e::Evt) = bestaashower(e.trks)
+bestaashower(trks::Vector{Trk}) = filter(hasaashowerfit, trks) |> _besttrack

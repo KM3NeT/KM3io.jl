@@ -74,6 +74,9 @@ most_frequent
 ### Reconstruction
 ```@docs
 besttrack
+bestjppmuon
+bestjppshower
+bestaashower
 RecStageRange
 hashistory
 ```
