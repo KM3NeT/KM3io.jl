@@ -11,6 +11,7 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
+        "Examples" => "examples.md",
         "API" => "api.md"
     ],
     repo = "https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
