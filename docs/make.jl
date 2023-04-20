@@ -6,7 +6,7 @@ makedocs(;
     authors = "Tamas Gal",
     format = Documenter.HTML(;
         assets = ["assets/extra_styles.js"],
-        collapselevel = 4,
+        collapselevel = 1,
         warn_outdated = true,
     ),
     pages = [
