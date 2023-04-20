@@ -24,23 +24,19 @@ This allows `KM3io.jl` to be completely free from these external dependencies.
 The library is still under development so that the API might slightly change.
 Feedback and contributions are highly welcome!
 
-### TODOs
-
-These are mostly low-hanging fruits, so feel free to contribute! `;)`
-
-- [ ] Best track selection (cf. the implementation in [km3io](https://git.km3net.de/km3py/km3io/-/blob/b71300ff1364394d01323a732585f0a8dae303b1/src/km3io/tools.py#L203) or [KM3NeT Dataformat](https://git.km3net.de/common/km3net-dataformat/-/blob/881972133aa0fda809d06c97d9736d346dd35efb/tools/reconstruction.hh#L374), latter being much more closer to the Julia implementation since we don't need all the fancy masking/slicing magic as in Python)
-- [ ] Hit calibration for the offline format: fairly straight forward
-- [ ] Event+Summaryslice matching: for a given event, return the correct summaryslice to be able to query the most recent PMT rates
-- [ ] Optimise type hierarchy
-- [ ] Examples!
-
 # Installation
 
 `KM3io.jl` is not an officially registered Julia package but it's available via
 the [KM3NeT Julia registry](https://git.km3net.de/common/julia-registry). To add
 the KM3NeT Julia registry to your local Julia registry list, follow the
 instructions in its
-[README](https://git.km3net.de/common/julia-registry#adding-the-registry).
+[README](https://git.km3net.de/common/julia-registry#adding-the-registry) or simply do
+
+    git clone https://git.km3net.de/common/julia-registry ~/.julia/registries/KM3NeT
+    
+After that, you can add `KM3io.jl` just like any other Julia package:
+
+    julia> import Pkg; Pkg.add("KM3io")
 
 # ROOT Files
 
@@ -254,3 +250,13 @@ s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c,
 
 To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO
 status), the `s.frames` can be used (TODO).
+
+### TODOs
+
+These are mostly low-hanging fruits, so feel free to contribute! `;)`
+
+- [ ] Best track selection (cf. the implementation in [km3io](https://git.km3net.de/km3py/km3io/-/blob/b71300ff1364394d01323a732585f0a8dae303b1/src/km3io/tools.py#L203) or [KM3NeT Dataformat](https://git.km3net.de/common/km3net-dataformat/-/blob/881972133aa0fda809d06c97d9736d346dd35efb/tools/reconstruction.hh#L374), latter being much more closer to the Julia implementation since we don't need all the fancy masking/slicing magic as in Python)
+- [ ] Hit calibration for the offline format: fairly straight forward
+- [ ] Event+Summaryslice matching: for a given event, return the correct summaryslice to be able to query the most recent PMT rates
+- [ ] Optimise type hierarchy
+- [ ] Examples!
