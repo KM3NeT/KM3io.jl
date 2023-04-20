@@ -1,4 +1,4 @@
-<img style="height:9em;" alt="KM3io.jl" src="docs/src/assets/KM3io.svg"/>
+<img style="height:9em;" alt="KM3io.jl" src="![](https://git.km3net.de/common/KM3io.jl/-/raw/main/docs/src/assets/KM3io.svg)"/>
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://common.pages.km3net.de/KM3io.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://common.pages.km3net.de/KM3io.jl/dev)
