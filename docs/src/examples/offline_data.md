@@ -1,6 +1,4 @@
-# Examples
-
-## Offline data
+# Offline data
 
 Let's use the `KM3NeTTestData` Julia package which contains all kinds of KM3NeT
 related sample files. The `datapath()` function can be used to get a path to
@@ -26,7 +24,7 @@ and the offline tree holds our 10 MC events:
 f.offline
 ```
 
-### Events
+## Events
 
 To access a single event, you can use the usual indexing syntax:
 
