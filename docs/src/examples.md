@@ -41,4 +41,16 @@ events = f.offline[6:9]
 ```
 
 Each event consists of a vector of hits, MC hits, tracks and MC tracks. Depending
-on the file, they may be empty.
+on the file, they may be empty. They are accessible via the fields `.hit`, `.mc_hits`, `.trks` and `.mc_trks`.
+
+Let's grab an event:
+
+```@example 1
+evt = f.offline[3]
+```
+
+and have a look at its contents:
+
+```@example 1
+evt.hits
+```
