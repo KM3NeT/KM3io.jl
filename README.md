@@ -260,3 +260,8 @@ These are mostly low-hanging fruits, so feel free to contribute! `;)`
 - [ ] Event+Summaryslice matching: for a given event, return the correct summaryslice to be able to query the most recent PMT rates
 - [ ] Optimise type hierarchy
 - [ ] Examples!
+
+
+# Acknowledgements
+
+Thanks for Johannes Schumann for providing the awesome project logo!
