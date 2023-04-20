@@ -1,7 +1,7 @@
 name = "KM3io"
 uuid = "2cab5852-6f21-4982-99b0-6a4792870cfb"
 authors = ["Tamas Gal"]
-version = "0.7.0"
+version = "0.8.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
