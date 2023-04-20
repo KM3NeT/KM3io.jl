@@ -11,7 +11,10 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
-        "Examples" => "examples.md",
+        "Examples" => Any[
+            "Offline data" => "examples/offline_data.md",
+            "Cherenkov times" => "examples/cherenkov_times.md",
+        ],
         "API" => "api.md"
     ],
     repo = "https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
