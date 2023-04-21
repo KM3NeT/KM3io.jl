@@ -55,11 +55,11 @@ docs:
     - |
       julia --project=docs -e '
         using Pkg
-        Pkg.update()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
     - |
       julia --project=docs -e '
         using Pkg
+        Pkg.update()
         Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         using Documenter: doctest
