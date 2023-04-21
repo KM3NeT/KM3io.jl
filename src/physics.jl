@@ -1,5 +1,8 @@
 """
-A Cherenkov photon with parameters calculate from its inducing track.
+
+A Cherenkov photon with parameters calculated from its inducing track. See
+[`cherenkov()`](@ref) for more information.
+
 """
 struct CherenkovPhoton
     d_closest::Float64
@@ -13,8 +16,13 @@ end
 
 
 """
+
 Calculates the parameters of cherenkov photons emitted from a track and hitting
-the PMTs represented as (calibrated) hits.
+the PMTs represented as (calibrated) hits. The return value is
+`Vector{`([`CherenkovPhoton`]){@ref}`}` which holds information about the closest
+distance to track, the time residual, arrival time, impact angle, photon travel
+distance, track travel distance and photon travel direction.
+
 """
 cherenkov(track, hits::Vector{CalibratedEvtHit}) = [cherenkov(track, h) for h ∈ hits]
 cherenkov(track, hit::AbstractCalibratedHit) = cherenkov(track, hit.pos; dir=hit.dir, t=hit.t)

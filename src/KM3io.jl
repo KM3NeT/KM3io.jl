@@ -29,7 +29,7 @@ export besttrack, bestjppmuon, bestjppshower, bestaashower,
 export is3dshower, ismxshower, is3dmuon, isnb, triggered
 export most_frequent, categorize, nthbitset
 
-export cherenkov
+export cherenkov, CherenkovPhoton
 
 @template (FUNCTIONS, METHODS, MACROS) =
     """

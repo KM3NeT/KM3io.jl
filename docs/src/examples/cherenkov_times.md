@@ -27,3 +27,10 @@ evt = f.offline[1]
 m = bestjppmuon(evt)
 ```
 
+We now use this track as a seed to calculate the Cherenkov photon (see
+[`CherenkovPhoton`](@ref)) parameters using [`cherenkov()`](@ref) for each hit
+in the event.
+
+```@example 1
+cherenkov_photons = cherenkov(m, evt.hits)
+```
