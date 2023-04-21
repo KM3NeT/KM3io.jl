@@ -4,8 +4,8 @@ using Test
 
 @testset "cherenkov()" begin
     hits = [
-        EvtHit(0, 0, 0, 0, 0, 0, Position(19.522, -12.053, 76.662), Direction(-0.39, 0.735, 0.555)),
-        EvtHit(0, 0, 0, 0, 0, 0, Position(19.435, -12.194, 76.662), Direction(-0.831, 0.03, 0.555)),
+        CalibratedEvtHit(0, 0, 0, 0, 0, 0, Position(19.522, -12.053, 76.662), Direction(-0.39, 0.735, 0.555)),
+        CalibratedEvtHit(0, 0, 0, 0, 0, 0, Position(19.435, -12.194, 76.662), Direction(-0.831, 0.03, 0.555)),
     ]
     track = Trk(
         0,
