@@ -9,7 +9,7 @@ before_script:
   - mkdir -p /root/.ssh && ssh-keyscan -H -t rsa git.km3net.de >> /root/.ssh/known_hosts
 
 .km3net_registry:
-  km3net_registry:
+  script:
     - |
       julia -e '
         using Pkg
@@ -17,7 +17,7 @@ before_script:
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
 
 .test_script:
-  test_script:
+  script:
     - .km3net_registry
     - |
       julia --project=@. -e '
