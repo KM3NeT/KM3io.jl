@@ -52,11 +52,13 @@ Cherenkov time residuals for each set of hits based on the best reconstruction
 track. We fill the time residuals in a 1D histogram using the
 [FHist](https://github.com/Moelf/FHist.jl) package.
 
+
 !!! note
 
     This example uses [PGFPlotsX](https://github.com/KristofferC/PGFPlotsX.jl)
     which is an wrapper for the LaTeX library PGFPlots. Feel free to adapt the
     example to use your favourite plotting library.
+
 
 ```@example 1
 using FHist
@@ -73,7 +75,7 @@ end
 
 axis = @pgf Axis(
     {
-        ybar, const_plot, grid
+        ybar, const_plot, grid,
         xlabel=raw"\Delta t / ns",
         ylabel="counts",
     },
