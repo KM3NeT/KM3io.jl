@@ -1,4 +1,4 @@
-struct EvtHit <: AbstractCalibratedHit
+struct CalibratedEvtHit <: AbstractCalibratedHit
     dom_id::Int32
     channel_id::UInt32
     tdc::UInt32
@@ -11,7 +11,7 @@ struct EvtHit <: AbstractCalibratedHit
     dir::Direction{Float64}
 end
 
-struct MCHit
+struct CalibratedMCHit
     pmt_id::Int32
     t::Float64  # MC truth
     a::Float64  # amplitude (in p.e.)
@@ -72,7 +72,7 @@ struct Evt
     # TODO: unclear how UUID is set
     # header_uuid::UUID
 
-    hits::Vector{EvtHit}
+    hits::Vector{CalibratedEvtHit}
     trks::Vector{Trk}
 
     # MC related fields
@@ -82,7 +82,7 @@ struct Evt
 
     # mc_event_time::UTCTime
     mc_t::Float64
-    mc_hits::Vector{MCHit}
+    mc_hits::Vector{CalibratedMCHit}
     mc_trks::Vector{MCTrk}
 
     # comment::AbstractString
@@ -191,10 +191,10 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
     n = length(e.mc_hits_id)
-    mc_hits = sizehint!(Vector{MCHit}(), n)
+    mc_hits = sizehint!(Vector{CalibratedMCHit}(), n)
     for i ∈ 1:n
         push!(mc_hits,
-              MCHit(
+              CalibratedMCHit(
                   e.mc_hits_id[i],
                   e.mc_hits_t[i],
                   e.mc_hits_a[i],
@@ -207,10 +207,10 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     end
 
     n = length(e.hits_id)
-    hits = sizehint!(Vector{EvtHit}(), n)
+    hits = sizehint!(Vector{CalibratedEvtHit}(), n)
     for i ∈ 1:n
         push!(hits,
-              EvtHit(
+              CalibratedEvtHit(
                   e.hits_dom_id[i],
                   e.hits_channel_id[i],
                   e.hits_tdc[i],

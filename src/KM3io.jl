@@ -16,7 +16,7 @@ export ROOTFile
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone, center
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
-export Hit, TriggeredHit, Trk, MCHit, MCTrk, EvtHit
+export Hit, TriggeredHit, Trk, CalibratedEvtHit, MCTrk, CalibratedMCHit
 
 export calibrate, floordist, slew
 
