@@ -8,13 +8,18 @@ before_script:
   - apt-get -qq update; apt-get -y install git
   - mkdir -p /root/.ssh && ssh-keyscan -H -t rsa git.km3net.de >> /root/.ssh/known_hosts
 
-.script:
-  script:
+.km3net_registry:
+  km3net_registry:
     - |
       julia -e '
         using Pkg
         Pkg.update()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
+
+.test_script:
+  test_script:
+    - .km3net_registry
+    - |
       julia --project=@. -e '
         using Pkg
         Pkg.build()
@@ -23,11 +28,10 @@ before_script:
 .coverage:
   coverage: /Test coverage (\d+\.\d+%)/
   after_script:
+    - .km3net_registry
     - |
       julia -e '
         using Pkg
-        Pkg.update()
-        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.add("Coverage")
         using Coverage
         c, t = get_summary(process_folder())
@@ -38,25 +42,24 @@ Julia 1.6:
   image: docker.km3net.de/base/julia:1.6
   stage: test
   extends:
-    - .script
+    - .test_script
     - .coverage
 
 Julia 1.8:
   image: docker.km3net.de/base/julia:1.8
   stage: test
   extends:
-    - .script
+    - .test_script
     - .coverage
 
 docs:
   image: docker.km3net.de/base/julia:1.8
   stage: docs
   script:
+    - .km3net_registry
     - |
       julia --project=docs -e '
         using Pkg
-        Pkg.update()
-        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         using Documenter: doctest
