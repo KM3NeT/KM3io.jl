@@ -16,20 +16,22 @@ offline ROOT files. Luckily, there is a pure Julia library named
 ROOT files without the need to install ROOT or the corresponding C++ library.
 This allows `KM3io.jl` to be completely free from these external dependencies.
 
-The library is still under development so that the API might slightly change.
-Feedback and contributions are highly welcome!
+!!! note
+
+    The library is still under development so that the API might slightly change.
+    Feedback and contributions are highly welcome!
 
 ## Installation
 
-`KM3io.jl` is not an officially registered Julia package but it's available via
-the [KM3NeT Julia registry](https://git.km3net.de/common/julia-registry). To add
+`KM3io.jl` is **not an officially registered Julia package** but it's available via
+the **[KM3NeT Julia registry](https://git.km3net.de/common/julia-registry)**. To add
 the KM3NeT Julia registry to your local Julia registry list, follow the
 instructions in its
 [README](https://git.km3net.de/common/julia-registry#adding-the-registry) or simply do
 
     git clone https://git.km3net.de/common/julia-registry ~/.julia/registries/KM3NeT
     
-After that, you can add `KM3io.jl` just like any other Julia package:
+After that, you can instal `KM3io.jl` just like any other Julia package:
 
     julia> import Pkg; Pkg.add("KM3io")
     
