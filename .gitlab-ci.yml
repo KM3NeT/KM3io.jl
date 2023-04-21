@@ -52,6 +52,7 @@ docs:
   image: docker.km3net.de/base/julia:1.8
   stage: docs
   script:
+    - ls -al .julia
     - |
       julia --project=docs -e '
         using Pkg
