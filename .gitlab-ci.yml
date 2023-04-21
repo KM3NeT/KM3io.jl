@@ -52,12 +52,12 @@ docs:
   image: docker.km3net.de/base/julia:1.8
   stage: docs
   script:
-    - ls -al .julia
     - |
       julia -e '
         using Pkg
         Pkg.update()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
+    - ls -al .julia
     - |
       julia --project=docs -e '
         using Pkg
