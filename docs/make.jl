@@ -5,8 +5,8 @@ makedocs(;
     sitename = "KM3io.jl",
     authors = "Tamas Gal",
     format = Documenter.HTML(;
-        assets = ["assets/extra_styles.js"],
-	sidebar_sitename = false,
+        assets = ["assets/custom.css"],
+        sidebar_sitename = false,
         collapselevel = 4,
         warn_outdated = true,
     ),
