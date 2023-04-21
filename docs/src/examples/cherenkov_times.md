@@ -56,7 +56,7 @@ track. We fill the time residuals in a 1D histogram using the
 !!! note
 
     This example uses [PGFPlotsX](https://github.com/KristofferC/PGFPlotsX.jl)
-    which is an wrapper for the LaTeX library PGFPlots. Feel free to adapt the
+    which is a wrapper for the LaTeX library PGFPlots. Feel free to adapt the
     example to use your favourite plotting library.
 
 
