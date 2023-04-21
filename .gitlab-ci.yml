@@ -49,7 +49,7 @@ Julia 1.8:
     - .coverage
 
 docs:
-  image: docker.km3net.de/base/julia:1.8
+  image: docker.km3net.de/base/julia:1.8-tex
   stage: docs
   script:
     - |
