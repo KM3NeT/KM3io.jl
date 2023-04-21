@@ -54,6 +54,13 @@ floordist
 slew
 ```
 
+## Physics
+```@docs
+cherenkov
+CherenkovPhoton
+K40Rates
+```
+
 ## Trigger
 ```@docs
 is3dmuon

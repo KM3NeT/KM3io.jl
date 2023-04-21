@@ -7,14 +7,17 @@ makedocs(;
     format = Documenter.HTML(;
         assets = ["assets/extra_styles.js"],
 	sidebar_sitename = false,
-        collapselevel = 1,
+        collapselevel = 4,
         warn_outdated = true,
     ),
     pages = [
         "Home" => "index.md",
+        "Manual" => Any[
+            "manual/rootfiles.md",
+        ],
         "Examples" => Any[
-            "Offline data" => "examples/offline_data.md",
-            "Cherenkov times" => "examples/cherenkov_times.md",
+            "examples/offline_data.md",
+            "examples/cherenkov_times.md",
         ],
         "API" => "api.md"
     ],

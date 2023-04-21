@@ -1,3 +1,6 @@
+"""
+A Cherenkov photon with parameters calculate from its inducing track.
+"""
 struct CherenkovPhoton
     d_closest::Float64
     d_photon::Float64
@@ -39,3 +42,25 @@ end
 (track::Track)(hit::AbstractCalibratedHit) = cherenkov(track, hit)
 (track::Track)(hit::Position; dir::Union{Direction, Missing}=missing, t=0) = cherenkov(track, hit; dir=dir, t=t)
 (track::Track)(hits::Vector{EvtHit}) = cherenkov(track, hits)
+
+
+struct K40Rates
+    L0::Float64
+    L1::Vector{Float64}
+end
+
+"""
+Returns a `K40Rates` object with default values for KM3NeT.
+
+The singles and multiples rates are based on Analysis [e-log entry 597](https://elog.km3net.de/Analysis/597)
+A dark count of 700 Hz has been included in the singles rate.
+See also [KM3NeT internal note - Simulation Description](https://simulation.pages.km3net.de/input_tables/Simulations_Description.pdf)
+"""
+K40Rates() = K40Rates(5200, [568.0, 49.10, 5.48, 0.48])
+
+"""
+Return the absorption length [m] in water at a KM3NeT site for a given wavelength [nm].
+"""
+function absorptionslength(λ)
+
+end
