@@ -14,9 +14,12 @@ Location
 
 ## Offline Format
 ```@docs
-Trk
-McTrk
 Evt
+CalibratedEvtHit
+CalibratedMCHit
+Trk
+MCTrk
+
 ```
 
 ## Online Format
@@ -63,6 +66,7 @@ K40Rates
 
 ## Trigger
 ```@docs
+triggered
 is3dmuon
 is3dshower
 ismxshower

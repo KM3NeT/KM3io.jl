@@ -21,11 +21,11 @@ struct AcousticSignal
     pcm::Vector{Float32}
 end
 """
-    function read(filename::AbstractString,T::Type{AcousticSignal}, overlap::Int=DAQ_ADF_ANALYSIS_WINDOW_OVERLAP)
 
 Reads in a raw binary acoustics file.
+
 """
-function read(filename::AbstractString,T::Type{AcousticSignal}, overlap::Int=DAQ_ADF_ANALYSIS_WINDOW_OVERLAP)
+function AcousticSignal(filename::AbstractString; overlap::Int=DAQ_ADF_ANALYSIS_WINDOW_OVERLAP)
 
     id = parse(Int32, split(split(filename, "/")[end],"_")[2])
     container = Vector{UInt32}(undef,3)
@@ -40,7 +40,7 @@ function read(filename::AbstractString,T::Type{AcousticSignal}, overlap::Int=DAQ
     read!(filename,container)
     pcm = container[4:end]
 
-    return T(id, utc_seconds, ns_cycles, samples, pcm)
+    return AcousticSignal(id, utc_seconds, ns_cycles, samples, pcm)
 end
 
 

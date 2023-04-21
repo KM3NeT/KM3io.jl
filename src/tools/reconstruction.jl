@@ -86,9 +86,27 @@ function _besttrack(trks::Vector{Trk})
     sort(trks; by=c -> (length(c.rec_stages), c.lik)) |> last
 end
 
+"""
+Returns the best reconstructed JMuon track of an event or `nothing` if there are none.
+"""
 bestjppmuon(e::Evt) = bestjppmuon(e.trks)
+"""
+Returns the best reconstructed JMuon track or `nothing` if there are none.
+"""
 bestjppmuon(trks::Vector{Trk}) = filter(hasjppmuonfit, trks) |> _besttrack
+"""
+Returns the best reconstructed JShower "track" of an event or `nothing` if there are none.
+"""
 bestjppshower(e::Evt) = bestjppshower(e.trks)
+"""
+Returns the best reconstructed JShower "track" or `nothing` if there are none.
+"""
 bestjppshower(trks::Vector{Trk}) = filter(hasshowerfit, trks) |> _besttrack
+"""
+Returns the best reconstructed aashower "track" of an event or `nothing` if there are none.
+"""
 bestaashower(e::Evt) = bestaashower(e.trks)
+"""
+Returns the best reconstructed aashower "track" or `nothing` if there are none.
+"""
 bestaashower(trks::Vector{Trk}) = filter(hasaashowerfit, trks) |> _besttrack

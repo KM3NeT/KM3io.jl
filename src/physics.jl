@@ -18,13 +18,13 @@ end
 """
 
 Calculates the parameters of cherenkov photons emitted from a track and hitting
-the PMTs represented as (calibrated) hits. The return value is
-`Vector{`([`CherenkovPhoton`]){@ref}`}` which holds information about the closest
-distance to track, the time residual, arrival time, impact angle, photon travel
-distance, track travel distance and photon travel direction.
+the PMTs represented as (calibrated) hits. The returned cherenkov photons hold
+information about the closest distance to track, the time residual, arrival
+time, impact angle, photon travel distance, track travel distance and photon
+travel direction. See [`CherenkovPhoton`](@ref) for more information.
 
 """
-cherenkov(track, hits::Vector{CalibratedEvtHit}) = [cherenkov(track, h) for h ∈ hits]
+cherenkov(track, hits::Vector{CalibratedEvtHit})::Vector{CherenkovPhoton} = [cherenkov(track, h) for h ∈ hits]
 cherenkov(track, hit::AbstractCalibratedHit) = cherenkov(track, hit.pos; dir=hit.dir, t=hit.t)
 function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, t=0)
     V = pos - track.pos
@@ -52,6 +52,11 @@ end
 (track::Track)(hits::Vector{CalibratedEvtHit}) = cherenkov(track, hits)
 
 
+"""
+
+K40 rates with L0 and higher level rates (with increasing multiplicities).
+
+"""
 struct K40Rates
     L0::Float64
     L1::Vector{Float64}

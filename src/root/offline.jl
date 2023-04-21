@@ -1,3 +1,10 @@
+"""
+
+A calibrated hit of the offline dataformat. Caveat: the `position`, `direction`
+and `t` fields might still be `0` due to the design philosophy of the offline
+format.
+
+"""
 struct CalibratedEvtHit <: AbstractCalibratedHit
     dom_id::Int32
     channel_id::UInt32
@@ -11,6 +18,13 @@ struct CalibratedEvtHit <: AbstractCalibratedHit
     dir::Direction{Float64}
 end
 
+"""
+
+A calibrated MC hit of the offline dataformat. Caveat: the `position` and
+`direction` fields might still be `0` due to the design philosophy of
+the offline format.
+
+"""
 struct CalibratedMCHit
     pmt_id::Int32
     t::Float64  # MC truth
@@ -55,6 +69,11 @@ struct MCTrk
     counter::Int32  # used by Corsika7 MC generation to store interaction counters
 end
 
+"""
+
+An offline event.
+
+"""
 struct Evt
     id::Int64  # offline event identifier
     det_id::Int64
