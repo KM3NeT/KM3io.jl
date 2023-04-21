@@ -18,7 +18,6 @@ before_script:
 
 .test_script:
   script:
-    - .km3net_registry
     - |
       julia --project=@. -e '
         using Pkg
@@ -28,7 +27,6 @@ before_script:
 .coverage:
   coverage: /Test coverage (\d+\.\d+%)/
   after_script:
-    - .km3net_registry
     - |
       julia -e '
         using Pkg
@@ -42,6 +40,7 @@ Julia 1.6:
   image: docker.km3net.de/base/julia:1.6
   stage: test
   extends:
+    - .km3net_registry
     - .test_script
     - .coverage
 
@@ -49,14 +48,16 @@ Julia 1.8:
   image: docker.km3net.de/base/julia:1.8
   stage: test
   extends:
+    - .km3net_registry
     - .test_script
     - .coverage
 
 docs:
   image: docker.km3net.de/base/julia:1.8
   stage: docs
-  script:
+  extends:
     - .km3net_registry
+  script:
     - |
       julia --project=docs -e '
         using Pkg
