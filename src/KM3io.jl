@@ -5,10 +5,11 @@ import Statistics: mean
 using LinearAlgebra
 using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
+using Sockets
 using UUIDs
 
 using DocStringExtensions
-using StaticArrays: FieldVector
+using StaticArrays: FieldVector, SVector
 import UnROOT
 
 export ROOTFile
@@ -67,6 +68,7 @@ include("root/root.jl")
 include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
+include("controlhost.jl")
 
 include("tools/general.jl")
 include("tools/trigger.jl")
