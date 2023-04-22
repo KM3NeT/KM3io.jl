@@ -13,23 +13,6 @@ CHTag(s::AbstractString) = CHTag(Vector{UInt8}(s))
 CHTag(s::TCPSocket) = CHTag(read(s, 8))
 Base.show(io::IO, t::CHTag) = print(io, "CHTag(\"$(String(t.data))\")")
 
-
-struct CHClient
-    ip::IPv4
-    port::UInt16
-    tags::Vector{CHTag}
-    socket::TCPSocket
-    CHClient(ip, port, tags) = begin
-        socket = connect(ip, port)
-        chclient = new(ip, port, tags, socket)
-        for tag in tags
-            subscribe(chclient, tag)
-        end
-        chclient
-    end
-end
-
-
 struct CHPrefix
     tag::CHTag
     length::UInt32
@@ -59,21 +42,42 @@ struct CHMessage
     prefix::CHPrefix
     data::Vector{UInt8}
 end
-
 function CHMessage(s::TCPSocket)
     prefix = CHPrefix(s)
     length = prefix.length
     data = read(s, length)
     return CHMessage(prefix, data)
 end
-
-CHMessage(c::CHClient) = CHMessage(c.socket)
-
 Base.show(io::IO, m::CHMessage) = begin
-    tag = String(m.prefix.tag)
+    tag = String(m.prefix.tag.data)
     print(io, "CHMessage with tag '$tag' and length $(m.prefix.length)")
 end
 
+
+struct CHClient{T}
+    ip::IPv4
+    port::UInt16
+    tags::Vector{CHTag}
+    socket::TCPSocket
+    CHClient{T}(ip, port, tags) where T = begin
+        socket = connect(ip, port)
+        chclient = new{T}(ip, port, tags, socket)
+        for tag in tags
+            subscribe(chclient, tag)
+        end
+        chclient
+    end
+end
+CHTag(::Type{T}) where T = error("No controlhost tag defined for type '$(T)'")
+CHTag(::Type{DAQEvent}) = CHTag("IO_EVT")
+CHClient(ip::IPv4, port::Integer, tags::Vector{CHTag}) = CHClient{CHMessage}(ip, port, tags)
+CHClient{T}(ip::IPv4, port::Integer) where T = CHClient{T}(ip, port, [CHTag(T)])
+Base.eltype(::CHClient{T}) where T = T
+Base.close(c::CHClient) = close(c.socket)
+Base.iterate(c::CHClient{CHMessage}) = (CHMessage(c.socket), c)
+Base.iterate(c::CHClient{CHMessage}, state) = (CHMessage(c.socket), c)
+Base.iterate(c::CHClient{T}) where T = (read(IOBuffer(CHMessage(c.socket).data),T), c)
+Base.iterate(c::CHClient{T}, state) where T = (read(IOBuffer(CHMessage(c.socket).data), T), c)
 
 
 function subscribe(c::CHClient, tag::AbstractString; mode::Char='w')
@@ -84,9 +88,4 @@ function subscribe(c::CHClient, tag::AbstractString; mode::Char='w')
     write(c.socket, data)
     write(c.socket, CHPrefix(CHTag("_Always"), UInt32(0x00)).data)
 end
-
-Base.close(c::CHClient) = close(c.socket)
-
-
-Base.iterate(iter::CHClient) = (CHMessage(iter), iter)
-Base.iterate(iter::CHClient, state) = (CHMessage(iter), iter)
+subscribe(c::CHClient, tag::CHTag; mode::Char='w') = subscribe(c, String(tag.data); mode=mode)

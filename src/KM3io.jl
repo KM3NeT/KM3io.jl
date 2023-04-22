@@ -16,8 +16,15 @@ export ROOTFile
 
 export Direction, Position, UTMPosition, Location, Quaternion
 export Detector, DetectorModule, PMT, Tripod, Hydrophone, center
+
+# Acoustics
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
+
+# Online dataformat
+export DAQEvent
+# Offline dataformat
 export Evt, Hit, TriggeredHit, Trk, CalibratedEvtHit, MCTrk, CalibratedMCHit
+
 export K40Rates
 
 export calibrate, floordist, slew
@@ -32,6 +39,8 @@ export is3dshower, ismxshower, is3dmuon, isnb, triggered
 export most_frequent, categorize, nthbitset
 
 export cherenkov, CherenkovPhoton
+
+export CHClient, CHTag, subscribe, @ip_str
 
 @template (FUNCTIONS, METHODS, MACROS) =
     """
