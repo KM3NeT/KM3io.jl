@@ -18,6 +18,7 @@ makedocs(;
         "Examples" => Any[
             "examples/offline_data.md",
             "examples/cherenkov_times.md",
+            "examples/controlhost.md",
         ],
         "API" => "api.md"
     ],

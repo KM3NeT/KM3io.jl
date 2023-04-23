@@ -54,6 +54,36 @@ Base.show(io::IO, m::CHMessage) = begin
 end
 
 
+"""
+
+A ControlHost client which can communicate with a Ligier dispatcher to
+receive messages for all the subscribed tags.
+
+To connect to a Ligier which is receiving triggered DAQ events e.g. in the
+KM3NeT monitoring system or in a test setup consisting of a
+[JLigier](https://common.pages.km3net.de/jpp/#JLigier) dispatcher and a
+[JRegurgitate](https://common.pages.km3net.de/jpp/#JRegurgitate) instance which
+is redispatching DAQ events (`JDAQEvent`) from a ROOT file in online format to
+the `JLigier`, a `CHClient` can be created to subscribe the event messages with
+
+```julia-repl
+julia> using KM3io
+
+julia> c = CHClient{DAQEvent}(ip"127.0.0.1", 5553)
+
+julia> for event in c
+           @show event
+       end
+e = KM3io.DAQEvent with 127 snapshot and 6 triggered hits
+e = KM3io.DAQEvent with 147 snapshot and 6 triggered hits
+e = KM3io.DAQEvent with 154 snapshot and 8 triggered hits
+e = KM3io.DAQEvent with 152 snapshot and 6 triggered hits
+...
+...
+...
+```
+
+"""
 struct CHClient{T}
     ip::IPv4
     port::UInt16

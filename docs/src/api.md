@@ -73,6 +73,11 @@ ismxshower
 isnb
 ```
 
+## ControlHost
+```@docs
+CHClient
+```
+
 ## Tools
 
 ### General tools
