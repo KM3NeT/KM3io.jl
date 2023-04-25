@@ -1,7 +1,7 @@
 name = "KM3io"
 uuid = "2cab5852-6f21-4982-99b0-6a4792870cfb"
 authors = ["Tamas Gal"]
-version = "0.10.0"
+version = "0.11.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -16,7 +16,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 UnROOT = "3cd96dde-e98d-4713-81e9-a4a1b0235ce9"
 
 [compat]
-UnROOT = "^0.10.2"
+UnROOT = "^0.10.9"
 julia = "1"
 
 [extras]
