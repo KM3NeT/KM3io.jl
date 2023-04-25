@@ -53,13 +53,14 @@ struct SnapshotHit <: AbstractDAQHit
     tot::UInt8
 end
 
-struct TriggeredHit <: AbstractDAQHit
+struct Hit <: AbstractDAQHit
     dom_id::Int32
     channel_id::UInt8
     t::Int32
     tot::UInt8
     trigger_mask::UInt64
 end
+const TriggeredHit = Hit
 
 mutable struct Multiplicity
     count::Int32

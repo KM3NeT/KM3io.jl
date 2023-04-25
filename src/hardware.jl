@@ -59,6 +59,7 @@ Base.iterate(d::DetectorModule, state=1) = state > d.n_pmts ? nothing : (d.pmts[
 The index in this context is the DAQ channel ID of the PMT, which is counting from 0.
 """
 Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
+isbasemodule(d::DetectorModule) = d.location.floor == 0
 
 """
 

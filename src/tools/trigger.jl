@@ -2,6 +2,7 @@
 Return `true` if the passed object (hit, event, ...) was triggered by any trigger algorithm.
 """
 triggered(e) = e.trigger_mask > 0
+triggered(hits::Vector{T}) where {T<:AbstractDAQHit} = filter(h->h.trigger_mask > 0, hits)
 
 """
 $(METHODLIST)

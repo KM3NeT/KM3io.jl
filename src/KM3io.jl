@@ -14,8 +14,8 @@ import UnROOT
 
 export ROOTFile
 
-export Direction, Position, UTMPosition, Location, Quaternion
-export Detector, DetectorModule, PMT, Tripod, Hydrophone, center
+export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
+export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule
 
 # Acoustics
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
@@ -23,7 +23,7 @@ export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrop
 # Online dataformat
 export DAQEvent
 # Offline dataformat
-export Evt, TriggeredHit, Trk, CalibratedHit, MCTrk, CalibratedMCHit
+export Evt, Hit, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit
 
 export K40Rates
 
