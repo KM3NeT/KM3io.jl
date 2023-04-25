@@ -2,10 +2,10 @@
 
 A calibrated hit of the offline dataformat. Caveat: the `position`, `direction`
 and `t` fields might still be `0` due to the design philosophy of the offline
-format.
+format (one class for all).
 
 """
-struct CalibratedEvtHit <: AbstractCalibratedHit
+struct CalibratedHit <: AbstractCalibratedHit
     dom_id::Int32
     channel_id::UInt32
     tdc::UInt32
@@ -22,7 +22,7 @@ end
 
 A calibrated MC hit of the offline dataformat. Caveat: the `position` and
 `direction` fields might still be `0` due to the design philosophy of
-the offline format.
+the offline format (one class for all).
 
 """
 struct CalibratedMCHit
@@ -91,7 +91,7 @@ struct Evt
     # TODO: unclear how UUID is set
     # header_uuid::UUID
 
-    hits::Vector{CalibratedEvtHit}
+    hits::Vector{CalibratedHit}
     trks::Vector{Trk}
 
     # MC related fields
@@ -214,7 +214,7 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     for i ∈ 1:n
         push!(mc_hits,
               CalibratedMCHit(
-                  e.mc_hits_id[i],
+                  e.mc_hits_pmt_id[i],
                   e.mc_hits_t[i],
                   e.mc_hits_a[i],
                   e.mc_hits_type[i],
@@ -226,10 +226,10 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     end
 
     n = length(e.hits_id)
-    hits = sizehint!(Vector{CalibratedEvtHit}(), n)
+    hits = sizehint!(Vector{CalibratedHit}(), n)
     for i ∈ 1:n
         push!(hits,
-              CalibratedEvtHit(
+              CalibratedHit(
                   e.hits_dom_id[i],
                   e.hits_channel_id[i],
                   e.hits_tdc[i],

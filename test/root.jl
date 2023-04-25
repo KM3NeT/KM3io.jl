@@ -29,6 +29,17 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     @test (program="GENHEN", version="7.2-220514", date=181116, time=1138) == h.physics
     @test (Emin=100, Emax=100000000.0, cosTmin=-1, cosTmax=1) == h.cut_nu
     @test (interaction=1, muon=2, scattering=0, numberOfEnergyBins=1, field_4=12) == h.model
+
+    @test 3.77960885798e11 ≈ sum([h.t for h ∈ f.offline[1].hits])
+    @test 65325 ≈ sum([h.channel_id for h ∈ f.offline[1].hits])
+    @test 24720688 ≈ sum([h.dom_id for h ∈ f.offline[1].hits])
+
+    @test 65276.89564606823 ≈ sum([h.t for h ∈ f.offline[1].mc_hits])
+    @test 3371990 ≈ sum([h.pmt_id for h ∈ f.offline[1].mc_hits])
+    @test 94 ≈ sum([h.origin for h ∈ f.offline[1].mc_hits])
+    @test -164 ≈ sum([h.type for h ∈ f.offline[1].mc_hits])
+
+
     close(f)
 end
 

@@ -23,7 +23,7 @@ export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrop
 # Online dataformat
 export DAQEvent
 # Offline dataformat
-export Evt, Hit, TriggeredHit, Trk, CalibratedEvtHit, MCTrk, CalibratedMCHit
+export Evt, TriggeredHit, Trk, CalibratedHit, MCTrk, CalibratedMCHit
 
 export K40Rates
 

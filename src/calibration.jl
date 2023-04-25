@@ -2,7 +2,7 @@
 Apply geometry and time calibration to given hits.
 """
 function calibrate(det::Detector, hits)
-    calibrated_hits = Vector{CalibratedDAQHit}()
+    calibrated_hits = Vector{XCalibratedHit}()
     has_trigger_mask = :trigger_mask ∈ fieldnames(eltype(hits))
     for hit in hits
         dom_id = hit.dom_id
@@ -15,7 +15,7 @@ function calibrate(det::Detector, hits)
         du = det[dom_id].location.string
         floor = det[dom_id].location.floor
         trigger_mask = has_trigger_mask ? hit.trigger_mask : 0
-        c_hit = CalibratedDAQHit(
+        c_hit = XCalibratedHit(
             dom_id, channel_id, t, tot, trigger_mask,
             pos, dir, t0,
             du, floor,

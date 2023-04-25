@@ -61,21 +61,13 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
-struct Hit <: AbstractDAQHit
-    dom_id::Int32
-    channel_id::UInt8
-    t::Int32
-    tot::UInt8
-    trigger_mask::UInt64
-end
-
 mutable struct Multiplicity
     count::Int32
     id::Int64
 end
 
 
-struct CalibratedDAQHit <: AbstractCalibratedHit
+struct XCalibratedHit <: AbstractCalibratedHit
     dom_id::UInt32
     channel_id::UInt32
     t::Float64

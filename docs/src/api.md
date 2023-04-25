@@ -15,14 +15,16 @@ Location
 ## Offline Format
 ```@docs
 Evt
-CalibratedEvtHit
+CalibratedHit
 CalibratedMCHit
 Trk
 MCTrk
-
 ```
 
 ## Online Format
+```@docs
+
+```
 
 ## Hardware
 
