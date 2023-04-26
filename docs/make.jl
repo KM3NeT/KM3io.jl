@@ -14,6 +14,8 @@ makedocs(;
         "Home" => "index.md",
         "Manual" => Any[
             "manual/rootfiles.md",
+            "manual/detector.md",
+            "manual/calibration.md",
         ],
         "Examples" => Any[
             "examples/offline_data.md",

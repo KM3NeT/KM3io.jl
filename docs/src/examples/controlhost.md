@@ -10,6 +10,8 @@ This example uses Jpp v14.4.3 and real data from a KM3NeT detector (online ROOT
 format) with the filename `KM3NeT_00000075_00010275.root` which can be found on
 the HPSS storage.
 
+## Launching `JLigier`
+
 We open a terminal and launch the `JLigier` process with a high debug level.
 This ligier is the central communication point and it will receive messages
 which are tagged with short label of maximum 8 characters.
@@ -25,11 +27,19 @@ The ligier is now running and and listening on port 5553 of all host IP
 addresses (including the localhost `127.0.0.1`). Clients can connect to it and
 subscribe for a given set of message tags. Leave this terminal open.
 
+## Simulating the DAQ
+
 The first client we start in new terminal session is the
 [`JRegurgitate`](https://common.pages.km3net.de/jpp/#JRegurgitate) process which
 takes a ROOT file (in online format), a class identifier, a few other parameters
 like the frequency and timeout of the messages and also the IP and port of the
-ligier to send to.
+ligier to send to. We will use this application to simulate the KM3NeT DAQ -- at
+least the output of the
+[`JDataFilter`](https://common.pages.km3net.de/jpp/#JDataFilter) which is
+responsible for triggering events and sending them downstreams to a `JLigier` so
+that they can be picked up by the
+[`JDataWriter`](https://common.pages.km3net.de/jpp/#JDataWriter) to store them in 
+[ROOT files (online format)](/manual/rootfiles/#Online-Dataformat).
 
 ```shell
 $ JRegurgitate -f /data/sea/KM3NeT_00000075_00010275.root -C JDAQEvent -R 2 -T 10000000 -H 127.0.0.1:5553
@@ -58,6 +68,8 @@ Client[4].read(0,1,1716)
 ...
 ```
 
+## Retrieving Events
+
 Now open a thrid terminal and fire up the Julia REPL. With a few lines, we will
 able to connect to the ligier and receive DAQ events interactively.
 
@@ -65,7 +77,7 @@ able to connect to the ligier and receive DAQ events interactively.
 julia> using KM3io
 
 julia> c = CHClient{KM3io.DAQEvent}(ip"127.0.0.1", 5553)
-CHClient{DAQEvent}(ip"131.188.161.12", 0x7531, CHTag[CHTag("IO_EVT")], Sockets.TCPSocket(RawFD(20) open, 0 bytes waiting))
+CHClient{DAQEvent}(ip"127.0.0.1", 0x7531, CHTag[CHTag("IO_EVT")], Sockets.TCPSocket(RawFD(20) open, 0 bytes waiting))
 
 julia> for e in c
          @show e

@@ -249,7 +249,7 @@ struct Detector
     strings::Vector{Int}
     comments::Vector{String}
 end
-Base.show(io::IO, d::Detector) = print(io, "Detector with $(length(d.strings)) strings and $(d.n_modules) modules.")
+Base.show(io::IO, d::Detector) = print(io, "Detector v$(d.version) with $(length(d.strings)) strings and $(d.n_modules) modules.")
 Base.length(d::Detector) = d.n_modules
 Base.eltype(::Type{Detector}) = DetectorModule
 function Base.iterate(d::Detector, state=(Int[], 1))
