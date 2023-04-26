@@ -51,7 +51,7 @@ julia> some_event = f.offline[3]
 KM3io.Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks)
 ```
 
-## TODOs
+## Contribute
 
 These are mostly low-hanging fruits, so feel free to contribute! `;)`
 
