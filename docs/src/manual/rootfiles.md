@@ -6,7 +6,7 @@ trees. `UnROOT` has a single `ROOTFile` type to represent a KM3NeT ROOT file
 which can be used to access both the online and offline information. This
 section describes what kind of data is stored in each tree and how to access them.
 
-## Offline Dataformat
+## [Offline Dataformat](@id offline dataformat)
 
 The [offline
 dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline)
@@ -124,7 +124,7 @@ event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
 event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 ```
 
-## Online Dataformat
+## [Online Dataformat](@id online_dataformat)
 
 The [online
 dataformat](https://git.km3net.de/common/km3net-dataformat/-/tree/master/online)

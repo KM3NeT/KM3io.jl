@@ -39,7 +39,7 @@ least the output of the
 responsible for triggering events and sending them downstreams to a `JLigier` so
 that they can be picked up by the
 [`JDataWriter`](https://common.pages.km3net.de/jpp/#JDataWriter) to store them in 
-[ROOT files (online format)](/manual/rootfiles/#Online-Dataformat).
+[ROOT files (online format)](@ref online_dataformat).
 
 ```shell
 $ JRegurgitate -f /data/sea/KM3NeT_00000075_00010275.root -C JDAQEvent -R 2 -T 10000000 -H 127.0.0.1:5553
