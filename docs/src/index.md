@@ -64,4 +64,4 @@ These are mostly low-hanging fruits, so feel free to contribute! `;)`
 
 ## Acknowledgements
 
-Thanks to Johannes Schumann for providing the awesome project logo!
+Thanks to [Johannes Schumann](https://git.km3net.de/jschumann) for providing the awesome project logo!
