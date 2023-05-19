@@ -21,6 +21,7 @@ makedocs(;
             "examples/offline_data.md",
             "examples/cherenkov_times.md",
             "examples/controlhost.md",
+            "examples/hdf5.md",
         ],
         "API" => "api.md"
     ],

@@ -19,7 +19,7 @@ using HDF5
 HDF5.datatype(::Type{T}) where {T} = HDF5.Datatype(HDF5.hdf5_type_id(T), isstructtype(T))
 
 export ROOTFile
-export H5File, create_dataset
+export H5File, H5CompoundDataset, create_dataset
 
 export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
 export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule

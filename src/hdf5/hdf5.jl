@@ -37,7 +37,7 @@ A wrapper for an HDF5 file used in KM3NeT.
 
 """
 struct H5File
-    _h5f
+    _h5f::HDF5.File
     _datasets::Dict{String, H5CompoundDataset}
 
     function H5File(fname::AbstractString)
@@ -45,10 +45,13 @@ struct H5File
         new(h5f, Dict{String, H5CompoundDataset}())
     end
 end
-function Base.close(f::H5File)
+function Base.flush(f::H5File)
     for dset in values(f._datasets)
         flush(dset)
     end
+end
+function Base.close(f::H5File)
+    flush(f)
     close(f._h5f)
 end
 function Base.write(f::H5File, path::AbstractString, data)
@@ -66,6 +69,7 @@ To force the writing, use [`flush`](@ref)
 """
 function HDF5.create_dataset(f::H5File, path::AbstractString, ::Type{T}; cache_size=1000) where T
     dset = HDF5.create_dataset(f._h5f, path, T, ((0,), (-1,)); chunk=(100,))
+    attrs(dset)["struct_name"] = string(nameof(T))
     cache = H5CompoundDatasetCache(T[], cache_size)
     d = H5CompoundDataset(dset, cache)
     f._datasets[path] = d
