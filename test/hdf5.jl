@@ -34,5 +34,9 @@ end
     @test "Bar" == attrs(_f["bars"])["struct_name"]
     close(_f)
 
+
+    write(f, "directly_written_bars", bars)
+    @test bars == reinterpret(Bar, f["directly_written_bars"][:])
+
     close(f)
 end

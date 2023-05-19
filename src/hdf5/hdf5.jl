@@ -57,6 +57,7 @@ end
 function Base.write(f::H5File, path::AbstractString, data)
     write_dataset(f._h5f, path, data)
 end
+Base.getindex(f::H5File, args...) = getindex(f._h5f, args...)
 
 """
 
