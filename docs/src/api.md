@@ -26,6 +26,12 @@ MCTrk
 
 ```
 
+## HDF5
+```@docs
+H5File
+H5CompoundDataset
+```
+
 ## Hardware
 
 ```@docs

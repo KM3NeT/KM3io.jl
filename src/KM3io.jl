@@ -12,7 +12,14 @@ using DocStringExtensions
 using StaticArrays: FieldVector, SVector
 import UnROOT
 
+using HDF5
+# TODO: this will be fixed when https://github.com/JuliaIO/HDF5.jl/pull/1069
+# is merged. HDF5 dependency should then be set to ^0.16.14 and the following
+# line removed
+HDF5.datatype(::Type{T}) where {T} = HDF5.Datatype(HDF5.hdf5_type_id(T), isstructtype(T))
+
 export ROOTFile
+export H5File, create_dataset
 
 export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
 export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule
@@ -74,6 +81,7 @@ include("hardware.jl")
 include("root/online.jl")
 include("root/offline.jl")
 include("root/root.jl")
+include("hdf5/hdf5.jl")
 include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
