@@ -40,7 +40,7 @@ struct H5File
     _h5f::HDF5.File
     _datasets::Dict{String, H5CompoundDataset}
 
-    function H5File(fname::AbstractString, mode="w")
+    function H5File(fname::AbstractString, mode="r")
         h5f = h5open(fname, mode)
         new(h5f, Dict{String, H5CompoundDataset}())
     end

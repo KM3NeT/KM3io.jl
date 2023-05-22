@@ -11,7 +11,7 @@ end
     fname = tempname()
     bars = [Bar(x, x*2.1) for x ∈ 1:100]
 
-    f = H5File(fname)
+    f = H5File(fname, "w")
     d = create_dataset(f, "bars", Bar; cache_size=3)
     for bar ∈ bars
         push!(d, bar)
