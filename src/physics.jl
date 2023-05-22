@@ -51,6 +51,20 @@ end
 (track::Track)(hit::Position; dir::Union{Direction, Missing}=missing, t=0) = cherenkov(track, hit; dir=dir, t=t)
 (track::Track)(hits::Vector{CalibratedHit}) = cherenkov(track, hits)
 
+"""
+
+Calculates the azimuth from a given [`Direction`](@ref) according to KM3NeT conventions.
+
+"""
+azimuth(d::Direction) = atan(d[2], d[1])
+
+"""
+
+Calculates the zenith from a given [`Direction`](@ref) according to KM3NeT conventions.
+
+"""
+zenith(d::Direction) = acos(-d[3]/norm(d))
+
 
 """
 

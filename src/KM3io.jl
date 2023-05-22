@@ -45,7 +45,7 @@ export besttrack, bestjppmuon, bestjppshower, bestaashower,
 export is3dshower, ismxshower, is3dmuon, isnb, triggered
 export most_frequent, categorize, nthbitset
 
-export cherenkov, CherenkovPhoton
+export cherenkov, CherenkovPhoton, azimuth, zenith
 
 export CHClient, CHTag, subscribe, @ip_str
 
