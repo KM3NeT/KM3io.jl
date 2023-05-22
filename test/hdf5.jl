@@ -22,7 +22,7 @@ end
     @test bars == reinterpret(Bar, f["bars"][:])
     close(f)
 
-    f = H5File(fname)
+    f = H5File(fname, "cw")
     d = create_dataset(f, "bars_flushed", Bar; cache_size=1000)
     for bar ∈ bars
         push!(d, bar)
