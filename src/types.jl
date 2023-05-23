@@ -26,7 +26,7 @@ Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 struct Track
     dir::Direction{Float64}
     pos::Position{Float64}
-    time::AbstractFloat
+    t::Float64
 end
 
 struct Quaternion{T} <: FieldVector{4, T}
