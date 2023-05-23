@@ -99,7 +99,7 @@ struct Evt
     w2list::Vector{Float64}  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
     w3list::Vector{Float64}  # atmospheric flux information
 
-    # mc_event_time::UTCTime
+    mc_event_time::UTCTime
     mc_t::Float64
     mc_hits::Vector{CalibratedMCHit}
     mc_trks::Vector{MCTrk}
@@ -176,9 +176,10 @@ struct OfflineTree{T}
             bpath * "/w",
             bpath * "/w2list",
             bpath * "/w3list",
-            # TODO: no idea where this should come from, it should be a UTCTime, just like t
-            #bpath * "/mc_event_time",
-            bpath * "/mc_t",
+            # mc_event_time was introduced in 2020-11-05
+            # https://git.km3net.de/common/km3net-dataformat/-/commit/a44aed0fbc930b65bb94193c718250bb000d617b
+            Regex(bpath * "/mc_event_time/mc_event_time.f(Sec|NanoSec)\$") => s"mc_event_time_\1",
+            bpath * "/mc_t",  # time where the simulated event was inserted in the timeslice
             Regex(bpath * "/mc_hits/mc_hits.(id|pmt_id|t|a|pure_t|pure_a|type|origin)\$") => s"mc_hits_\1",
             Regex(bpath * "/mc_hits/mc_hits.(pos|dir).([xyz])\$") => s"mc_hits_\1_\2",
             Regex(bpath * "/mc_trks/mc_trks.(id|t|E|len|type|status|mother_id|counter)\$") => s"mc_trks_\1",
@@ -208,6 +209,8 @@ Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.getindex(f::OfflineTree, idx::Integer)
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
+
+    skip_mc_event_time = !hasproperty(e, :mc_event_time_Sec)
 
     n = length(e.mc_hits_id)
     mc_hits = sizehint!(Vector{CalibratedMCHit}(), n)
@@ -245,9 +248,9 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     n = length(e.mc_trks_id)
     mc_trks = sizehint!(Vector{MCTrk}(), n)
     # legacy format support
-    skip_mc_trks_status = !hasfield(typeof(e), :mc_trks_status)
-    skip_mc_trks_mother_id = !hasfield(typeof(e), :mc_trks_mother_id)
-    skip_mc_trks_counter = !hasfield(typeof(e), :mc_trks_counter)
+    skip_mc_trks_status = !hasproperty(e, :mc_trks_status)
+    skip_mc_trks_mother_id = !hasproperty(e, :mc_trks_mother_id)
+    skip_mc_trks_counter = !hasproperty(e, :mc_trks_counter)
     for i ∈ 1:n
         push!(mc_trks,
             MCTrk(
@@ -300,6 +303,7 @@ function Base.getindex(f::OfflineTree, idx::Integer)
         e.Evt_w,
         e.Evt_w2list,
         e.Evt_w3list,
+        skip_mc_event_time ? UTCTime(0.0, 0.0) : UTCTime(e.mc_event_time_Sec, e.mc_event_time_NanoSec),
         e.Evt_mc_t,
         mc_hits,
         mc_trks,
