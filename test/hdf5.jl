@@ -19,6 +19,7 @@ end
     close(f)
 
     f = h5open(fname, "r")
+    @test KM3io.version == VersionNumber(attrs(f)["KM3io.jl"])
     @test bars == reinterpret(Bar, f["bars"][:])
     close(f)
 

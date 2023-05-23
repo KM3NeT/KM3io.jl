@@ -42,6 +42,14 @@ struct H5File
 
     function H5File(fname::AbstractString, mode="r")
         h5f = h5open(fname, mode)
+        if mode != "r"
+            if "KM3io.jl" ∈ keys(attrs(h5f))
+                v = VersionNumber(attrs(h5f)["KM3io.jl"])
+                v != version && @warn "The file '$fname' was created by a different version of KM3io.jl ($v). Modifying it might cause problems."
+            else
+                attrs(h5f)["KM3io.jl"] = string(version)
+            end
+        end
         new(h5f, Dict{String, H5CompoundDataset}())
     end
 end

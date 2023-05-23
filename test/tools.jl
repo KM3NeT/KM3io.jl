@@ -80,3 +80,9 @@ end
     @test 294.6407542676734 ≈ bt.lik
     close(f)
 end
+
+@testset "get_package_version()" begin
+    v = KM3io.get_package_version("UnROOT")
+    @test v >= v"0.10.9"
+    @test_throws ErrorException KM3io.get_package_version("LetsAssumeThatThisPackageWillNeverBeInTheDependencies")
+end
