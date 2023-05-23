@@ -24,7 +24,7 @@ time, impact angle, photon travel distance, track travel distance and photon
 travel direction. See [`CherenkovPhoton`](@ref) for more information.
 
 """
-cherenkov(track, hits::Vector{CalibratedHit})::Vector{CherenkovPhoton} = [cherenkov(track, h) for h ∈ hits]
+cherenkov(track, hits::Vector{T}) where {T<:AbstractCalibratedHit} = [cherenkov(track, h) for h ∈ hits]
 cherenkov(track, hit::AbstractCalibratedHit) = cherenkov(track, hit.pos; dir=hit.dir, t=hit.t)
 function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, t=0)
     V = pos - track.pos
