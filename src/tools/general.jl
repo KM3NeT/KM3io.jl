@@ -109,3 +109,17 @@ function tonumifpossible(v::AbstractString)
     end
     v
 end
+
+
+"""
+
+Returns the version of a given package.
+
+"""
+function get_package_version(package_name::AbstractString)
+    dependencies = Pkg.dependencies()
+    for (uuid, pkg_info) ∈ dependencies
+        pkg_info.name == package_name && return pkg_info.version
+    end
+    error("Package '$package_name' not found in the dependencies of the current environment.")
+end

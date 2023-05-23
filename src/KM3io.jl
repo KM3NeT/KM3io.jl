@@ -7,6 +7,9 @@ using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
+import Pkg
+
+const version = VersionNumber(Pkg.TOML.parsefile(joinpath(pkgdir(KM3io), "Project.toml"))["version"])
 
 using DocStringExtensions
 using StaticArrays: FieldVector, SVector
