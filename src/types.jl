@@ -86,6 +86,7 @@ struct UTCTime
     s::UInt64
     ns::UInt64
 end
+Base.show(io::IO, t::UTCTime) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)))")
 
 struct UTCExtended
     s::UInt32
@@ -98,6 +99,7 @@ struct UTCExtended
         new(s, ns_cycles * 16, wr_status)
     end
 end
+Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
 
 struct SummaryFrame
     dom_id::Int32
