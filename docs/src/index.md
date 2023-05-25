@@ -35,6 +35,24 @@ After that, you can instal `KM3io.jl` just like any other Julia package:
 
     julia> import Pkg; Pkg.add("KM3io")
     
+!!! note
+
+    If you encounter the error `UndefVarError: libhdf5 not defined`, you are probably
+    using an M1 or M2 Mac computer. There is an issue with `HDF5.jll` due to a missing
+    precompiled `libhdf5` artifact for the M1 and M2 architectures, so you need to
+    install it manually and set an envrionment variable before starting Julia.
+    You can easily install `hdf5lib` using e.g. `brew`:
+    
+        brew install hdf5
+        
+    and then set the environment variable `JULIA_HDF5_PATH` to point to the location
+    of the HDF5 files (put this line into your `~/.bashrc` or `~/.zshrc` or whatever
+    shell you use):
+    
+        export JULIA_HDF5_PATH=/opt/homebrew/Cellar/hdf5/1.12.2_2
+        
+    Make sure that the path is correct, you might have a different version number.
+    
 ## Quickstart
 
 
