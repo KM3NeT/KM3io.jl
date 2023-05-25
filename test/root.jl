@@ -8,8 +8,6 @@ const DETX = datapath("detx", "detx_v3.detx")
 const DETX_44 = datapath("detx", "km3net_offline.detx")
 const ONLINEFILE = datapath("online", "km3net_online.root")
 const OFFLINEFILE = datapath("offline", "km3net_offline.root")
-const IO_EVT = datapath("daq", "IO_EVT.dat")
-const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
 
 
 @testset "Offline files" begin
