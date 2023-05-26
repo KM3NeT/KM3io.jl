@@ -16,10 +16,6 @@ using StaticArrays: FieldVector, SVector
 import UnROOT
 
 using HDF5
-# TODO: this will be fixed when https://github.com/JuliaIO/HDF5.jl/pull/1069
-# is merged. HDF5 dependency should then be set to ^0.16.14 and the following
-# line removed
-HDF5.datatype(::Type{T}) where {T} = HDF5.Datatype(HDF5.hdf5_type_id(T), isstructtype(T))
 
 export ROOTFile
 export H5File, H5CompoundDataset, create_dataset
@@ -95,5 +91,10 @@ include("tools/trigger.jl")
 include("tools/reconstruction.jl")
 
 include("physics.jl")
+
+if get_package_version("HDF5") < v"0.16.15"
+    # backport of the fix in https://github.com/JuliaIO/HDF5.jl/pull/1069
+    HDF5.datatype(::Type{T}) where {T} = HDF5.Datatype(HDF5.hdf5_type_id(T), isstructtype(T))
+end
 
 end # module
