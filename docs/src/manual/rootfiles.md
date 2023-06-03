@@ -99,9 +99,6 @@ julia> f.offline[3:5]
 julia> event = f.offline[1]
 KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 
-julia> event.trks[:4]
-KM3io.Trk(4, [448.25834890057024, ... , 291.64653112688273, 4000)
-
 julia> event.trks[1:4]
 4-element Vector{KM3io.Trk}:
  KM3io.Trk(1, [445.835395997812, ... , 294.6407542676734, 4000)
