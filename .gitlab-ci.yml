@@ -48,6 +48,14 @@ Julia 1.8:
     - .script
     - .coverage
 
+Julia 1.9:
+  image: docker.km3net.de/base/julia:1.9
+  stage: test
+  extends:
+    - .script
+    - .coverage
+
+
 docs:
   image: docker.km3net.de/base/julia:1.8-tex
   stage: docs
