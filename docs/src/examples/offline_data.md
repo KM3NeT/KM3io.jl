@@ -38,6 +38,8 @@ or ranges of events:
 events = f.offline[6:9]
 ```
 
+### Hits
+
 Each event consists of a vector of hits, MC hits, tracks and MC tracks. Depending
 on the file, they may be empty. They are accessible via the fields `.hit`, `.mc_hits`, `.trks` and `.mc_trks`.
 
@@ -51,4 +53,30 @@ and have a look at its contents:
 
 ```@example 1
 evt.hits
+```
+
+Let's close this file properly:
+
+```@example 1
+close(f)
+```
+
+### Usr data
+
+You can also access "usr"-data, which is a dynamic placeholder (`Dict{String,
+Float64}`) to store arbitrary data. Some software store values here which are
+only losely defined. Ideally, if these fields are used regulary by a software, a
+proper definition in the KM3NeT dataformat should be created and added to the
+according `Struct` as a field.
+
+Here is an example how to access the "usr"-data of a single event:
+
+```@example 1
+f = ROOTFile(datapath("offline", "usr-sample.root"))
+
+f.offline[1].usr
+```
+
+```@example 1
+close(f)
 ```
