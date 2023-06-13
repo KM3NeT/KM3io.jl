@@ -8,6 +8,7 @@ const DETX = datapath("detx", "detx_v3.detx")
 const DETX_44 = datapath("detx", "km3net_offline.detx")
 const ONLINEFILE = datapath("online", "km3net_online.root")
 const OFFLINEFILE = datapath("offline", "km3net_offline.root")
+const USRFILE = datapath("offline", "usr-sample.root")
 
 
 @testset "Offline files" begin
@@ -38,9 +39,44 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
     @test -164 ≈ sum([h.type for h ∈ f.offline[1].mc_hits])
 
 
+
     close(f)
 end
 
+@testset "Usr fields" begin
+    f = ROOTFile(USRFILE)
+    evt = f.offline[1]
+    @test isapprox(evt.usr["ChargeAbove"], 176.0)
+    @test isapprox(evt.usr["NTrigLines"], 6.0)
+    @test isapprox(evt.usr["ChargeBelow"], 649.0)
+    @test isapprox(evt.usr["ClassficationScore"], 0.168634; atol=1e-6)
+    @test isapprox(evt.usr["NTrigHits"], 30.0)
+    @test isapprox(evt.usr["NGeometryVetoHits"], 0.0)
+    @test isapprox(evt.usr["ChargeRatio"], 0.213333; atol=1e-6)
+    @test isapprox(evt.usr["ToT"], 825.0)
+    @test isapprox(evt.usr["DeltaPosZ"], 37.5197; atol=1e-4)
+    @test isapprox(evt.usr["RecoQuality"], 85.4596; atol=1e-4)
+    @test isapprox(evt.usr["LastPartPosZ"], 97.7753; atol=1e-4)
+    @test isapprox(evt.usr["NSnapHits"], 51.0)
+    @test isapprox(evt.usr["NSpeedVetoHits"], 0.0)
+    @test isapprox(evt.usr["RecoNDF"], 37.0)
+    @test isapprox(evt.usr["NTrigDOMs"], 7.0)
+    @test isapprox(evt.usr["FirstPartPosZ"], 135.295; atol=1e-3)
+    @test isapprox(evt.usr["CoC"], 118.63; atol=1e-2)
+
+    f = ROOTFile(OFFLINEFILE)
+    evt = f.offline[1]
+    @test length(evt.usr) == 0
+
+    for fpath in readdir(datapath("offline"); join=true)
+        basename(fpath) == "mcv6.gsg_nue-CCHEDIS_1e4-1e6GeV.sirene.jte.jchain.aanet.1.root" && continue
+        f = ROOTFile(fpath)
+        if length(f.offline) > 0
+            evt = first(f.offline)
+            @test typeof(evt.usr) == Dict{String, Float64}
+        end
+    end
+end
 
 @testset "Online files" begin
     f = ROOTFile(ONLINEFILE)

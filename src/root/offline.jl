@@ -107,6 +107,7 @@ struct Evt
     # comment::AbstractString
     index::Int64
     flags::Int64
+    usr::Dict{String, Float64}
 end
 function Base.show(io::IO, e::Evt)
     print(io, "$(typeof(e)) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) tracks, $(length(e.mc_trks)) MC tracks)")
@@ -157,7 +158,10 @@ struct OfflineTree{T}
         tpath = ROOT.TTREE_OFFLINE_EVENT
         bpath = ROOT.TBRANCH_OFFLINE_EVENT
 
-        t = UnROOT.LazyTree(fobj, tpath, [
+        aaobject_keys = getproperty.(UnROOT.children(fobj["E/Evt/AAObject"]), :fName)
+        has_usr_fields = "usr" in aaobject_keys && "usr_names" in aaobject_keys
+
+        branch_paths =[
             bpath * "/id",
             bpath * "/det_id",
             bpath * "/mc_id",
@@ -186,7 +190,14 @@ struct OfflineTree{T}
             Regex(bpath * "/mc_trks/mc_trks.(pos|dir).([xyz])\$") => s"mc_trks_\1_\2",
             bpath * "/index",
             bpath * "/flags",
-        ])
+        ]
+
+        if has_usr_fields
+            push!(branch_paths, bpath * "/AAObject/usr")
+            push!(branch_paths, bpath * "/AAObject/usr_names")
+        end
+
+        t = UnROOT.LazyTree(fobj, tpath, branch_paths)
 
         header = "Head" ∈ keys(fobj) ? MCHeader(fobj["Head"]) : missing
 
@@ -211,6 +222,13 @@ function Base.getindex(f::OfflineTree, idx::Integer)
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
     skip_mc_event_time = !hasproperty(e, :mc_event_time_Sec)
+    has_usr_fields = hasproperty(e, :Evt_AAObject_usr)
+
+    if has_usr_fields
+        usr_dct = Dict(e.Evt_AAObject_usr_names .=> e.Evt_AAObject_usr)
+    else
+        usr_dct = Dict{String, Float64}()
+    end
 
     n = length(e.mc_hits_id)
     mc_hits = sizehint!(Vector{CalibratedMCHit}(), n)
@@ -308,7 +326,8 @@ function Base.getindex(f::OfflineTree, idx::Integer)
         mc_hits,
         mc_trks,
         e.Evt_index,
-        e.Evt_flags
+        e.Evt_flags,
+        usr_dct
     )
 end
 
