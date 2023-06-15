@@ -18,6 +18,7 @@ const USRFILE = datapath("offline", "usr-sample.root")
     @test 56 == length(t[1].trks)
     @test 0 == length(t[1].w)
     @test 17 == length(t[1].trks[1].fitinf)
+    @test 0.009290906625313346 == t[end].trks[1].fitinf[1]
     close(f)
 
     f = ROOTFile(datapath("offline", "numucc.root"))
@@ -110,6 +111,8 @@ end
     @test [26, 29, 30, 23, 30] == [h.tot for h in hits[3][1:5]]
     @test [28, 11, 27, 24, 23] == [h.tot for h in hits[3][end-4:end]]
 
+    @test 808447186 == f.online.events[end].triggered_hits[1].dom_id
+
     thits = f.online.events.triggered_hits
     @test 3 == length(thits)
     @test 18 == length(thits[1])
@@ -140,6 +143,12 @@ end
     @test headers[3].overlays == 0
 
     events = []
+    Threads.@threads for event in f.online.events
+        push!(events, event)
+    end
+    @test 3 == length(events)
+
+    events = []
     for event in f.online.events
         push!(events, event)
     end
@@ -161,6 +170,8 @@ end
     @test 66 == length(s[2].frames)
     @test 68 == length(s[3].frames)
     @test 44 == s[1].header.detector_id == s[2].header.detector_id == s[3].header.detector_id
+
+    @test 68 == length(s[end].frames)
 
     module_values = Dict(
         808981510 => (fifo = true),

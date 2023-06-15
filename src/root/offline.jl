@@ -208,6 +208,8 @@ OfflineTree(filename::AbstractString) = OfflineTree(UnROOT.ROOTFile(filename))
 
 Base.close(f::OfflineTree) = close(f._fobj)
 Base.length(f::OfflineTree) = length(f._t.Evt_id)
+Base.firstindex(f::OfflineTree) = 1
+Base.lastindex(f::OfflineTree) = length(f)
 Base.eltype(::OfflineTree) = Evt
 function Base.iterate(f::OfflineTree, state=1)
     state > length(f) ? nothing : (f[state], state+1)
