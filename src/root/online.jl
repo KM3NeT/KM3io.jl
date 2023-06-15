@@ -53,6 +53,8 @@ Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snap
 Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
 Base.getindex(c::EventContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 Base.length(c::EventContainer) = length(c.headers)
+Base.firstindex(c::EventContainer) = 1
+Base.lastindex(c::EventContainer) = length(c)
 Base.eltype(::EventContainer) = DAQEvent
 function Base.iterate(c::EventContainer, state=1)
     state > length(c) ? nothing : (DAQEvent(c.headers[state], c.snapshot_hits[state], c.triggered_hits[state]), state+1)
@@ -104,6 +106,8 @@ Base.getindex(c::SummarysliceContainer, idx::Integer) = Summaryslice(c.headers[i
 Base.getindex(c::SummarysliceContainer, r::UnitRange) = [c[idx] for idx ∈ r]
 Base.getindex(c::SummarysliceContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 Base.length(c::SummarysliceContainer) = length(c.headers)
+Base.firstindex(c::SummarysliceContainer) = 1
+Base.lastindex(c::SummarysliceContainer) = length(c)
 Base.eltype(::SummarysliceContainer) = Summaryslice
 function Base.iterate(c::SummarysliceContainer, state=1)
     state > length(c) ? nothing : (c[state], state+1)
