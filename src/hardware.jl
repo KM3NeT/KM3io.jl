@@ -264,6 +264,17 @@ Base.getindex(d::Detector, module_id) = d.modules[module_id]
 
 
 """
+
+Calculate the center of the detector based on the location of the optical modules.
+
+"""
+function center(d::Detector)
+    opticalmodules = [m for m ∈ d if !isbasemodule(m)]
+    sum(m.pos for m ∈ opticalmodules) / length(opticalmodules)
+end
+
+
+"""
     function Detector(filename::AbstractString)
 
 Create a `Detector` instance from a DETX file.

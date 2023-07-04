@@ -34,6 +34,9 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
 
             if version > 3
                 @test Quaternion(1, 0, 0, 0) ≈ d.modules[808995481].q
+                @test 19 == length(collect(m for m ∈ d if isbasemodule(m)))
+            else
+                @test 0 == length(collect(m for m ∈ d if isbasemodule(m)))
             end
 
             if version > 4
@@ -57,6 +60,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             @test 30 == d.strings[end]
             @test 19 == length(d.strings)
 
+            @test isapprox([116.60000547853453, 106.95689770873874, 60.463039635848226], d.modules[808992603].pos; atol=0.008)
         end
 
         comments = Detector(joinpath(SAMPLES_DIR, "v3.detx")).comments
@@ -119,5 +123,9 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
         @test hydrophoneenabled(mod)
         @test piezoenabled(mod)
+        for version ∈ 1:5
+            d = Detector(joinpath(SAMPLES_DIR, "v$(version).detx"))
+            @test isapprox([83.4620946059086, 312.254188175614, 377.8839470243232], center(d); atol=0.01)
+        end
     end
 end
