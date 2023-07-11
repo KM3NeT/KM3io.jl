@@ -56,14 +56,28 @@ end
 Calculates the azimuth from a given [`Direction`](@ref) according to KM3NeT conventions.
 
 """
-azimuth(d::Direction) = atan(d[2], d[1])
+azimuth(d::Direction) = atan(d.y, d.x)
 
 """
 
 Calculates the zenith from a given [`Direction`](@ref) according to KM3NeT conventions.
 
 """
-zenith(d::Direction) = acos(-d[3]/norm(d))
+zenith(d::Direction) = acos(-d.z/norm(d))
+
+"""
+Calculate the theta angle for a given direction
+"""
+function theta(d::Direction)
+    d.z > 1 && return 0.0
+    d.z < -1 && return π
+	acos(d.z);
+end
+
+"""
+Calculate the phi angle for a given direction
+"""
+phi(d::Direction) = azimuth(d)
 
 
 """

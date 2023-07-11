@@ -68,3 +68,17 @@ end
     @test π/2 == zenith(Direction(1,1,0))
     @test π ≈ zenith(Direction(0,0,1))
 end
+
+@testset "phi()" begin
+    @test π/2 == phi(Direction(0,1,0))
+    @test 0 ≈ phi(Direction(1,0,0))
+    @test -π/2 ≈ phi(Direction(0,-1,0))
+    @test π ≈ phi(Direction(-1,0,0))
+end
+
+@testset "theta()" begin
+    @test π ≈ theta(Direction(0,0,-1))
+    @test π/2 == theta(Direction(0,1,0))
+    @test π/2 == theta(Direction(1,1,0))
+    @test 0.0 == theta(Direction(0,0,1))
+end

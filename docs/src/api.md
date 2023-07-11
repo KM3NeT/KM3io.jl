@@ -67,6 +67,10 @@ slew
 
 ## Physics
 ```@docs
+azimuth
+zenith
+phi
+theta
 cherenkov
 CherenkovPhoton
 K40Rates
