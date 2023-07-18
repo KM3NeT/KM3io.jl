@@ -76,3 +76,11 @@ const SLEWS = [
     -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04,
     -9.04, -9.04
 ]
+
+"""
+Get the time of a hit with a rise time (slew) correction.
+"""
+@inline function Base.time(h::AbstractHit; correct_slew=true)
+    correct_slew && return h.t - slew(h.tot)
+    h.t
+end
