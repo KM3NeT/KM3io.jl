@@ -16,7 +16,7 @@ end
 """
 A vector to represent a direction in 3D.
 """
-struct Direction{T} <: FieldVector{3, T}
+struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
     x::T
     y::T
     z::T
