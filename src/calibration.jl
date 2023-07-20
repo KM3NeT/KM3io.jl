@@ -45,10 +45,10 @@ end
 Return the time slewing for a ToT.
 """
 slew(tot::Integer) = @inbounds ifelse(tot < 256, SLEWS[tot + 1], SLEWS[end])
-slew(tot::AbstractFloat) = slew(Int(round(tot)))
+slew(tot::AbstractFloat) = slew(Int(floor(tot)))  # Jpp convention, not rounding but casting to int
 slew(hit::AbstractHit) = slew(hit.tot)
 
-const SLEWS = [
+const SLEWS = SVector(
     8.01, 7.52, 7.05, 6.59, 6.15, 5.74, 5.33, 4.95, 4.58, 4.22, 3.89, 3.56,
     3.25, 2.95, 2.66, 2.39, 2.12, 1.87, 1.63, 1.40, 1.19, 0.98, 0.78, 0.60,
     0.41, 0.24, 0.07, -0.10, -0.27, -0.43, -0.59, -0.75, -0.91, -1.08,
@@ -75,7 +75,7 @@ const SLEWS = [
     -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04,
     -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04, -9.04,
     -9.04, -9.04
-]
+)
 
 """
 Get the time of a hit with a rise time (slew) correction.
