@@ -93,8 +93,7 @@ struct UTCExtended
     wr_status::Int
 
     function UTCExtended(seconds, ns_cycles)
-        # TODO: make this more efficient
-        wr_status = (seconds & 0x80000000) == 0 ? 0 : 1 # most significant bit indicates White Rabbit status
+        wr_status = (seconds >> 31) & 1
         s = seconds & 0x7FFFFFFF  # skipping the most significant bit
         new(s, ns_cycles * 16, wr_status)
     end
