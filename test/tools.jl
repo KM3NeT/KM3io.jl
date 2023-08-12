@@ -244,6 +244,8 @@ end
     @test !tdcstatus(s[1].frames[5])
 
     @test 15 == count_active_channels(frame)
+    @test 0 == count_fifostatus(frame)
+    @test 16 == count_hrvstatus(frame)
 
     # Test sample via Jpp from the first summary slice (Frame #23) in ONLINEFILE
     # DOM ID: 808951460
@@ -302,6 +304,8 @@ end
     @test all(wrstatus(fr) for fr ∈ s[1].frames)
 
     @test 9 == count_active_channels(frame)
+    @test 6 == count_fifostatus(frame)
+    @test 16 == count_hrvstatus(frame)
 
     close(f)
 end

@@ -103,11 +103,11 @@ Number of TDCs with FIFO almost full.
 
 """
 function count_fifostatus(f::SummaryFrame)
-    n = KM3io.Constants.NUMBER_OF_PMTS
-    !fifostatus(f) && return n
+    !fifostatus(f) && return 0
+    n = 0
     for pmt ∈ 0:(KM3io.Constants.NUMBER_OF_PMTS - 1)
         if fifostatus(f, pmt)
-            n -= 1
+            n += 1
         end
     end
     n
@@ -118,12 +118,12 @@ end
 Number of TDCs with high rate veto.
 
 """
-function count_fifostatus(f::SummaryFrame)
-    n = KM3io.Constants.NUMBER_OF_PMTS
-    !hrvstatus(f) && return n
+function count_hrvstatus(f::SummaryFrame)
+    !hrvstatus(f) && return 0
+    n = 0
     for pmt ∈ 0:(KM3io.Constants.NUMBER_OF_PMTS - 1)
         if hrvstatus(f, pmt)
-            n -= 1
+            n += 1
         end
     end
     n
