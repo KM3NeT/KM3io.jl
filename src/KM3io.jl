@@ -27,7 +27,7 @@ export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
 
 # Online dataformat
-export DAQEvent, pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus
+export DAQEvent, pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer
 # Offline dataformat
 export Evt, Hit, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit
 
