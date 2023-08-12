@@ -73,3 +73,10 @@ Return `true` if any of the TDCs is in high rate veto.
 
 """
 fifostatus(f::SummaryFrame) = (f.fifo << 1) != 0
+
+"""
+
+Return `true` if the UDP trailer is present.
+
+"""
+hasudptrailer(f::SummaryFrame) = nthbitset(31, f.fifo)
