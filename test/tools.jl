@@ -250,7 +250,7 @@ end
     @test 0 == count_fifostatus(frame)
     @test 16 == count_hrvstatus(frame)
 
-    @test 34 == maximaul_udp_sequence_number(frame)
+    @test 34 == maximal_udp_sequence_number(frame)
     @test 35 == number_of_udp_packets_received(frame)
 
     # Test sample via Jpp from the first summary slice (Frame #23) in ONLINEFILE
@@ -313,7 +313,7 @@ end
     @test 6 == count_fifostatus(frame)
     @test 16 == count_hrvstatus(frame)
 
-    @test 36 == maximaul_udp_sequence_number(frame)
+    @test 36 == maximal_udp_sequence_number(frame)
     @test 37 == number_of_udp_packets_received(frame)
 
     close(f)
