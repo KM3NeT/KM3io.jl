@@ -128,3 +128,25 @@ function count_hrvstatus(f::SummaryFrame)
     end
     n
 end
+
+"""
+
+Return `true` if TDC and White Rabbit status are OK.
+
+"""
+status(f::SummaryFrame) = wrstatus(f) && tdcstatus(f)
+
+
+"""
+
+Maximal sequence number of all received UDP packets.
+
+"""
+maximal_udp_sequence_number(f::SummaryFrame) = signed(f.daq >> 16)
+
+"""
+
+Number of received UDP packets (excluding the trailer).
+
+"""
+number_of_udp_packets_received(f::SummaryFrame) = signed(f.daq & 0x0000FFFF)
