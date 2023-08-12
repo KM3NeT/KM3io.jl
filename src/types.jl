@@ -46,6 +46,11 @@ abstract type AbstractDAQHit<:AbstractHit end
 abstract type AbstractMCHit<:AbstractHit end
 abstract type AbstractCalibratedHit <: AbstractDAQHit end
 
+"""
+
+A snapshot hit.
+
+"""
 struct SnapshotHit <: AbstractDAQHit
     dom_id::UInt32
     channel_id::UInt8
@@ -53,6 +58,11 @@ struct SnapshotHit <: AbstractDAQHit
     tot::UInt8
 end
 
+"""
+
+A hit which was triggered.
+
+"""
 struct TriggeredHit <: AbstractDAQHit
     dom_id::Int32
     channel_id::UInt8
@@ -81,12 +91,24 @@ struct XCalibratedHit <: AbstractCalibratedHit
     multiplicity::Multiplicity
 end
 
+"""
+
+A basic time structure with seconds and nanoseconds. The seconds are counting
+from the start of the epoch, just like the UNIX time.
+
+"""
 struct UTCTime
     s::UInt64
     ns::UInt64
 end
 Base.show(io::IO, t::UTCTime) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)))")
 
+"""
+
+An extended time structure which contains the White Rabbit time synchronisation
+status. `wr_status == 0` means that the synchronisation is OK.
+
+"""
 struct UTCExtended
     s::UInt32
     ns::UInt32
@@ -100,16 +122,29 @@ struct UTCExtended
 end
 Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
 
+"""
+
+A `SummaryFrame` contains reduced timeslice data from an optical module.
+
+The PMT `rates` are encoded as single bytes and can be converted to real
+hit rates using the `rates(s::SummaryFrame)` function.
+
+"""
 struct SummaryFrame
     dom_id::Int32
-    dq_status::UInt32
-    hrv::UInt32
+    daq::UInt32
+    status::UInt32  # contais HRV
     fifo::UInt32
     status3::UInt32
     status4::UInt32
     rates::Vector{UInt8}
 end
 
+"""
+
+The header of a summaryslice.
+
+"""
 struct SummarysliceHeader
     detector_id::Int32
     run::Int32
@@ -117,6 +152,11 @@ struct SummarysliceHeader
     t::UTCExtended
 end
 
+"""
+
+The header of an event.
+
+"""
 struct EventHeader
     detector_id::Int32
     run::Int32
@@ -127,6 +167,12 @@ struct EventHeader
     overlays::UInt32
 end
 
+"""
+
+A (triggered) event holding snapshot hits and triggered hits. The triggered hits
+are a subset of the snapshot hits.
+
+"""
 struct DAQEvent
     header::EventHeader
     snapshot_hits::Vector{SnapshotHit}

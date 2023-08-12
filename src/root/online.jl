@@ -81,15 +81,15 @@ end
 UnROOT.packedsizeof(::Type{SummaryFrame}) = 55  # incl. cnt and vers
 function UnROOT.readtype(io, T::Type{SummaryFrame})
     dom_id = UnROOT.readtype(io, Int32)
-    dq_status = UnROOT.readtype(io, UInt32)
-    hrv = UnROOT.readtype(io, UInt32)
+    daq = UnROOT.readtype(io, UInt32)
+    status = UnROOT.readtype(io, UInt32)
     fifo = UnROOT.readtype(io, UInt32)
     status3 = UnROOT.readtype(io, UInt32)
     status4 = UnROOT.readtype(io, UInt32)
     rates = [UnROOT.read(io, UInt8) for i ∈ 1:31]
     # burn one byte
     #read(io, UInt8)
-    T(dom_id, dq_status, hrv, fifo, status3, status4, rates)
+    T(dom_id, daq, status, fifo, status3, status4, rates)
 end
 function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{SummaryFrame}}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, SummaryFrame, skipbytes=10)
@@ -98,6 +98,14 @@ struct SummarysliceContainer
     headers
     summaryslices
 end
+"""
+
+A summaryslice is a condensed timeslice with the header information of the
+corresponding timeslice and a summary frame for each optical module. The hit
+information of the original timeslice is reduced so that for each PMT a
+single byte is used to encode the hit rate.
+
+"""
 struct Summaryslice
     header::SummarysliceHeader
     frames::Vector{SummaryFrame}
@@ -115,7 +123,6 @@ end
 function Base.show(io::IO, c::SummarysliceContainer)
     print(io, "$(typeof(c)) with $(length(c.headers)) summaryslices")
 end
-
 
 
 struct OnlineTree

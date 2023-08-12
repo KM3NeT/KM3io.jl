@@ -23,7 +23,15 @@ MCTrk
 
 ## Online Format
 ```@docs
-
+DAQEvent
+EventHeader
+SnapshotHit
+TriggeredHit
+UTCTime
+UTCTimeExtended
+SummarySlice
+SummarySliceHeader
+SummaryFrame
 ```
 
 ## HDF5
@@ -97,6 +105,14 @@ CHClient
 categorize
 nthbitset
 most_frequent
+```
+
+### DAQ
+```@docs
+pmtrate
+pmtrates
+hrvstatus
+tdcstatus
 ```
 
 ### Reconstruction
