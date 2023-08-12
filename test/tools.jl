@@ -176,40 +176,6 @@ end
     @test 15253.971718046887 == r[808981510][1]
     @test 15253.971718046887 == r[808981510][1]
 
-    frame = s[1].frames[5]
-
-    @test 8873.37466195722 ≈ pmtrate(frame, 0)
-    @test 9624.605487994835 ≈ pmtrate(frame, 2)
-    @test 12619.146889603864 ≈ pmtrate(frame, 30)
-    r = pmtrates(frame)
-    @test 31 == length(r)
-    @test 8873.37466195722 ≈ r[1]
-    @test 9624.605487994835 ≈ r[3]
-    @test 12619.146889603864 ≈ r[31]
-    for pmt ∈ vcat(0:9, 11, 20, 27:28, 30)
-        @test !hrvstatus(frame, pmt)
-    end
-    for pmt ∈ vcat(10, 12:19, 21:26, 29)
-        @test hrvstatus(frame, pmt)
-    end
-
-    @test !hrvstatus(s[1].frames[1])
-    @test hrvstatus(s[1].frames[2])
-    @test hrvstatus(s[1].frames[3])
-    @test !hrvstatus(s[1].frames[4])
-    @test hrvstatus(s[1].frames[5])
-
-    @test tdcstatus(s[1].frames[1])
-    @test !tdcstatus(s[1].frames[2])
-    @test !tdcstatus(s[1].frames[3])
-    @test tdcstatus(s[1].frames[4])
-    @test !tdcstatus(s[1].frames[5])
-
-    for tdc ∈ 0:30
-        @test !fifostatus(frame, tdc)
-    end
-    @test !fifostatus(frame)
-
     # Test sample via Jpp from the first summary slice (Frame #5) in ONLINEFILE
     # DOM ID: 806487219
     # UDP max sequence number: 34
@@ -248,6 +214,84 @@ end
     #   PMT 28: HRV(0) FIFO(0) rate=16.1032    corrected rate=16.1032  weight=2.29233
     #   PMT 29: HRV(1) FIFO(0) rate=22.2889    corrected rate=22.2889  weight=1.65616
     #   PMT 30: HRV(0) FIFO(0) rate=12.6191    corrected rate=12.6191  weight=2.92523
+    frame = s[1].frames[5]
+
+    @test 8873.37466195722 ≈ pmtrate(frame, 0)
+    @test 9624.605487994835 ≈ pmtrate(frame, 2)
+    @test 12619.146889603864 ≈ pmtrate(frame, 30)
+    r = pmtrates(frame)
+    @test 31 == length(r)
+    @test 8873.37466195722 ≈ r[1]
+    @test 9624.605487994835 ≈ r[3]
+    @test 12619.146889603864 ≈ r[31]
+    for pmt ∈ vcat(0:9, 11, 20, 27:28, 30)
+        @test !hrvstatus(frame, pmt)
+    end
+    for pmt ∈ vcat(10, 12:19, 21:26, 29)
+        @test hrvstatus(frame, pmt)
+    end
+
+    @test !hrvstatus(s[1].frames[1])
+    @test hrvstatus(s[1].frames[2])
+    @test hrvstatus(s[1].frames[3])
+    @test !hrvstatus(s[1].frames[4])
+    @test hrvstatus(s[1].frames[5])
+
+    @test tdcstatus(s[1].frames[1])
+    @test !tdcstatus(s[1].frames[2])
+    @test !tdcstatus(s[1].frames[3])
+    @test tdcstatus(s[1].frames[4])
+    @test !tdcstatus(s[1].frames[5])
+
+    # Test sample via Jpp from the first summary slice (Frame #23) in ONLINEFILE
+    # DOM ID: 808951460
+    # UDP max sequence number: 36
+    # UDP number of recv packets: 37
+    # UDP has trailer: 1
+    # white rabbit status: 1
+    # status: 1
+    #   PMT 0: HRV(0) FIFO(0) rate=14.0634    corrected rate=14.0634  weight=2.62483
+    #   PMT 1: HRV(0) FIFO(0) rate=16.1032    corrected rate=16.1032  weight=2.29233
+    #   PMT 2: HRV(0) FIFO(0) rate=18.4389    corrected rate=18.4389  weight=2.00195
+    #   PMT 3: HRV(1) FIFO(0) rate=21.1135    corrected rate=21.1135  weight=1.74836
+    #   PMT 4: HRV(0) FIFO(0) rate=14.8463    corrected rate=14.8463  weight=2.4864
+    #   PMT 5: HRV(0) FIFO(0) rate=11.6342    corrected rate=11.6342  weight=3.17288
+    #   PMT 6: HRV(0) FIFO(0) rate=16.5454    corrected rate=16.5454  weight=2.23107
+    #   PMT 7: HRV(0) FIFO(0) rate=14.4495    corrected rate=14.4495  weight=2.55468
+    #   PMT 8: HRV(0) FIFO(0) rate=17.9461    corrected rate=17.9461  weight=2.05693
+    #   PMT 9: HRV(0) FIFO(0) rate=17.9461    corrected rate=17.9461  weight=2.05693
+    #   PMT 10: HRV(1) FIFO(0) rate=29.2237    corrected rate=29.2237  weight=1.26315
+    #   PMT 11: HRV(1) FIFO(0) rate=21.1135    corrected rate=21.1135  weight=1.74836
+    #   PMT 12: HRV(1) FIFO(0) rate=818.078    corrected rate=818.078  weight=0.0451227
+    #   PMT 13: HRV(1) FIFO(0) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 14: HRV(1) FIFO(0) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 15: HRV(1) FIFO(0) rate=1444.95    corrected rate=1444.95  weight=0.0255468
+    #   PMT 16: HRV(1) FIFO(0) rate=194.655    corrected rate=194.655  weight=0.189638
+    #   PMT 17: HRV(1) FIFO(0) rate=1332.17    corrected rate=1332.17  weight=0.0277096
+    #   PMT 18: HRV(1) FIFO(0) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 19: HRV(1) FIFO(0) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 20: HRV(1) FIFO(0) rate=1016.04    corrected rate=1016.04  weight=0.036331
+    #   PMT 21: HRV(1) FIFO(0) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 22: HRV(0) FIFO(1) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 23: HRV(1) FIFO(0) rate=1261.91    corrected rate=1261.91  weight=0.0292523
+    #   PMT 24: HRV(0) FIFO(1) rate=1894.53    corrected rate=1894.53  weight=0.0194845
+    #   PMT 25: HRV(0) FIFO(1) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 26: HRV(0) FIFO(1) rate=1699.97    corrected rate=1699.97  weight=0.0217144
+    #   PMT 27: HRV(1) FIFO(0) rate=65.8684    corrected rate=65.8684  weight=0.560419
+    #   PMT 28: HRV(0) FIFO(1) rate=1043.94    corrected rate=1043.94  weight=0.0353601
+    #   PMT 29: HRV(0) FIFO(1) rate=2000    corrected rate=2000  weight=0.0371656
+    #   PMT 30: HRV(1) FIFO(0) rate=695.355    corrected rate=695.355  weight=0.0530864
+    frame = s[1].frames[23]
+
+    for pmt ∈ vcat(0:21, 23, 27, 30)
+        @test !fifostatus(frame, pmt)
+    end
+    for pmt ∈ vcat(22, 24:26, 28:29)
+        @test fifostatus(frame, pmt)
+    end
+    @test !fifostatus(s[1].frames[1])
+    @test !fifostatus(s[1].frames[5])
+    @test fifostatus(s[1].frames[23])
 
     close(f)
 end
