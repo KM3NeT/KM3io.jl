@@ -293,5 +293,11 @@ end
     @test !fifostatus(s[1].frames[5])
     @test fifostatus(s[1].frames[23])
 
+    # TODO no test file with missing UDP trailers, we need one
+    @test all(hasudptrailer(fr) for fr ∈ s[1].frames)
+
+    # TODO no test file with bad white rabbit status, we need one
+    @test all(wrstatus(fr) for fr ∈ s[1].frames)
+
     close(f)
 end
