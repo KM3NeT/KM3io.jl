@@ -23,13 +23,22 @@ MCTrk
 
 ## Online Format
 ```@docs
-
+DAQEvent
+EventHeader
+SnapshotHit
+TriggeredHit
+UTCTime
+UTCExtended
+Summaryslice
+SummarysliceHeader
+SummaryFrame
 ```
 
 ## HDF5
 ```@docs
 H5File
 H5CompoundDataset
+create_dataset
 ```
 
 ## Hardware
@@ -97,6 +106,23 @@ CHClient
 categorize
 nthbitset
 most_frequent
+```
+
+### DAQ
+```@docs
+pmtrate
+pmtrates
+hrvstatus
+fifostatus
+tdcstatus
+wrstatus
+hasudptrailer
+count_active_channels
+count_fifostatus
+count_hrvstatus
+status
+number_of_udp_packets_received
+maximal_udp_sequence_number
 ```
 
 ### Reconstruction

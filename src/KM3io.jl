@@ -12,7 +12,7 @@ import Pkg
 const version = VersionNumber(Pkg.TOML.parsefile(joinpath(pkgdir(KM3io), "Project.toml"))["version"])
 
 using DocStringExtensions
-using StaticArrays: FieldVector, SVector
+using StaticArrays: FieldVector, @SArray, SVector
 import UnROOT
 
 using HDF5
@@ -27,7 +27,11 @@ export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
 
 # Online dataformat
-export DAQEvent
+export DAQEvent, EventHeader, SnapshotHit, UTCTime, UTCExtended, Summaryslice,
+       SummarysliceHeader, SummaryFrame,
+       pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer,
+       count_active_channels, count_fifostatus, count_hrvstatus, status,
+       maximal_udp_sequence_number, number_of_udp_packets_received
 # Offline dataformat
 export Evt, Hit, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit
 
@@ -87,6 +91,7 @@ include("calibration.jl")
 include("controlhost.jl")
 
 include("tools/general.jl")
+include("tools/daq.jl")
 include("tools/trigger.jl")
 include("tools/reconstruction.jl")
 

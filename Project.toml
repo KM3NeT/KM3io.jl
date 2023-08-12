@@ -19,10 +19,10 @@ UnROOT = "3cd96dde-e98d-4713-81e9-a4a1b0235ce9"
 
 [compat]
 DocStringExtensions = "0.8, 0.9"
+HDF5 = "^0.16"
 KM3NeTTestData = "^0.4.3"
 StaticArrays = "1"
 UnROOT = "^0.10.15"
-HDF5 = "^0.16"
 julia = "1"
 
 [extras]

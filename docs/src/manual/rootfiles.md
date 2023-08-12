@@ -145,9 +145,7 @@ accessed, similar to the offline access. In the examples below, we use
 access to small sample files.
 
 ``` julia
-julia> using KM3io
-
-julia> using KM3NeTTestData
+julia> using KM3io, KM3NeTTestData
 
 julia> f = ROOTFile(datapath("online", "km3net_online.root"))
 ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
@@ -183,13 +181,15 @@ high amount of data, the storage of timeslices is usually reduced by a factor of
 10-100 after the event triggering stage. However, summaryslices are covering the
 full data taking period. They however do not contain hit data but only the rates
 of the PMTs encoded into a single byte, which therefore is only capable to store
-256 different values. The actual rate is calcuated by a helper function (TODO).
+256 different values. The actual rate is calcuated by the helper functions
+`pmtrate()` and `pmtrates()` which take a `SummaryFrame` and optionally a PMT
+channel ID as arguments.
 
 The summaryslices are accessible using the `.summaryslices` attribute of the
 `OnlineTree` instance, which again is hidden behind the `.online` field of a `ROOTFile`:
 
 ``` julia
-julia> using KM3io, UnROOT, KM3NeTTestData
+julia> using KM3io, KM3NeTTestData
 
 julia> f = ROOTFile(datapath("online", "km3net_online.root"))
 ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
@@ -205,7 +205,81 @@ s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c,
 s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))
 ```
 
+Each summaryslice consists of multiple frames, one for every optical module which
+has sent data during the recording time of the corresponding timeslice.
+
+!!! note
+
+    During run transistions, the number of summaryframes in a summaryslice is fluctuating a lot until
+    it eventually saturates, usually within a few seconds or minutes. Therefore, it is expected that the
+    number of summaryframes (i.e. active DOMs) is low at the beginning of the file and stabilises after
+    a few summaryslices.
+
 To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO
-status), the `s.frames` can be used (TODO).
+status) of a summaryframe, several helper functions exist. Let's grab a summaryslice:
+
+```@example 2
+using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath("online", "km3net_online.root"))
+
+s = f.online.summaryslices[1]
+```
+
+and have a look at one of the frames, the 23rd of the first summaryslice:
 
 
+```@example 2
+frame = s.frames[23]
+```
+
+The White Rabbit status:
+
+```@example 2
+wrstatus(frame)
+```
+
+Checking if any of the PMTs is in high rate veto:
+
+```@example 2
+hrvstatus(frame)
+```
+
+The number of PMTs in high rate veto:
+
+```@example 2
+count_hrvstatus(frame)
+```
+
+Checking if any of the TDC FIFOs were almost full:
+
+```@example 2
+fifostatus(frame)
+```
+
+Counting the number of TDCs which had FIFO almost full:
+
+```@example 2
+count_fifostatus(frame)
+```
+
+The rates of each individual PMT channel ordered by increasing channel ID:
+
+```@example 2
+pmtrates(frame)
+```
+
+Individual PMT parameters can be accessed as well, by passing the summaryframe and
+the PMT ID (DAQ channel ID):
+
+```@example 2
+pmtrate(frame, 3)
+```
+
+Here is an example of a simple summary output:
+
+```@example 2
+for pmt in 0:30
+    println("PMT $(pmt): HRV($(hrvstatus(frame, pmt))) FIFO($(fifostatus(frame, pmt)))")
+end
+```

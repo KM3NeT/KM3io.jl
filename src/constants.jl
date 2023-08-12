@@ -1,5 +1,7 @@
 module Constants
 
+const NUMBER_OF_PMTS = 31
+
 const c = 2.99792458e8  # m/s
 
 # Constants from Jpp
@@ -36,5 +38,10 @@ const TAN_CHERENKOV = tan(CHERENKOV_ANGLE_RAD)
 const C_LIGHT = 299792458e-9  # m/ns
 const V_LIGHT_WATER = C_LIGHT / (WATER_INDEX + DN_DL)
 const C_WATER = C_LIGHT / INDEX_OF_REFRACTION_WATER
+
+# DAQ related values, which are not yet present in the km3net-dataformat repository.
+const MINIMAL_RATE_HZ = 2.0e3
+const MAXIMAL_RATE_HZ = 2.0e6
+const RATE_FACTOR = log(MAXIMAL_RATE_HZ / MINIMAL_RATE_HZ) / 255.0
 
 end
