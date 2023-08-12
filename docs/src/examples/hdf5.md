@@ -14,7 +14,7 @@ using Random
 
 Random.seed!(23)  # to make things reproducible ;)
 
-f = H5File("foo.h5"; mode="w")
+f = H5File("foo.h5", "w")
 ```
 
 We now have an `H5File` instance which we can use to store datasets.
