@@ -1,5 +1,7 @@
 module Constants
 
+const NUMBER_OF_PMTS = 31
+
 const c = 2.99792458e8  # m/s
 
 # Constants from Jpp

@@ -112,7 +112,13 @@ most_frequent
 pmtrate
 pmtrates
 hrvstatus
+fifostatus
 tdcstatus
+wrstatus
+hasudptrailer
+count_active_channels
+count_fifostatus
+count_hrvstatus
 ```
 
 ### Reconstruction

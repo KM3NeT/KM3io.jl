@@ -243,6 +243,8 @@ end
     @test tdcstatus(s[1].frames[4])
     @test !tdcstatus(s[1].frames[5])
 
+    @test 15 == count_active_channels(frame)
+
     # Test sample via Jpp from the first summary slice (Frame #23) in ONLINEFILE
     # DOM ID: 808951460
     # UDP max sequence number: 36
@@ -298,6 +300,8 @@ end
 
     # TODO no test file with bad white rabbit status, we need one
     @test all(wrstatus(fr) for fr ∈ s[1].frames)
+
+    @test 9 == count_active_channels(frame)
 
     close(f)
 end

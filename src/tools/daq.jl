@@ -80,3 +80,51 @@ Return `true` if the UDP trailer is present.
 
 """
 hasudptrailer(f::SummaryFrame) = nthbitset(31, f.fifo)
+
+"""
+
+Number of TDCs without high rate veto or FIFO almost full.
+
+"""
+function count_active_channels(f::SummaryFrame)
+    n = KM3io.Constants.NUMBER_OF_PMTS
+    !hrvstatus(f) && !fifostatus(f) && return n
+    for pmt ∈ 0:(KM3io.Constants.NUMBER_OF_PMTS - 1)
+        if hrvstatus(f, pmt) || fifostatus(f, pmt)
+            n -= 1
+        end
+    end
+    n
+end
+
+"""
+
+Number of TDCs with FIFO almost full.
+
+"""
+function count_fifostatus(f::SummaryFrame)
+    n = KM3io.Constants.NUMBER_OF_PMTS
+    !fifostatus(f) && return n
+    for pmt ∈ 0:(KM3io.Constants.NUMBER_OF_PMTS - 1)
+        if fifostatus(f, pmt)
+            n -= 1
+        end
+    end
+    n
+end
+
+"""
+
+Number of TDCs with high rate veto.
+
+"""
+function count_fifostatus(f::SummaryFrame)
+    n = KM3io.Constants.NUMBER_OF_PMTS
+    !hrvstatus(f) && return n
+    for pmt ∈ 0:(KM3io.Constants.NUMBER_OF_PMTS - 1)
+        if hrvstatus(f, pmt)
+            n -= 1
+        end
+    end
+    n
+end
