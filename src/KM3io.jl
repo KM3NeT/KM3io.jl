@@ -27,7 +27,9 @@ export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
 
 # Online dataformat
-export DAQEvent, pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer,
+export DAQEvent, EventHeader, SnapshotHit, UTCTime, UTCExtended, Summaryslice,
+       SummarysliceHeader, SummaryFrame,
+       pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer,
        count_active_channels, count_fifostatus, count_hrvstatus, status,
        maximal_udp_sequence_number, number_of_udp_packets_received
 # Offline dataformat
