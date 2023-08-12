@@ -40,7 +40,7 @@ struct H5File
     _h5f::HDF5.File
     _datasets::Dict{String, H5CompoundDataset}
 
-    function H5File(fname::AbstractString, mode="r")
+    function H5File(fname::AbstractString; mode="r")
         h5f = h5open(fname, mode)
         if mode != "r"
             if "KM3io.jl" ∈ keys(attrs(h5f))
