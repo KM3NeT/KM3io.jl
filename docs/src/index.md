@@ -69,18 +69,6 @@ julia> some_event = f.offline[3]
 KM3io.Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks)
 ```
 
-## Contribute
-
-These are mostly low-hanging fruits, so feel free to contribute! `;)`
-
-- [x] Best track selection (cf. the implementation in [km3io](https://git.km3net.de/km3py/km3io/-/blob/b71300ff1364394d01323a732585f0a8dae303b1/src/km3io/tools.py#L203) or [KM3NeT Dataformat](https://git.km3net.de/common/km3net-dataformat/-/blob/881972133aa0fda809d06c97d9736d346dd35efb/tools/reconstruction.hh#L374), latter being much more closer to the Julia implementation since we don't need all the fancy masking/slicing magic as in Python)
-- [ ] Hit calibration for the offline format: fairly straight forward
-- [ ] Event+Summaryslice matching: for a given event, return the correct summaryslice to be able to query the most recent PMT rates
-- [x] Optimise type hierarchy
-- [x] Examples!
-- [ ] More examples!
-
-
 ## Acknowledgements
 
 Thanks to [Johannes Schumann](https://git.km3net.de/jschumann) for providing the awesome project logo!
