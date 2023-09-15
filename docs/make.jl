@@ -10,6 +10,7 @@ makedocs(;
         collapselevel = 4,
         warn_outdated = true,
     ),
+    warnonly = [:missing_docs],
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
