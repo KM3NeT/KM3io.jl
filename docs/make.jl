@@ -26,6 +26,10 @@ makedocs(;
         ],
         "API" => "api.md"
     ],
+    repo = URL(
+        "https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
+        "https://git.km3net.de/common/KM3io.jl"
+    ),
 )
 
 deploydocs(;
