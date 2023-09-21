@@ -4,3 +4,6 @@ all:
 
 clean:
 	rm -rf build/
+
+preview:
+	julia -e 'using LiveServer; serve(dir="build")'
