@@ -411,6 +411,11 @@ function _extract_comments(lines::Vector{T}, prefix::T) where {T<:AbstractString
 end
 
 
+"""
+Writes the detector definition to a file, according to the DETX format specification.
+The `version` parameter can be a version number or `:same`, which is the default value
+and writes the same version as the provided detector has.
+"""
 function write(filename::AbstractString, d::Detector; version=:same)
     isfile(filename) && @warn "File '$(filename)' already exists, overwriting."
     open(filename, "w") do fobj

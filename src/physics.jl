@@ -102,6 +102,6 @@ K40Rates() = K40Rates(5200, [568.0, 49.10, 5.48, 0.48])
 """
 Return the absorption length [m] in water at a KM3NeT site for a given wavelength [nm].
 """
-function absorptionslength(λ)
-
+function absorptionlength(λ)
+    error("Not implemented yet.")
 end

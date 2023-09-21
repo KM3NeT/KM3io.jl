@@ -39,6 +39,7 @@ SummaryFrame
 H5File
 H5CompoundDataset
 create_dataset
+flush
 ```
 
 ## Hardware
@@ -47,8 +48,13 @@ create_dataset
 PMT
 DetectorModule
 Detector
+write(::AbstractString, ::Detector)
+write(::IO, ::Detector)
 Hydrophone
+read(::AbstractString, ::Type{Hydrophone})
 Tripod
+read(::AbstractString, ::Type{Tripod})
+write(::AbstractString, ::Vector{Tripod})
 piezoenabled
 hydrophoneenabled
 center
@@ -63,8 +69,10 @@ center
 
 ```@docs
 Waveform
+read(filename::AbstractString, T::Type{Waveform})
 AcousticSignal
 AcousticsTriggerParameter
+read(filename::AbstractString, T::Type{AcousticsTriggerParameter})
 ```
 
 ## Calibration
