@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Detector and its Components · KM3io.jl</title><meta name="title" content="Detector and its Components · KM3io.jl"/><meta property="og:title" content="Detector and its Components · KM3io.jl"/><meta property="twitter:title" content="Detector and its Components · KM3io.jl"/><meta name="description" content="Documentation for KM3io.jl."/><meta property="og:description" content="Documentation for KM3io.jl."/><meta property="twitter:description" content="Documentation for KM3io.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="KM3io.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../rootfiles/">ROOT Files</a></li><li class="is-active"><a class="tocitem" href>Detector and its Components</a><ul class="internal"><li><a class="tocitem" href="#Loading-a-DETX-File"><span>Loading a <code>DETX</code> File</span></a></li><li><a class="tocitem" href="#Accessing-Modules"><span>Accessing Modules</span></a></li></ul></li><li><a class="tocitem" href="../calibration/">Calibration</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/offline_data/">Offline data</a></li><li><a class="tocitem" href="../../examples/cherenkov_times/">Cherenkov times</a></li><li><a class="tocitem" href="../../examples/controlhost/">Accessing Live Data</a></li><li><a class="tocitem" href="../../examples/hdf5/">Writing HDF5</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Detector and its Components</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Detector and its Components</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl" title="View the repository"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">Repository</span></a><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl/blob/main/docs/src/manual/detector.md#L" title="Edit source"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Detector-and-its-Components"><a class="docs-heading-anchor" href="#Detector-and-its-Components">Detector and its Components</a><a id="Detector-and-its-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Detector-and-its-Components" title="Permalink"></a></h1><p>In this example, we will explore the components of a KM3NeT detector, which is represented by the <a href="../../api/#KM3io.Detector"><code>Detector</code></a> type in <code>KM3io.jl</code>. The detector description is stored in so-called <a href="https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29"><code>DETX</code>-files</a>, named after its filename extension <code>.detx</code>). It&#39;s an ASCII-based file format and by the time of writing this example, <code>v5</code> is the latest format version. There is a yet unofficial binary version of this format named <code>DATX</code> (with the filename extension <code>datx</code>), which is currently not supported, neither widely used in KM3NeT.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p><code>KM3io.jl</code> offers conversions between the different <code>DETX</code> format versions. Typically, each major version brings a new set of parameters. Downgrading is therefore not lossless. When when upgrading from one version to another, the new parameters needs to be filled in. Some of these can be calculated from existing ones, like the module position, which was introduced in <code>v4</code> and is equal to the crossing point of the PMT axes. Otherwise, these parameters are either set to meaningful default values or to <code>missing</code>.</p></div></div><h2 id="Loading-a-DETX-File"><a class="docs-heading-anchor" href="#Loading-a-DETX-File">Loading a <code>DETX</code> File</a><a id="Loading-a-DETX-File-1"></a><a class="docs-heading-anchor-permalink" href="#Loading-a-DETX-File" title="Permalink"></a></h2><p>The <a href="../../api/#KM3io.Detector"><code>Detector</code></a> type offers a constructor which takes a filepath to a <code>DETX</code> file. The <a href="https://git.km3net.de/km3py/km3net-testdata">KM3NeTTestData.jl</a> offers a collection of detector sample files, so let&#39;s pick one of them:</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+det = Detector(datapath(&quot;detx&quot;, &quot;detx_v5.detx&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detector 49 (v5) with 6 strings and 114 modules.</code></pre><p>A detector configuration (format version 5) has been loaded with 6 strings (sometimes also called detection unit or DU) holding a total 114 modules.</p><h2 id="Accessing-Modules"><a class="docs-heading-anchor" href="#Accessing-Modules">Accessing Modules</a><a id="Accessing-Modules-1"></a><a class="docs-heading-anchor-permalink" href="#Accessing-Modules" title="Permalink"></a></h2><h3 id="Iterating-over-all-modules"><a class="docs-heading-anchor" href="#Iterating-over-all-modules">Iterating over all modules</a><a id="Iterating-over-all-modules-1"></a><a class="docs-heading-anchor-permalink" href="#Iterating-over-all-modules" title="Permalink"></a></h3><p>There are multiple ways to access modules within a <a href="../../api/#KM3io.Detector"><code>Detector</code></a>. One of them is iterating over it, which yields <a href="../../api/#KM3io.DetectorModule"><code>DetectorModule</code></a> instances in no specific order:</p><pre><code class="language-julia hljs">for m in det
+    println(m)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 3 floor 5
+Detectormodule (optical, 31 PMTs) on string 2 floor 5
+Detectormodule (optical, 31 PMTs) on string 1 floor 4
+Detectormodule (optical, 31 PMTs) on string 1 floor 12
+Detectormodule (optical, 31 PMTs) on string 9 floor 6
+Detectormodule (optical, 31 PMTs) on string 2 floor 8
+Detectormodule (optical, 31 PMTs) on string 11 floor 11
+Detectormodule (optical, 31 PMTs) on string 9 floor 12
+Detectormodule (optical, 31 PMTs) on string 3 floor 15
+Detectormodule (optical, 31 PMTs) on string 1 floor 1
+Detectormodule (optical, 31 PMTs) on string 10 floor 7
+Detectormodule (optical, 31 PMTs) on string 3 floor 14
+Detectormodule (base) on string 9 floor 0
+Detectormodule (optical, 31 PMTs) on string 3 floor 9
+Detectormodule (optical, 31 PMTs) on string 2 floor 13
+Detectormodule (base) on string 10 floor 0
+Detectormodule (optical, 31 PMTs) on string 3 floor 18
+Detectormodule (optical, 31 PMTs) on string 10 floor 5
+Detectormodule (optical, 31 PMTs) on string 1 floor 2
+Detectormodule (optical, 31 PMTs) on string 1 floor 7
+Detectormodule (optical, 31 PMTs) on string 10 floor 9
+Detectormodule (optical, 31 PMTs) on string 2 floor 9
+Detectormodule (optical, 31 PMTs) on string 11 floor 18
+Detectormodule (optical, 31 PMTs) on string 1 floor 15
+Detectormodule (optical, 31 PMTs) on string 1 floor 8
+Detectormodule (optical, 31 PMTs) on string 1 floor 3
+Detectormodule (optical, 31 PMTs) on string 11 floor 2
+Detectormodule (optical, 31 PMTs) on string 10 floor 13
+Detectormodule (optical, 31 PMTs) on string 9 floor 9
+Detectormodule (optical, 31 PMTs) on string 9 floor 1
+Detectormodule (base) on string 2 floor 0
+Detectormodule (optical, 31 PMTs) on string 9 floor 18
+Detectormodule (optical, 31 PMTs) on string 10 floor 8
+Detectormodule (optical, 31 PMTs) on string 10 floor 15
+Detectormodule (optical, 31 PMTs) on string 1 floor 6
+Detectormodule (optical, 31 PMTs) on string 2 floor 11
+Detectormodule (base) on string 11 floor 0
+Detectormodule (optical, 31 PMTs) on string 9 floor 10
+Detectormodule (optical, 31 PMTs) on string 9 floor 16
+Detectormodule (optical, 31 PMTs) on string 3 floor 16
+Detectormodule (optical, 31 PMTs) on string 11 floor 5
+Detectormodule (optical, 31 PMTs) on string 2 floor 2
+Detectormodule (optical, 31 PMTs) on string 1 floor 10
+Detectormodule (optical, 31 PMTs) on string 10 floor 2
+Detectormodule (optical, 31 PMTs) on string 2 floor 14
+Detectormodule (optical, 31 PMTs) on string 3 floor 6
+Detectormodule (optical, 31 PMTs) on string 11 floor 17
+Detectormodule (optical, 31 PMTs) on string 9 floor 2
+Detectormodule (optical, 31 PMTs) on string 11 floor 14
+Detectormodule (optical, 31 PMTs) on string 10 floor 11
+Detectormodule (optical, 31 PMTs) on string 3 floor 1
+Detectormodule (optical, 31 PMTs) on string 11 floor 10
+Detectormodule (optical, 31 PMTs) on string 11 floor 6
+Detectormodule (optical, 31 PMTs) on string 9 floor 4
+Detectormodule (optical, 31 PMTs) on string 2 floor 12
+Detectormodule (optical, 31 PMTs) on string 2 floor 7
+Detectormodule (optical, 31 PMTs) on string 10 floor 17
+Detectormodule (optical, 31 PMTs) on string 2 floor 16
+Detectormodule (optical, 31 PMTs) on string 11 floor 3
+Detectormodule (optical, 31 PMTs) on string 11 floor 8
+Detectormodule (optical, 31 PMTs) on string 11 floor 13
+Detectormodule (optical, 31 PMTs) on string 11 floor 9
+Detectormodule (optical, 31 PMTs) on string 3 floor 13
+Detectormodule (optical, 31 PMTs) on string 1 floor 5
+Detectormodule (optical, 31 PMTs) on string 1 floor 16
+Detectormodule (optical, 31 PMTs) on string 10 floor 6
+Detectormodule (optical, 31 PMTs) on string 10 floor 10
+Detectormodule (optical, 31 PMTs) on string 2 floor 18
+Detectormodule (optical, 31 PMTs) on string 2 floor 3
+Detectormodule (optical, 31 PMTs) on string 1 floor 18
+Detectormodule (optical, 31 PMTs) on string 11 floor 16
+Detectormodule (optical, 31 PMTs) on string 3 floor 7
+Detectormodule (optical, 31 PMTs) on string 9 floor 7
+Detectormodule (optical, 31 PMTs) on string 9 floor 13
+Detectormodule (optical, 31 PMTs) on string 10 floor 12
+Detectormodule (optical, 31 PMTs) on string 9 floor 3
+Detectormodule (optical, 31 PMTs) on string 1 floor 17
+Detectormodule (optical, 31 PMTs) on string 9 floor 15
+Detectormodule (optical, 31 PMTs) on string 3 floor 10
+Detectormodule (optical, 31 PMTs) on string 1 floor 14
+Detectormodule (optical, 31 PMTs) on string 10 floor 18
+Detectormodule (optical, 31 PMTs) on string 3 floor 4
+Detectormodule (optical, 31 PMTs) on string 11 floor 1
+Detectormodule (optical, 31 PMTs) on string 9 floor 8
+Detectormodule (optical, 31 PMTs) on string 10 floor 1
+Detectormodule (optical, 31 PMTs) on string 9 floor 14
+Detectormodule (optical, 31 PMTs) on string 3 floor 8
+Detectormodule (optical, 31 PMTs) on string 9 floor 11
+Detectormodule (optical, 31 PMTs) on string 10 floor 16
+Detectormodule (optical, 31 PMTs) on string 2 floor 6
+Detectormodule (optical, 31 PMTs) on string 11 floor 4
+Detectormodule (optical, 31 PMTs) on string 2 floor 15
+Detectormodule (optical, 31 PMTs) on string 1 floor 13
+Detectormodule (optical, 31 PMTs) on string 3 floor 3
+Detectormodule (optical, 31 PMTs) on string 11 floor 7
+Detectormodule (optical, 31 PMTs) on string 3 floor 11
+Detectormodule (optical, 31 PMTs) on string 10 floor 14
+Detectormodule (base) on string 3 floor 0
+Detectormodule (optical, 31 PMTs) on string 11 floor 15
+Detectormodule (optical, 31 PMTs) on string 11 floor 12
+Detectormodule (optical, 31 PMTs) on string 10 floor 3
+Detectormodule (optical, 31 PMTs) on string 9 floor 5
+Detectormodule (optical, 31 PMTs) on string 2 floor 1
+Detectormodule (optical, 31 PMTs) on string 1 floor 9
+Detectormodule (optical, 31 PMTs) on string 1 floor 11
+Detectormodule (optical, 31 PMTs) on string 10 floor 4
+Detectormodule (optical, 31 PMTs) on string 3 floor 12
+Detectormodule (optical, 31 PMTs) on string 2 floor 4
+Detectormodule (optical, 31 PMTs) on string 2 floor 10
+Detectormodule (base) on string 1 floor 0
+Detectormodule (optical, 31 PMTs) on string 3 floor 17
+Detectormodule (optical, 31 PMTs) on string 3 floor 2
+Detectormodule (optical, 31 PMTs) on string 2 floor 17
+Detectormodule (optical, 31 PMTs) on string 9 floor 17</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p><code>module</code> is a reserved keyword in Julia and <code>mod</code> is the &quot;modulo function&quot;, so keep this in mind when chosing a variable name for a <a href="../../api/#KM3io.DetectorModule"><code>DetectorModule</code></a>. Most of the time <code>m</code> is fine, or just be verbose with <code>detector_module</code> and use your editors tab-completion.</p></div></div><p>As we can see in the output, there are two types of modules: optical modules and base modules. The main difference between the two in the detector file context is that base modules do not contain PMTs and are always sitting on floor 0.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Although iterating over a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> feels like iterating over a vector, accessing single elements via <code>det[idx]</code> will not work as such since it requires the <code>idx</code> to be a module ID. This design was chosen since the detector dataformat specification does not specify module ordering, so there is no such thing as the &quot;n-th module&quot;. Accessing modules by their module ID however is the standard use case, see below.</p></div></div><h3 id="Modules-via-&quot;module-ID&quot;"><a class="docs-heading-anchor" href="#Modules-via-&quot;module-ID&quot;">Modules via &quot;module ID&quot;</a><a id="Modules-via-&quot;module-ID&quot;-1"></a><a class="docs-heading-anchor-permalink" href="#Modules-via-&quot;module-ID&quot;" title="Permalink"></a></h3><p>Modules have a unique identification number called module ID (sometimes also called &quot;DOM ID&quot;, where DOM stands for &quot;Digital Optical Module&quot;) and we can use this ID to access individual modules within a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> instance.</p><p>The <code>.modules</code> field is a dictionary which maps the modules to their module IDs:</p><pre><code class="language-julia hljs">det.modules</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{Int32, DetectorModule} with 114 entries:
+  808971294 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 5
+  806483369 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 5
+  808974773 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 4
+  809503416 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 12
+  808982547 =&gt; Detectormodule (optical, 31 PMTs) on string 9 floor 6
+  808447180 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 8
+  808976933 =&gt; Detectormodule (optical, 31 PMTs) on string 11 floor 11
+  808472260 =&gt; Detectormodule (optical, 31 PMTs) on string 9 floor 12
+  808468425 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 15
+  808972698 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 1
+  808961655 =&gt; Detectormodule (optical, 31 PMTs) on string 10 floor 7
+  808956925 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 14
+  808967761 =&gt; Detectormodule (base) on string 9 floor 0
+  808469947 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 9
+  806487231 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 13
+  808981528 =&gt; Detectormodule (base) on string 10 floor 0
+  808977319 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 18
+  808489117 =&gt; Detectormodule (optical, 31 PMTs) on string 10 floor 5
+  808982077 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 2
+  ⋮         =&gt; ⋮</code></pre><p>To access a module with a given module ID, one can either use this dictionary or index the <a href="../../api/#KM3io.Detector"><code>Detector</code></a> directly</p><pre><code class="language-julia hljs">detector_module = det[808976933]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 11 floor 11</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rootfiles/">« ROOT Files</a><a class="docs-footer-nextpage" href="../calibration/">Calibration »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.0.1 on <span class="colophon-date" title="Thursday 28 September 2023 08:47">Thursday 28 September 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
