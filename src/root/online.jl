@@ -45,9 +45,9 @@ function Base.show(io::IO, e::DAQEvent)
 end
 
 struct EventContainer
-    headers
-    snapshot_hits
-    triggered_hits
+    headers::Vector{EventHeader}
+    snapshot_hits::Vector{Vector{SnapshotHit}}
+    triggered_hits::Vector{Vector{TriggeredHit}}
 end
 Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
 Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
@@ -94,10 +94,6 @@ end
 function UnROOT.interped_data(rawdata, rawoffsets, ::Type{Vector{SummaryFrame}}, ::Type{T}) where {T <: UnROOT.JaggType}
     UnROOT.splitup(rawdata, rawoffsets, SummaryFrame, skipbytes=10)
 end
-struct SummarysliceContainer
-    headers
-    summaryslices
-end
 """
 
 A summaryslice is a condensed timeslice with the header information of the
@@ -110,6 +106,11 @@ struct Summaryslice
     header::SummarysliceHeader
     frames::Vector{SummaryFrame}
 end
+struct SummarysliceContainer
+    headers::Vector{SummarysliceHeader}
+    summaryslices::Vector{Vector{SummaryFrame}}
+end
+
 Base.getindex(c::SummarysliceContainer, idx::Integer) = Summaryslice(c.headers[idx], c.summaryslices[idx])
 Base.getindex(c::SummarysliceContainer, r::UnitRange) = [c[idx] for idx ∈ r]
 Base.getindex(c::SummarysliceContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
