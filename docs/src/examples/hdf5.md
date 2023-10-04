@@ -1,4 +1,4 @@
-# Writing HDF5
+# HDF5
 
 Plain ASCII (CSV) files are often perfectly fine for small, tabular datasets but
 when dealing with larger amounts of data, HDF5 comes in handy with compression,
@@ -32,6 +32,8 @@ end
 and we generate instances of `Particle` in a loop which we want to dump directly
 into an HDF5 file to the dataset stored at `simulation/particles`, meaning that
 `simulation` is the group name and `particles` the dataset name.
+
+## Creating datasets
 
 First, we create our dataset with our type `Particle`. This is a so called
 `H5CompoundDataset` and resembles a dataset wich has a compound type (`struct`)
@@ -67,8 +69,10 @@ Let's close the file
 close(f)
 ```
 
-and open it again with `HDF5.jl`, just to demonstrate that we can read it
-without any `KM3NeT` related libraries:
+## Reading datasets
+
+We open the file from the previous example with `HDF5.jl`, just to demonstrate
+that we can read it without any `KM3NeT` related libraries:
 
 ```@example 1
 using HDF5
@@ -110,13 +114,16 @@ reinterpreted_particles[4]
 attrs(particles)["struct_name"]
 ```
 
-Sometimes it's useful to keep track of additional meta data, e.g. a given set of
+## Adding metadata
+
+Sometimes it's useful to keep track of additional metadata, e.g. a given set of
 parameters for a specific dataset. The `addmeta()` function can be used to
 attach key-value-pairs from a struct to a variety of HDF5 structures, like
 files, datasets or groups.
 The following example demonstrates it:
 
 ```@example 2
+using KM3io
 using HDF5
 
 struct SimulationParameters
@@ -128,8 +135,21 @@ end
 
 simparams = SimulationParameters(800, 200, 1e3, 1e7)
 
-f = h5open("simulation.h5")
+f = h5open("simulation.h5", "w")
 addmeta(f, simparams)
 
-read_attributes(f)
+attributes(f)
 ```
+
+To access individual attributes, use `HDF5.read_attribute`:
+
+```@example 2
+read_attribute(f, "can_radius")
+```
+
+
+!!! note
+
+    It is possible to add metadata to datasets and groups too. Make sure that the
+    struct you pass to `addmeta()` only contains primitive types or strings in
+    their fields. Arrays and other nested or compound fieldtypes are not supported by HDF5.
