@@ -27,6 +27,7 @@ struct Location
     string::Int32
     floor::Int8
 end
+Base.isless(lhs::Location, rhs::Location) = lhs.string < rhs.string || lhs.floor < rhs.floor
 
 
 """
