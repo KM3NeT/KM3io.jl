@@ -39,5 +39,18 @@ end
     write(f, "directly_written_bars", bars)
     @test bars == reinterpret(Bar, f["directly_written_bars"][:])
 
+    addmeta(d, Bar(1, 2.3))
+    @test read_attribute(d, "a") == 1
+    @test read_attribute(d, "b") == 2.3
+
+    d2 = create_dataset(f, "foo", Int32; cache_size=1000)
+    addmeta(d2.dset, Bar(3, 4.5))
+    @test read_attribute(d2, "a") == 3
+    @test read_attribute(d2, "b") == 4.5
+
+    addmeta(f, Bar(6, 7.8))
+    @test read_attribute(f, "a") == 6
+    @test read_attribute(f, "b") == 7.8
+
     close(f)
 end

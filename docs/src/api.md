@@ -38,6 +38,7 @@ SummaryFrame
 ```@docs
 H5File
 H5CompoundDataset
+addmeta
 create_dataset
 flush
 ```

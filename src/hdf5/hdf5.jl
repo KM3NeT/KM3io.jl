@@ -16,6 +16,7 @@ struct H5CompoundDataset{T}
 end
 Base.length(c::H5CompoundDatasetCache) = length(c.buffer)
 isfull(c::H5CompoundDatasetCache) = length(c) >= c.size
+HDF5.read_attribute(cdset::H5CompoundDataset, name::AbstractString) = HDF5.read_attribute(cdset.dset, name)
 
 """
 
@@ -66,6 +67,7 @@ function Base.write(f::H5File, path::AbstractString, data)
     write_dataset(f._h5f, path, data)
 end
 Base.getindex(f::H5File, args...) = getindex(f._h5f, args...)
+HDF5.read_attribute(f::H5File, name::AbstractString) = HDF5.read_attribute(f._h5f, name)
 
 """
 
@@ -88,3 +90,17 @@ function Base.push!(d::H5CompoundDataset{T}, element::T) where T
     push!(d.cache.buffer, element)
     isfull(d.cache) && flush(d)
 end
+
+"""
+
+Attaches key-value-pair meta entries to an HDF5 instance for each field of the
+given object.
+
+"""
+function addmeta(dset::Union{HDF5.Dataset, HDF5.File, HDF5.Group, HDF5.Datatype}, object::T) where T
+    for fieldname in fieldnames(T)
+        attributes(dset)[string(fieldname)] = getfield(object, fieldname)
+    end
+end
+addmeta(cdset::H5CompoundDataset, object) = addmeta(cdset.dset, object)
+addmeta(f::H5File, object) = addmeta(f._h5f, object)
