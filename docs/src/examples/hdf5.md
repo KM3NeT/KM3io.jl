@@ -109,3 +109,27 @@ reinterpreted_particles[4]
 ```@example 1
 attrs(particles)["struct_name"]
 ```
+
+Sometimes it's useful to keep track of additional meta data, e.g. a given set of
+parameters for a specific dataset. The `addmeta()` function can be used to
+attach key-value-pairs from a struct to a variety of HDF5 structures, like
+files, datasets or groups.
+The following example demonstrates it:
+
+```@example 2
+using HDF5
+
+struct SimulationParameters
+    can_height::Int32
+    can_radius::Int32
+    minimum_energy::Float64
+    maximum_energy::Float64
+end
+
+simparams = SimulationParameters(800, 200, 1e3, 1e7)
+
+f = h5open("simulation.h5")
+addmeta(f, simparams)
+
+read_attributes(f)
+```
