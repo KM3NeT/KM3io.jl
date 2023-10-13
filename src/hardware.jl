@@ -54,6 +54,7 @@ end
 Base.length(d::DetectorModule) = d.n_pmts
 Base.eltype(::Type{DetectorModule}) = PMT
 Base.iterate(d::DetectorModule, state=1) = state > d.n_pmts ? nothing : (d.pmts[state], state+1)
+Base.isless(lhs::DetectorModule, rhs::DetectorModule) = lhs.location < rhs.location
 """
     Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 
