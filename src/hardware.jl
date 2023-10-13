@@ -251,6 +251,10 @@ struct Detector
     strings::Vector{Int}
     comments::Vector{String}
 end
+"""
+Return a vector of all modules of a given detector.
+"""
+modules(d::Detector) = collect(values(d.modules))
 Base.show(io::IO, d::Detector) = print(io, "Detector $(d.id) (v$(d.version)) with $(length(d.strings)) strings and $(d.n_modules) modules.")
 Base.length(d::Detector) = d.n_modules
 Base.eltype(::Type{Detector}) = DetectorModule
