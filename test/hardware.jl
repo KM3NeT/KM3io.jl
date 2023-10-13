@@ -88,6 +88,10 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             @test 19 == length(d.strings)
 
             @test isapprox([116.60000547853453, 106.95689770873874, 60.463039635848226], d.modules[808992603].pos; atol=0.008)
+
+            @test 78.3430067946102 ≈ getpmt(d[15, 13], 0).pos.x
+            m = d[15, 13]
+            @test m.n_pmts == length(getpmts(m))
         end
 
         comments = Detector(joinpath(SAMPLES_DIR, "v3.detx")).comments

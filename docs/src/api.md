@@ -49,8 +49,9 @@ flush
 PMT
 DetectorModule
 Detector
-getmodule
 modules
+getmodule
+getpmt
 write(::AbstractString, ::Detector)
 write(::IO, ::Detector)
 Hydrophone

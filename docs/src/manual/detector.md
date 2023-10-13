@@ -70,7 +70,7 @@ is that base modules do not contain PMTs and are always sitting on floor 0.
     "n-th module".
     Accessing modules by their module ID however is the standard use case, see below.
 
-### Modules via "module ID"
+### Detector Modules
 
 Modules have a unique identification number called module ID (sometimes also
 called "DOM ID", where DOM stands for "Digital Optical Module") and we can use
@@ -82,9 +82,39 @@ The `.modules` field is a dictionary which maps the modules to their module IDs:
 det.modules
 ```
 
-To access a module with a given module ID, one can either use this dictionary or
+A flat vector of modules can be obtained with:
+
+```@example 1
+modules(det)
+```
+
+To access a module with a given module ID, one can either use the dictionary or
 index the [`Detector`](@ref) directly
 
 ```@example 1
 detector_module = det[808976933]
+```
+
+Another, more verbose way is using the `getmodule(d::Detector, detector_id::Integer)` function
+
+```@example 1
+detector_module = getmodule(det, 808976933)
+```
+
+
+### PMTs
+
+Each optical module consists of PMTs, which can be access using the `getpmts(m::DetectorModule)` function:
+
+```@example 1
+getpmts(det)
+```
+
+To access a specific PMT with a given channel ID (TDC ID), use the
+`getpmt(m::DetectorModule, channel_id::Integer)` function. Here, we access the
+PMT at DAQ channel 0 of our previously obtained detector module:
+
+
+```@example 1
+getpmt(detector_module, 0)
 ```

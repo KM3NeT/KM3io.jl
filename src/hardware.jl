@@ -62,6 +62,11 @@ The index in this context is the DAQ channel ID of the PMT, which is counting fr
 """
 Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 isbasemodule(d::DetectorModule) = d.location.floor == 0
+getpmts(d::DetectorModule) = d.pmts
+"""
+Get the PMT for a given DAQ channel ID (TDC)
+"""
+getpmt(d::DetectorModule, channel_id::Integer) = d[channel_id]
 
 """
 
