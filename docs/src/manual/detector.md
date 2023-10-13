@@ -92,13 +92,13 @@ To access a module with a given module ID, one can either use the dictionary or
 index the [`Detector`](@ref) directly, which is the recommended way:
 
 ```@example 1
-detector_module = det[808976933]
+detector_module = det[808468425]
 ```
 
 Or for a given string and floor:
 
 ```@example 1
-det[15, 13]
+det[3, 15]
 ```
 
 It is possible to select all modules for a given floor on all strings using  the `:` syntax. Here
@@ -112,7 +112,7 @@ Another way is using the `getmodule(d::Detector, string::Integer, floor::Integer
 to access a module on a given string and floor:
 
 ```@example 1
-detector_module = getmodule(det, 15, 13)
+detector_module = getmodule(det, 3, 15)
 ```
 
 ### PMTs
