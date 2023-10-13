@@ -12,14 +12,13 @@ function calibrate(det::Detector, hits)
         dir = det[dom_id][channel_id].dir
         t0 = det[dom_id][channel_id].t₀
         t = hit.t + t0
-        du = det[dom_id].location.string
+        string = det[dom_id].location.string
         floor = det[dom_id].location.floor
         trigger_mask = has_trigger_mask ? hit.trigger_mask : 0
         c_hit = XCalibratedHit(
             dom_id, channel_id, t, tot, trigger_mask,
             pos, dir, t0,
-            du, floor,
-            Multiplicity(0, 0)
+            string, floor
         )
         push!(calibrated_hits, c_hit)
     end

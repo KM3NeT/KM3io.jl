@@ -71,11 +71,6 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
-mutable struct Multiplicity
-    count::Int32
-    id::Int64
-end
-
 
 struct XCalibratedHit <: AbstractCalibratedHit
     dom_id::UInt32
@@ -86,9 +81,8 @@ struct XCalibratedHit <: AbstractCalibratedHit
     pos::Position{Float64}
     dir::Direction{Float64}
     t0::Float64
-    du::UInt8
+    string::UInt8
     floor::UInt8
-    multiplicity::Multiplicity
 end
 
 """
