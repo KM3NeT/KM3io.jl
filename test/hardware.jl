@@ -22,9 +22,11 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
                 # no base modules in DETX version <4
                 @test 342 == length(d)
                 @test 342 == length(d.modules)
+                @test 342 == length(modules(d))
                 @test DetectorModule == eltype(d)
             else
                 @test 361 == length(mods)
+                @test 361 == length(modules(d))
                 @test 106.95 ≈ d.modules[808469291].pos.y  # base module
                 @test 97.3720395 ≈ d.modules[808974928].pos.z  # base module
                 @test 0.0 == d.modules[808469291].t₀  # base module
@@ -35,8 +37,20 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             if version > 3
                 @test Quaternion(1, 0, 0, 0) ≈ d.modules[808995481].q
                 @test 19 == length(collect(m for m ∈ d if isbasemodule(m)))
+                @test 19 == length(d[:, 0])
+                @test 19 == length(d[30, :])
+                @test 5 == length(d[30, 0:4])
+                for m in d[30, 0:4]
+                    @test m.location.floor in 0:4
+                end
             else
                 @test 0 == length(collect(m for m ∈ d if isbasemodule(m)))
+                @test 0 == length(d[:, 0])
+                @test 18 == length(d[30, :])
+                @test 4 == length(d[30, 1:4])
+                for m in d[30, 1:4]
+                    @test m.location.floor in 1:4
+                end
             end
 
             if version > 4
@@ -51,8 +65,21 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             end
 
             @test 31 == d.modules[808992603].n_pmts
-            @test 30 ≈ d.modules[817287557].location.string
-            @test 18 ≈ d.modules[817287557].location.floor
+            @test 30 == d.modules[817287557].location.string
+            @test 18 == d.modules[817287557].location.floor
+            @test Location(30, 18) == d[817287557].location
+            @test 817287557 == d[30, 18].id
+            @test 817287557 == getmodule(d, 30, 18).id
+            @test 817287557 == getmodule(d, (30, 18)).id
+            @test 817287557 == getmodule(d, Location(30, 18)).id
+
+            @test 19 == length(d[:, 18])
+            for m in d[:, 17]
+                @test 17 == m.location.floor
+            end
+            for m in d[:, 1:4]
+                @test m.location.floor in 1:4
+            end
 
             @test 478392.31980645156 ≈ d.modules[808992603].t₀
 

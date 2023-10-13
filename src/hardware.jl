@@ -266,8 +266,38 @@ function Base.iterate(d::Detector, state=(Int[], 1))
     end
     (d.modules[module_ids[count]], (module_ids, count + 1))
 end
-Base.getindex(d::Detector, module_id) = d.modules[module_id]
+Base.getindex(d::Detector, module_id::Integer) = d.modules[module_id]
+Base.getindex(d::Detector, string::Integer, floor::Integer) = d.locations[string, floor]
+"""
+Return the detector module for a given string and floor.
+"""
+@inline getmodule(d::Detector, string::Integer, floor::Integer) = d[string, floor]
+"""
+Return the detector module for a given string and floor (as `Tuple`).
+"""
+@inline getmodule(d::Detector, loc::Tuple{T, T}) where T<:Integer = d[loc...]
+"""
+Return the detector module for a given location.
+"""
+@inline getmodule(d::Detector, loc::Location) = d[loc.string, loc.floor]
+Base.getindex(d::Detector, string::Int, ::Colon) = sort!(filter(m->m.location.string == string, modules(d)))
+Base.getindex(d::Detector, string::Int, floors::T) where T<:Union{AbstractArray, UnitRange} = [d[string, floor] for floor in sort(floors)]
+Base.getindex(d::Detector, ::Colon, floor::Int) = sort!(filter(m->m.location.floor == floor, modules(d)))
+"""
+Return a vector of detector modules for a given range of floors on all strings.
 
+This can be useful if specific detector module layers of the detector are needed, e.g.
+the base modules (e.g. `detector[:, 0]`) or the top layer (e.g. `detector[:, 18]`).
+"""
+function Base.getindex(d::Detector, ::Colon, floors::UnitRange{T}) where T<:Integer
+    modules = DetectorModule[]
+    for string in d.strings
+        for floor in floors
+            push!(modules, d[string, floor])
+        end
+    end
+    sort!(modules)
+end
 
 """
 
