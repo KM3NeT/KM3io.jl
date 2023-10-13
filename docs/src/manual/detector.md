@@ -89,18 +89,31 @@ modules(det)
 ```
 
 To access a module with a given module ID, one can either use the dictionary or
-index the [`Detector`](@ref) directly
+index the [`Detector`](@ref) directly, which is the recommended way:
 
 ```@example 1
 detector_module = det[808976933]
 ```
 
-Another, more verbose way is using the `getmodule(d::Detector, detector_id::Integer)` function
+Or for a given string and floor:
 
 ```@example 1
-detector_module = getmodule(det, 808976933)
+det[15, 13]
 ```
 
+It is possible to select all modules for a given floor on all strings using  the `:` syntax. Here
+we select all the base modules on each string:
+
+```@example 1
+det[:, 0]
+```
+
+Another way is using the `getmodule(d::Detector, string::Integer, floor::Integer)` function
+to access a module on a given string and floor:
+
+```@example 1
+detector_module = getmodule(det, 15, 13)
+```
 
 ### PMTs
 
