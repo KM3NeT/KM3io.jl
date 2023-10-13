@@ -120,7 +120,7 @@ detector_module = getmodule(det, 3, 15)
 Each optical module consists of PMTs, which can be access using the `getpmts(m::DetectorModule)` function:
 
 ```@example 1
-getpmts(det)
+getpmts(detector_module)
 ```
 
 To access a specific PMT with a given channel ID (TDC ID), use the
