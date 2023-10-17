@@ -37,7 +37,7 @@ export Evt, Hit, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, Calibr
 
 export K40Rates
 
-export calibrate, floordist, slew
+export calibrate, floordist, slew, combine
 
 export besttrack, bestjppmuon, bestjppshower, bestaashower,
        RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,

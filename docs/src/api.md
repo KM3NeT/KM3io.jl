@@ -82,6 +82,7 @@ read(filename::AbstractString, T::Type{AcousticsTriggerParameter})
 ## Calibration
 ```@docs
 calibrate
+combine
 floordist
 slew
 ```

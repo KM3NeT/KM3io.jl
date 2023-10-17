@@ -25,6 +25,32 @@ function calibrate(det::Detector, hits)
     calibrated_hits
 end
 
+"""
+Combine snapshot and triggered hits to a single hits-vector.
+
+This should be used to transfer the trigger information to the
+snapshot hits from a DAQEvent. The triggered hits are a subset
+of the snapshot hits.
+
+"""
+function combine(snapshot_hits::Vector{KM3io.SnapshotHit}, triggered_hits::Vector{KM3io.TriggeredHit})
+    triggermasks = Dict{Tuple{UInt8, Int32, Int32, UInt8}, Int64}()
+    for hit ∈ triggered_hits
+        triggermasks[(hit.channel_id, hit.dom_id, hit.t, hit.tot)] = hit.trigger_mask
+    end
+    n = length(snapshot_hits)
+    hits = sizehint!(Vector{TriggeredHit}(), n)
+    for hit in snapshot_hits
+        channel_id = hit.channel_id
+        dom_id = hit.dom_id
+        t = hit.t
+        tot = hit.tot
+        triggermask = get(triggermasks, (channel_id, dom_id, t, tot), 0)
+        push!(hits, TriggeredHit(dom_id, channel_id, t, tot, triggermask))
+    end
+    hits
+end
+
 
 """
 Calculates the average floor distance between neighboured modules.
