@@ -81,12 +81,6 @@ end
     close(f)
 end
 
-
-using KM3io
-using KM3NeTTestData
-using Test
-
-
 const ONLINEFILE = datapath("online", "km3net_online.root")
 
 
