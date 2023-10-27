@@ -97,9 +97,4 @@ include("tools/reconstruction.jl")
 
 include("physics.jl")
 
-if get_package_version("HDF5") < v"0.16.15"
-    # backport of the fix in https://github.com/JuliaIO/HDF5.jl/pull/1069
-    HDF5.datatype(::Type{T}) where {T} = HDF5.Datatype(HDF5.hdf5_type_id(T), isstructtype(T))
-end
-
 end # module
