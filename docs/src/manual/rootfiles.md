@@ -283,3 +283,20 @@ for pmt in 0:30
     println("PMT $(pmt): HRV($(hrvstatus(frame, pmt))) FIFO($(fifostatus(frame, pmt)))")
 end
 ```
+
+
+## xrootd access
+
+You can access files directly via `xrootd` by providing the URL on e.g. HPSS. Be
+aware that URL has to be typed correctly, `/` instead of `//` results in an
+error!), so it should always start with something like
+`root://ccxroot:1999//hpss/...`.
+
+```julia
+julia> using KM3io
+
+julia> f = ROOTFile("root://ccxroot:1999//hpss/in2p3.fr/group/km3net/data/raw/sea/KM3NeT_00000132/14/KM3NeT_00000132_00014481.root")
+ROOTFile{OnlineTree (136335 events, 107632 summaryslices)}
+```
+
+Now you can
