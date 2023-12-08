@@ -150,6 +150,18 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         @test trigger.nmin == 90
     end
 
+    @testset "mechanics" begin
+        mechanics = read(joinpath(SAMPLES_DIR, "mechanics.txt"), StringMechanics)
+        @test 0.00094 ≈ mechanics[1].a
+        @test 294.291 ≈ mechanics[1].b
+        @test 0.00094 ≈ mechanics[-1].a
+        @test 294.291 ≈ mechanics[-1].b
+        @test 0.00094 ≈ mechanics[42].a
+        @test 294.291 ≈ mechanics[42].b
+        @test 5.6 ≈ mechanics[5].a
+        @test 7.8 ≈ mechanics[5].b
+    end
+
     @testset "utilities" begin
         mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
         @test hydrophoneenabled(mod)

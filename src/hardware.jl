@@ -548,3 +548,56 @@ function write(io::IO, d::Detector; version=:same)
         end
     end
 end
+
+
+"""
+
+Data structure for parameters of the mechanical model of strings. This data
+structure is used to calculate the effective height conform to the mechanical
+model of the string.
+
+"""
+struct StringMechanicsParameters
+    a::Float64
+    b::Float64
+end
+
+"""
+
+A container structure which holds the mechanical model parameters for multiple
+strings, including a default value for strings which have specific parameters.
+
+"""
+struct StringMechanics
+    default::StringMechanicsParameters
+    stringparams::Dict{Int, StringMechanicsParameters}
+end
+Base.getindex(s::StringMechanics, idx::Integer) = get(s.stringparams, idx, s.default)
+
+
+"""
+
+Reads the mechanical models from a text file.
+
+"""
+function read(filename::AbstractString, T::Type{StringMechanics})
+    stringparams = Dict{Int, StringMechanicsParameters}()
+    default_a = 0.0
+    default_b = 0.0
+    for line ∈ readlines(filename)
+        if startswith(line, "#")
+            continue
+        end
+        string, a, b = split(line)
+        s = parse(Int, string)
+        a = parse(Float64, a)
+        b = parse(Float64, b)
+        if s == -1  # wildcard for any string
+            default_a = a
+            default_b = b
+        else
+            stringparams[s] = StringMechanicsParameters(a, b)
+        end
+    end
+    T(StringMechanicsParameters(default_a, default_b), stringparams)
+end

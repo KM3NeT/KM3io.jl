@@ -21,7 +21,7 @@ export ROOTFile
 export H5File, H5CompoundDataset, create_dataset, addmeta
 
 export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
-export Detector, DetectorModule, PMT, Tripod, Hydrophone, center, isbasemodule, getmodule, modules, getpmt, getpmts
+export Detector, DetectorModule, PMT, Tripod, Hydrophone, StringMechanics, StringMechanicsParameters, center, isbasemodule, getmodule, modules, getpmt, getpmts
 
 # Acoustics
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled

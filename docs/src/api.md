@@ -62,6 +62,9 @@ write(::AbstractString, ::Vector{Tripod})
 piezoenabled
 hydrophoneenabled
 center
+StringMechanics
+StringMechanicsParameters
+read(::AbstractString, ::Type{StringMechanics})
 ```
 
 ## Optical Data
