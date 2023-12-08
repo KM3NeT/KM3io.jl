@@ -56,3 +56,4 @@ piezoenabled(m::DetectorModule) = !nthbitset(MODULE_STATUS.PIEZO_DISABLE, m.stat
 Return `true` if the hydrophone is enabled, `false` otherwise.
 """
 hydrophoneenabled(m::DetectorModule) = !nthbitset(MODULE_STATUS.HYDROPHONE_DISABLE, m.status)
+

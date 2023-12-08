@@ -1,4 +1,6 @@
-struct H5CompoundDatasetCache{T}
+abstract type AbstractH5Dataset end
+
+struct H5CompoundDatasetCache{T} <: AbstractH5Dataset
     buffer::Vector{T}
     size::Int
 end
@@ -31,6 +33,8 @@ function Base.flush(d::H5CompoundDataset)
     d.dset[idx+1:idx+n] = d.cache.buffer
     empty!(d.cache.buffer)
 end
+
+struct H5SplitDataset{T} end
 
 """
 
