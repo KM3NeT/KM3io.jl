@@ -142,3 +142,84 @@ Get the time of a hit with a rise time (slew) correction.
     correct_slew && return h.t - slew(h.tot)
     h.t
 end
+
+
+"""
+
+The acoustics fit results of the dynamic calibration. The parameters describe
+the shape of a string using the mechanical model.
+
+"""
+struct AcousticsFit
+    id::Int       #  string identifier
+    tx::Float64   #  slope dx/dz
+    ty::Float64   #  slope dy/dz
+    tx2::Float64  #  2nd order correction of slope dx/dz
+    ty2::Float64  #  2nd order correction of slope dy/dz
+    vs::Float64   #  stretching factor
+end
+
+
+struct DynamicCalibrationHeader
+    timestart::Float64
+    timestop::Float64
+    ndf::Float64
+    npar::Int
+    nhit::Int
+    chi2::Float64
+    # TODO: OID missing, UnROOT needs a fix to parse the std::string correctly
+    # TODO: nfit missing, no idea why
+end
+"""
+A container type to store and access dynamic calibration results conveniently.
+"""
+struct DynamicCalibration
+    header::DynamicCalibrationHeader
+    fits::Vector{AcousticsFit}
+end
+
+struct DynamicCalibrationSet
+    calibrations::Vector{DynamicCalibration}
+end
+
+function Base.show(io::IO, s::DynamicCalibrationSet)
+    timestart = unix2datetime(minimum(s.header.timestart for s in s.calibrations))
+    timestop = unix2datetime(maximum(s.header.timestop for s in s.calibrations))
+    print(io, "DynamicCalibrationSet ($timestart - $timestop)")
+end
+
+
+"""
+Reads the dynamic calibration from a ROOT file created by Jpp (JKatoomba).
+"""
+function DynamicCalibrationSet(filename::AbstractString)
+    f = UnROOT.ROOTFile(filename)
+    tree = UnROOT.LazyTree(
+        f,
+        "ACOUSTICS_FIT", [
+            Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStart") => s"timestart",
+            Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStop") => s"timestop",
+            Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(ndf|npar|nhit|chi2)") => s"\1",
+            Regex("ACOUSTICS_FIT/vector<JACOUSTICS::JFit>/vector<JACOUSTICS::JFit>.((id)|(vs)|(t[xy]))") => s"\1"
+        ]
+    )
+    cals = map(tree) do entry
+        fits = map(1:length(entry.id)) do idx
+            AcousticsFit(entry.id[idx], entry.tx[idx], entry.ty[idx], entry.tx2[idx], entry.ty[idx], entry.vs[idx])
+        end
+
+        DynamicCalibration(
+            DynamicCalibrationHeader(
+                entry.timestart,
+                entry.timestop,
+                entry.ndf,
+                entry.npar,
+                entry.nhit,
+                entry.chi2
+            ),
+            fits
+        )
+    end
+    close(f)
+    DynamicCalibrationSet(cals)
+end
