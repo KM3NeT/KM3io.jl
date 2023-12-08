@@ -764,9 +764,16 @@ model of the string.
 
 """
 struct StringMechanicsParameters
-    a::Float64
-    b::Float64
+    a::Float64  # logarithmic term
+    b::Float64  # linear term
 end
+"""
+
+Calculate the effective height for a given actual height.
+
+"""
+height(s::StringMechanicsParameters, height::Real) = height + s.b * log(1.0 - s.a * height)
+
 
 """
 
@@ -807,6 +814,7 @@ function read(filename::AbstractString, T::Type{StringMechanics})
     end
     T(StringMechanicsParameters(default_a, default_b), stringparams)
 end
+
 
 struct PMTParameters
     QE::Float64  # probability of underamplified hit
