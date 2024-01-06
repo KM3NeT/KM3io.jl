@@ -131,7 +131,7 @@ struct SummaryFrame
     fifo::UInt32
     status3::UInt32
     status4::UInt32
-    rates::Vector{UInt8}
+    rates::SVector{31, UInt8}
 end
 
 """
