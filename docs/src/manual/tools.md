@@ -29,11 +29,18 @@ identifiers, which are stored in these two fields.
 
 The helper functions in `KM3io.jl` to pick the best track/shower always start
 with the prefix `best`, followed by the common name of the reconstruction
-routine, like `jppmuon`, or `aashower`. The input can be an event (`Evt`) or a
-vector of reconstructed tracks (`Vector{Trk}`). If no track/shower could be
-found, `missing` is returned instead.
+routine, like `jppmuon`, or `aashower`. For example [`bestjppmuon()`](@ref),
+[`bestjppshower()`](@ref) or [`besttrack()`](@ref), latter being a more general
+function which gives the possibility to fine tune the selection criteria.
 
-Here are some examples of how to use these functions:
+The API documentation of all related functions can be found in the
+[Reconstruction](@ref) section.
+
+The input can be an event (`Evt`) or a vector of reconstructed tracks
+(`Vector{Trk}`). If no track/shower could be found, `missing` is returned
+instead.
+
+Below are some examples of how to use these functions.
 
 ```@example 1
 using KM3io, KM3NeTTestData
@@ -115,3 +122,21 @@ Let's close our file `;)`
 ```@example 1
 close(f)
 ```
+
+## Trigger masks/flags
+
+KM3NeT uses a 64bit integer type to store information about which triggers have
+fired for a given event or hit. The index of the bit which indicates if a
+specific trigger has fired is defined in the [KM3NeT
+Dataformat](https://git.km3net.de/common/km3net-dataformat) specification which
+is used in `KM3io.jl`.
+
+Functions to check if a trigger has fired are for example
+
+- [`is3dmuon()`](@ref)
+- [`is3dshower()`](@ref)
+- [`ismxshower()`](@ref)
+- [`isnb()`](@ref)
+
+which all accept either an event is input or something which has a
+`.trigger_mask` field, like a triggered hit.
