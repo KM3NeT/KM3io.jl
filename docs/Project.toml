@@ -3,6 +3,7 @@ Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 FHist = "68837c9b-b678-4cd5-9925-8a54edc8f695"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
+KM3io = "2cab5852-6f21-4982-99b0-6a4792870cfb"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
 

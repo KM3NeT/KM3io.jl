@@ -33,17 +33,36 @@ routine, like `jppmuon`, or `aashower`. The input can be an event (`Evt`) or a
 vector of reconstructed tracks (`Vector{Trk}`). If no track/shower could be
 found, `missing` is returned instead.
 
+Here are some examples of how to use these functions:
+
 ```@example 1
 using KM3io, KM3NeTTestData
 
 f = ROOTFile(datapath("offline", "km3net_offline.root"))
-e = f.offline[1]
+```
 
-@show bestjppmuon(e)
-@show bestjppshower(e)
-@show bestaashower(e)
-@show bestjppshower(e.trks)
-@show bestaashower(e.trks)
+```@example 1
+event = f.offline[1]
+```
+
+```@example 1
+bestjppmuon(event)
+```
+
+```@example 1
+bestjppshower(event)
+```
+
+```@example 1
+bestaashower(event)
+```
+
+```@example 1
+bestjppshower(event.trks)
+```
+
+```@example 1
+bestaashower(event.trks)
 ```
 
 Additonally, there are helper functions which can be used to check if a specific
@@ -51,17 +70,33 @@ reconstruction stage or result is present in an event or a given set of
 tracks/showers.
 
 ```@example 1
-t = e.trks |> first
+track = event.trks |> first
+```
 
-@show hasjppmuonprefit(t)
-@show hasjppmuonsimplex(t)
-@show hasjppmuongandalf(t)
-@show hasjppmuonfit(t)
-@show hasaashowerfit(t)
+```@example 1
+hasjppmuonprefit(track)
+```
+```@example 1
+hasjppmuonsimplex(track)
+```
+```@example 1
+hasjppmuongandalf(track)
+```
+```@example 1
+hasjppmuonfit(track)
+```
+```@example 1
+hasaashowerfit(track)
+```
 
-@show hasreconstructedjppmuon(e)
-@show hasreconstructedjppshower(e)
-@show hasreconstructedaashower(e)
+```@example 1
+hasreconstructedjppmuon(event)
+```
+```@example 1
+hasreconstructedjppshower(event)
+```
+```@example 1
+hasreconstructedaashower(event)
 ```
 
 !!! note

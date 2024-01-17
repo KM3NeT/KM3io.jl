@@ -11,6 +11,7 @@ makedocs(;
         warn_outdated = true,
     ),
     warnonly = [:missing_docs],
+    checkdocs = :exports,
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
