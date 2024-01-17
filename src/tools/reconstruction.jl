@@ -34,7 +34,7 @@ Base.in(rec_stage::T, rsr::RecStageRange) where T<:Integer = rsr.lower <= rec_st
 """
 Returns `true` if a track with a given `rec_type` contains all the reconstruction stages in `rsr::RecStageRange`.
 """
-function hashistory(t::Trk, rec_type::Integer, rsr::RecStageRange)
+function hashistory(t::Trk, rec_type::Integer, rsr::RecStageRange)::Bool
     rec_type != t.rec_type && return false
     for rec_stage in t.rec_stages
         !(rec_stage ∈ rsr) && return false
@@ -45,7 +45,7 @@ end
 """
 Returns `true` if a track with a given `rec_type` contains the `rec_stage`.
 """
-function hashistory(t::Trk, rec_type::Integer, rec_stage::Integer)
+function hashistory(t::Trk, rec_type::Integer, rec_stage::Integer)::Bool
     rec_type != t.rec_type && return false
     rec_stage ∈ t.rec_stages
 end
