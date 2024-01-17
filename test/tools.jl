@@ -66,11 +66,11 @@ end
     @test !hasreconstructedjppshower(e)
     @test !hasreconstructedaashower(e)
     @test 294.6407542676734 ≈ bestjppmuon(e).lik
-    @test isnothing(bestjppshower(e))
-    @test isnothing(bestaashower(e))
+    @test ismissing(bestjppshower(e))
+    @test ismissing(bestaashower(e))
     @test 294.6407542676734 ≈ bestjppmuon(e.trks).lik
-    @test isnothing(bestjppshower(e.trks))
-    @test isnothing(bestaashower(e.trks))
+    @test ismissing(bestjppshower(e.trks))
+    @test ismissing(bestaashower(e.trks))
     close(f)
 end
 

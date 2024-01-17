@@ -69,7 +69,7 @@ hasreconstructedaashower(e::Evt) = any(hasaashowerfit, e.trks)
 """
 
 Return the best reconstructed track for a given reconstruction type and
-reconstruction stage range. If no track could be found, `nothing` is returned.
+reconstruction stage range. If no track could be found, `missing` is returned.
 
 """
 besttrack(e::Evt, rec_type::Integer, rsr::RecStageRange) = besttrack(e.trks, rec_type, rsr)
@@ -87,26 +87,26 @@ function _besttrack(trks::Vector{Trk})
 end
 
 """
-Returns the best reconstructed JMuon track of an event or `nothing` if there are none.
+Returns the best reconstructed JMuon track of an event or `missing` if there are none.
 """
 bestjppmuon(e::Evt) = bestjppmuon(e.trks)
 """
-Returns the best reconstructed JMuon track or `nothing` if there are none.
+Returns the best reconstructed JMuon track or `missing` if there are none.
 """
 bestjppmuon(trks::Vector{Trk}) = filter(hasjppmuonfit, trks) |> _besttrack
 """
-Returns the best reconstructed JShower "track" of an event or `nothing` if there are none.
+Returns the best reconstructed JShower "track" of an event or `missing` if there are none.
 """
 bestjppshower(e::Evt) = bestjppshower(e.trks)
 """
-Returns the best reconstructed JShower "track" or `nothing` if there are none.
+Returns the best reconstructed JShower "track" or `missing` if there are none.
 """
 bestjppshower(trks::Vector{Trk}) = filter(hasshowerfit, trks) |> _besttrack
 """
-Returns the best reconstructed aashower "track" of an event or `nothing` if there are none.
+Returns the best reconstructed aashower "track" of an event or `missing` if there are none.
 """
 bestaashower(e::Evt) = bestaashower(e.trks)
 """
-Returns the best reconstructed aashower "track" or `nothing` if there are none.
+Returns the best reconstructed aashower "track" or `missing` if there are none.
 """
 bestaashower(trks::Vector{Trk}) = filter(hasaashowerfit, trks) |> _besttrack
