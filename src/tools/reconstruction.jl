@@ -82,7 +82,7 @@ function besttrack(trks::Vector{Trk}, rec_type::Integer, rsr::RecStageRange)
 end
 
 function _besttrack(trks::Vector{Trk})
-    length(trks) == 0 && return nothing
+    length(trks) == 0 && return missing
     sort(trks; by=c -> (length(c.rec_stages), c.lik)) |> last
 end
 
