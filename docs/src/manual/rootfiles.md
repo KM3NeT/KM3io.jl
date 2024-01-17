@@ -299,4 +299,5 @@ julia> f = ROOTFile("root://ccxroot:1999//hpss/in2p3.fr/group/km3net/data/raw/se
 ROOTFile{OnlineTree (136335 events, 107632 summaryslices)}
 ```
 
-Now you can
+Now you can use it as if it was on your local filesystem. `UnROOT.jl` will take
+care of loading only the needed data from the server.

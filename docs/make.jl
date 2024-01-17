@@ -17,6 +17,7 @@ makedocs(;
             "manual/rootfiles.md",
             "manual/detector.md",
             "manual/calibration.md",
+            "manual/tools.md",
         ],
         "Examples" => Any[
             "examples/offline_data.md",
