@@ -364,6 +364,7 @@ function Detector(io::IO)
     # a counter to work around the floor == -1 bug in some older DETX files
     floor_counter = 1
     last_string = -1
+    floorminusone_warning_has_been_shown = false
   
     for mod ∈ 1:n_modules
         elements = split(lines[idx])
@@ -372,6 +373,10 @@ function Detector(io::IO)
         # floor == -1 bug. We determine the floor position by assuming an ascending order
         # of modules in the DETX file
         if floor == -1
+            if !floorminusone_warning_has_been_shown
+                @warn "'Floor == -1' found in the detector file. The actual floor number will be inferred, assuming that modules and lines are sorted."
+                floorminusone_warning_has_been_shown = true
+            end
             if last_string == -1
                 last_string = string
             elseif last_string != string

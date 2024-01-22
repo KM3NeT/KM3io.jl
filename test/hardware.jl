@@ -1,6 +1,7 @@
 using Test
 
 using KM3io
+using KM3NeTTestData
 using Dates
 
 const SAMPLES_DIR = joinpath(@__DIR__, "samples")
@@ -106,6 +107,15 @@ end
         end
         @test 0 < length(det)
     end
+end
+@testset "DETX floor == -1 bug" begin
+    det = Detector(datapath("detx", "orca_115strings_av20min17mhorizontal_18OMs_alt9mvertical_v2.detx"))
+    @assert Location(1, 1) == det[1].location
+    @assert Location(1, 2) == det[2].location
+    @assert Location(1, 18) == det[18].location
+    @assert Location(2, 1) == det[19].location
+    @assert Location(3, 1) == det[37].location
+    @assert Location(115, 18) == det[2070].location
 end
 @testset "DETX writing" begin
     for from_version ∈ 1:5
