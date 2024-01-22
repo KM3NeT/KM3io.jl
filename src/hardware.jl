@@ -361,9 +361,27 @@ function Detector(io::IO)
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int8[]
 
+    # a counter to work around the floor == -1 bug in some older DETX files
+    floor_counter = 1
+    last_string = -1
+  
     for mod ∈ 1:n_modules
         elements = split(lines[idx])
         module_id, string, floor = map(x->parse(Int, x), elements[1:3])
+
+        # floor == -1 bug. We determine the floor position by assuming an ascending order
+        # of modules in the DETX file
+        if floor == -1
+            if last_string == -1
+                last_string = string
+            elseif last_string != string
+                floor_counter = 1
+                last_string = string
+            end
+            floor = floor_counter
+            floor_counter += 1
+        end
+
         if !(string in strings)
             push!(strings, string)
         end
@@ -406,7 +424,8 @@ function Detector(io::IO)
             t₀ = mean([pmt.t₀ for pmt in pmts])
         end
 
-        if ismissing(t₀) && floor == 0
+        # If t₀ is still missing, we default to 0.0
+        if ismissing(t₀)
             t₀ = 0.0
         end
 
