@@ -9,7 +9,8 @@ struct ROOTFile
             "KM3NETDAQ::JDAQEvent.triggeredHits" => Vector{TriggeredHit},
             "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
             "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
-            "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
+            "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame},
+            "MultiHead" => MultiHead,
         )
         fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
         tpath_offline = ROOT.TTREE_OFFLINE_EVENT

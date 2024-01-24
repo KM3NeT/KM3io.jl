@@ -148,6 +148,31 @@ function Base.getproperty(h::MCHeader, s::Symbol)
     error("no MC header entry found for '$(String(s))'")
 end
 
+"""
+A structure which holds the headers of the merged files. Essentiall a `Vector{MCHead}`
+with convenient accessors.
+"""
+struct MultiHead
+    _headers::Vector{Dict{String, String}}
+end
+function UnROOT.readtype(io, ::Type{MultiHead}; tkey, original_streamer)
+    headers = Vector{Dict{String, String}}()
+    # TODO: verify that this works. Int16 is suspicious
+    n_headers = UnROOT.readtype(io, Int16)
+    # TODO: what are these bytes? do we need them?
+    skip(io, 272)
+    for _ in 1:n_headers
+        # this gives the number of elements
+        n = UnROOT.readtype(io, Int32)
+        skip(io, 6)  # the usual header stuff?
+        keys = [UnROOT.readtype(io, String) for i ∈ 1:n]
+        skip(io, 6)  # the usual header stuff?
+        values = [UnROOT.readtype(io, String) for i ∈ 1:n]
+        push!(headers, Dict(zip(keys, values)))
+    end
+    MultiHead(headers)
+end
+
 
 struct OfflineTree{T}
     _fobj::UnROOT.ROOTFile
