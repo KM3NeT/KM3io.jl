@@ -7,9 +7,16 @@ using Printf: @printf
 using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
+using TOML
 import Pkg
 
-const version = VersionNumber(Pkg.TOML.parsefile(joinpath(pkgdir(KM3io), "Project.toml"))["version"])
+const version = let
+    if VERSION < v"1.9"
+        VersionNumber(TOML.parsefile(joinpath(pkgdir(KM3io), "Project.toml"))["version"])
+    else
+        pkgversion(KM3io)
+    end
+end
 
 using DocStringExtensions
 using StaticArrays: FieldVector, @SArray, SVector
