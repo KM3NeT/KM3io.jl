@@ -146,7 +146,6 @@ end
     detx = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
     datx = Detector(datapath("datx", "KM3NeT_00000133_20221025.datx"))
     for field in fieldnames(Detector)
-        field == :comments && continue  # the comments differ due to the meta data entry of JConvertDetectorFormat
         field == :modules && continue
         if field == :locations
             detx_locs = getfield(detx, field)
