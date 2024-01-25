@@ -8,7 +8,6 @@ using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
 using TOML
-import Pkg
 
 const version = let
     if VERSION < v"1.9"
