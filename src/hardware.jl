@@ -14,6 +14,14 @@ struct PMT
     t₀::Float64
     status::Union{Int32, Missing}
 end
+function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
+    for field in [:id, :status]
+        getfield(lhs, field) == getfield(rhs, field) || return false
+    end
+    for field in [:pos, :dir, :t₀]
+        isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
+    end
+end
 
 
 """
@@ -55,6 +63,18 @@ Base.length(d::DetectorModule) = d.n_pmts
 Base.eltype(::Type{DetectorModule}) = PMT
 Base.iterate(d::DetectorModule, state=1) = state > d.n_pmts ? nothing : (d.pmts[state], state+1)
 Base.isless(lhs::DetectorModule, rhs::DetectorModule) = lhs.location < rhs.location
+function Base.isapprox(lhs::DetectorModule, rhs::DetectorModule; kwargs...)
+    for field in [:id, :location, :n_pmts, :status]
+        getfield(lhs, field) == getfield(rhs, field) || return false
+    end
+    for field in [:pos, :q, :t₀]
+        isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
+    end
+    for (lhs_pmt, rhs_pmt) in zip(lhs.pmts, rhs.pmts)
+        isapprox(lhs_pmt, rhs_pmt; kwargs...)
+    end
+    true
+end
 """
     Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 
@@ -320,19 +340,81 @@ end
 
 Create a `Detector` instance from a DETX file.
 """
-function Detector(filename::AbstractString)
-    open(filename, "r") do fobj
-        Detector(fobj)
+function Detector(filename::AbstractString)::Detector
+    _, ext = splitext(filename)
+    if ext == ".detx"
+        return open(filename, "r") do fobj
+            read_detx(fobj)
+        end
+    elseif ext == ".datx"
+        return open(filename, "r") do fobj
+            read_datx(fobj)
+        end
     end
+    error("Unsupported detector file format '$(filename)'")
 end
 
 
 """
-    function Detector(io::IO)
+    function read_detx(io::IO)
 
-Create a `Detector` instance from an IO stream.
+Create a `Detector` instance from an ASCII IO stream using the DATX specification.
 """
-function Detector(io::IO)
+function read_datx(io::IO)
+    comment_marker = [0x23, 0x23, 0x23, 0x23]
+
+    comments = String[]
+    while read(io, 4) == comment_marker
+        push!(comments, _readstring(io))
+    end
+    seek(io, max(0, position(io) - length(comment_marker)))
+    det_id = read(io, Int32)
+    version = parse(Int, _readstring(io)[2:end])
+    validity = DateRange(unix2datetime(read(io, Float64)), unix2datetime(read(io, Float64)))
+    _readstring(io)  # says "UTM", ignoring
+    wgs = _readstring(io)
+    zone = _readstring(io)
+    utm_ref_grid = "$wgs $zone"
+    utm_position = UTMPosition(read(io, Float64), read(io, Float64), read(io, Float64))
+    n_modules = read(io, Int32)
+
+    modules = Dict{Int32, DetectorModule}()
+    locations = Dict{Tuple{Int, Int}, DetectorModule}()
+    strings = Int[]
+    for _ in 1:n_modules
+        module_id = read(io, Int32)
+        location = Location(read(io, Int32), read(io, Int32))
+        if !(location.string in strings)
+            push!(strings, location.string)
+        end
+        module_pos = Position{Float64}(read(io, Float64), read(io, Float64), read(io, Float64))
+        q = Quaternion{Float64}(read(io, Float64), read(io, Float64), read(io, Float64), read(io, Float64))
+        module_t₀ = read(io, Float64)
+        module_status = read(io, Int32)
+        n_pmts = read(io, Int32)
+        pmts = PMT[]
+        for _ in 1:n_pmts
+            pmt_id = read(io, Int32)
+            pmt_pos = Position{Float64}(read(io, Float64), read(io, Float64), read(io, Float64))
+            pmt_dir = Direction{Float64}(read(io, Float64), read(io, Float64), read(io, Float64))
+            pmt_t₀ = read(io, Float64)
+            pmt_status = read(io, Int32)
+            push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
+        end
+        m = DetectorModule(module_id, module_pos, location, n_pmts, pmts, q, module_status, module_t₀)
+        modules[module_id] = m
+        locations[(location.string, location.floor)] = m
+    end
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+end
+@inline _readstring(io) = String(read(io, read(io, Int32)))
+
+"""
+    function read_detx(io::IO)
+
+Create a `Detector` instance from an ASCII IO stream using the DETX specification.
+"""
+function read_detx(io::IO)
     lines = readlines(io)
 
     comments = _extract_comments(lines, DETECTOR_COMMENT_PREFIX)
@@ -421,15 +503,7 @@ function Detector(io::IO)
             push!(pmts, PMT(pmt_id, Position(x, y, z), Direction(dx, dy, dz), t0, pmt_status))
         end
 
-        if (ismissing(t₀) || t₀ == 0.0) && floor > 0
-            # t₀ is only available in DETX v4+ and even with supported versions, the value is
-            # sometimes 0 when e.g. the DETX was converted with Jpp from a version which did
-            # not include that informatino (v3 and below). Here, we are using the averaged
-            # PMT t₀s for the module t₀, just like Jpp does nowadays.
-            t₀ = mean([pmt.t₀ for pmt in pmts])
-        end
-
-        # If t₀ is still missing, we default to 0.0
+        # If t₀ is missing, we default to 0.0
         if ismissing(t₀)
             t₀ = 0.0
         end

@@ -81,7 +81,12 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             @test m.location.floor in 1:4
         end
 
-        @test 478392.31980645156 ≈ d.modules[808992603].t₀
+        # This used to be calculated from the mean PMT positions if the value was missing or 0.0
+        # from KM3io.jl v0.14.9 we will show the value as it is and may implement something like
+        # gett₀(m::DetectorModule) in future to calculate the fallback value
+        #
+        # @test 478392.31980645156 ≈ d.modules[808992603].t₀
+        @test 0.0 ≈ d.modules[808992603].t₀
 
         @test 9 == d.strings[1]
         @test 30 == d.strings[end]
@@ -120,7 +125,7 @@ end
 @testset "DETX writing" begin
     for from_version ∈ 1:5
         for to_version ∈ 1:5
-            out = tempname()
+            out = tempname(;cleanup=false) * ".detx"
             d₀ = Detector(joinpath(SAMPLES_DIR, "v$(from_version).detx"))
             write(out, d₀; version=to_version)
             d = Detector(out)
@@ -133,7 +138,24 @@ end
                     end
                 end
             end
+            rm(out)
         end
+    end
+end
+@testset "DATX" begin
+    detx = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
+    datx = Detector(datapath("datx", "KM3NeT_00000133_20221025.datx"))
+    for field in fieldnames(Detector)
+        field == :modules && continue
+        if field == :locations
+            detx_locs = getfield(detx, field)
+            datx_locs = getfield(datx, field)
+            for key in keys(detx_locs)
+                @test isapprox(detx_locs[key], datx_locs[key]; atol=1e-06)
+            end
+            continue
+        end
+        @test getfield(detx, field) == getfield(datx, field)
     end
 end
 @testset "hydrophones" begin
