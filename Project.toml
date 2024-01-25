@@ -7,9 +7,7 @@ version = "0.15.1"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
-KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
@@ -21,13 +19,14 @@ UnROOT = "3cd96dde-e98d-4713-81e9-a4a1b0235ce9"
 [compat]
 DocStringExtensions = "0.8, 0.9"
 HDF5 = "^0.16.15, ^0.17"
-KM3NeTTestData = "^0.4.8"
+KM3NeTTestData = "^0.4.9"
 StaticArrays = "1"
 UnROOT = "^0.10.15"
 julia = "1"
 
 [extras]
+KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "KM3NeTTestData"]
