@@ -46,7 +46,7 @@ After that, you can add `KM3io.jl` just like any other Julia package:
 # Quickstart
 
 
-``` julia-repl
+``` julia
 julia> using KM3io, KM3NeTTestData
 
 julia> f = ROOTFile(datapath("offline", "numucc.root"))
