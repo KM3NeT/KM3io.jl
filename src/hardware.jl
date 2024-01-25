@@ -14,6 +14,14 @@ struct PMT
     t₀::Float64
     status::Union{Int32, Missing}
 end
+function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
+    for field in [:id, :status]
+        getfield(lhs, field) == getfield(rhs, field) || return false
+    end
+    for field in [:pos, :dir, :t₀]
+        isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
+    end
+end
 
 
 """
@@ -62,7 +70,9 @@ function Base.isapprox(lhs::DetectorModule, rhs::DetectorModule; kwargs...)
     for field in [:pos, :q, :t₀]
         isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
     end
-    # TODO: check PMTs
+    for (lhs_pmt, rhs_pmt) in zip(lhs.pmts, rhs.pmts)
+        isapprox(lhs_pmt, rhs_pmt; kwargs...)
+    end
     true
 end
 """
