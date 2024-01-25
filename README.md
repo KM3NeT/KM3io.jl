@@ -8,7 +8,7 @@
 `KM3io.jl` is a Julia library which implements high-performance I/O functions
 and additional utilities to deal with dataformats used in KM3NeT, e.g.
 [ROOT](https://root.cern.ch) (online/offline files),
-[DETX](https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29)
+[DETX/DATX](https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29)
 (detector geometry and calibrations) and acoustics (waveforms and hardware). In
 contrast to Python, you are free to utilise as many (nested) `for`-loops as you
 like while still being as fast as in e.g. in C++.

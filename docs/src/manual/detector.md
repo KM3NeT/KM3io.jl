@@ -3,12 +3,9 @@
 In this example, we will explore the components of a KM3NeT detector, which is
 represented by the [`Detector`](@ref) type in `KM3io.jl`. The detector
 description is stored in so-called
-[`DETX`-files](https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29),
-named after its filename extension `.detx`). It's an ASCII-based file format and
-by the time of writing this example, `v5` is the latest format version. There is
-a yet unofficial binary version of this format named `DATX` (with the filename
-extension `datx`), which is currently not supported, neither widely used in
-KM3NeT.
+[`DETX` and `DATX` files](https://wiki.km3net.de/index.php/Dataformats#Detector_Description_.28.detx_and_.datx.29),
+named after their filename extensions `.detx` (ASCII) and `.datx` (binary) respectively.
+By time of writing this example, `v5` is the latest format version.
 
 !!! note
 
@@ -21,11 +18,12 @@ KM3NeT.
     point of the PMT axes. Otherwise, these parameters are either set to meaningful
     default values or to `missing`.
     
-## Loading a `DETX` File
+## Loading a `DETX/DATX` File
 
-The [`Detector`](@ref) type offers a constructor which takes a filepath to a `DETX`
-file. The [KM3NeTTestData.jl](https://git.km3net.de/km3py/km3net-testdata)
-offers a collection of detector sample files, so let's pick one of them:
+The [`Detector`](@ref) type has a constructor which takes a filepath to a
+`DETX` or `DATX` file. The
+[KM3NeTTestData.jl](https://git.km3net.de/km3py/km3net-testdata) offers a
+collection of detector sample files, so let's pick one of them:
 
 ```@example 1
 using KM3io, KM3NeTTestData
