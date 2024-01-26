@@ -6,6 +6,7 @@ struct RBRIterator
     f::ROOTFile
 end
 Base.length(itr::RBRIterator) = length(itr.f.online.events)
+Base.lastindex(itr::RBRIterator) = length(itr)
 function Base.getindex(itr::RBRIterator, idx::Integer)
     event = itr.f.online.events[idx]
     mc_idx = event.header.trigger_counter + 1
