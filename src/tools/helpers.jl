@@ -1,6 +1,7 @@
 """
 A basic container type to assist run-by-run iteration.
 """
+# TODO: add tests (need a proper testfile in km3net-testdata)
 struct RBRIterator
     f::ROOTFile
 end
