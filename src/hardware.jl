@@ -370,6 +370,9 @@ function read_datx(io::IO)
     seek(io, max(0, position(io) - length(comment_marker)))
     det_id = read(io, Int32)
     version = parse(Int, _readstring(io)[2:end])
+    if !(version ∈ supported_versions)
+        error("DATX version $version is not supported yet. Supported versions are: $(join(supported_versions, ' '))")
+    end
     validity = DateRange(unix2datetime(read(io, Float64)), unix2datetime(read(io, Float64)))
     _readstring(io)  # says "UTM", ignoring
     wgs = _readstring(io)
