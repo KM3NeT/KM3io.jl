@@ -56,6 +56,8 @@ export most_frequent, categorize, nthbitset
 
 export cherenkov, CherenkovPhoton, azimuth, zenith, theta, phi
 
+export MCEventMatcher
+
 export CHClient, CHTag, subscribe, @ip_str
 
 @template (FUNCTIONS, METHODS, MACROS) =
@@ -100,6 +102,7 @@ include("tools/general.jl")
 include("tools/daq.jl")
 include("tools/trigger.jl")
 include("tools/reconstruction.jl")
+include("tools/helpers.jl")
 
 include("physics.jl")
 
