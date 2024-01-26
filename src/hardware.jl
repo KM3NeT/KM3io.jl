@@ -362,6 +362,7 @@ Create a `Detector` instance from an ASCII IO stream using the DATX specificatio
 """
 function read_datx(io::IO)
     comment_marker = [0x23, 0x23, 0x23, 0x23]
+    supported_versions = Set(5)
 
     comments = String[]
     while read(io, 4) == comment_marker
