@@ -311,11 +311,11 @@ end
 
 @testset "helpers" begin
     f = ROOTFile(datapath("mupage", "mcv8.1.mupage_tuned_100G.sirene.jterbr00013288.10.root"))
-    for (event, mc_event) in RBRIterator(f)
+    for (event, mc_event) in MCEventMatcher(f)
         continue
     end
 
-    rbr = RBRIterator(f)
+    rbr = MCEventMatcher(f)
     event, mc_event = rbr[1]
     @assert 756 == length(event.snapshot_hits)
     @assert 28 == length(event.triggered_hits)

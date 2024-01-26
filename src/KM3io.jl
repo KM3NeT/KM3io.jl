@@ -56,7 +56,7 @@ export most_frequent, categorize, nthbitset
 
 export cherenkov, CherenkovPhoton, azimuth, zenith, theta, phi
 
-export RBRIterator
+export MCEventMatcher
 
 export CHClient, CHTag, subscribe, @ip_str
 
