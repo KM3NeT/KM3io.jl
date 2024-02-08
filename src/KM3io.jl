@@ -102,6 +102,7 @@ include("tools/general.jl")
 include("tools/daq.jl")
 include("tools/trigger.jl")
 include("tools/reconstruction.jl")
+include("tools/math.jl")
 include("tools/helpers.jl")
 
 include("physics.jl")

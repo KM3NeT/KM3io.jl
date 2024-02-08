@@ -327,3 +327,11 @@ end
     @assert 111 == length(mc_event.mc_hits)
     @assert 4 == length(mc_event.mc_trks)
 end
+
+
+@testset "math" begin
+    @test 0 == angle([1,0,0], [1,0,0])
+    @test π/2 ≈ angle([1,0,0], [0,1,0])
+    @test π/2 ≈ angle([1,0,0], [0,0,1])
+    @test π ≈ angle([1,0,0], [-1,0,0])
+end
