@@ -153,5 +153,5 @@ hashistory
 
 ### Math
 ```@docs
-math
+angle
 ```
