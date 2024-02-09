@@ -57,7 +57,7 @@ Julia 1.9:
 
 
 docs:
-  image: docker.km3net.de/base/julia:1.8-tex
+  image: docker.km3net.de/base/julia:1.9-tex
   stage: docs
   script:
     - |
