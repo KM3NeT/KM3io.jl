@@ -17,6 +17,7 @@ Location
 Evt
 CalibratedHit
 CalibratedMCHit
+XCalibratedHit
 Trk
 MCTrk
 ```
