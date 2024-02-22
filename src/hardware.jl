@@ -85,6 +85,9 @@ Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
 Returns true if the module is a basemodule.
 """
 isbasemodule(d::DetectorModule) = d.location.floor == 0
+"""
+Returns true if the module is an optical module.
+"""
 isopticalmodule(d::DetectorModule) = d.n_pmts > 0
 getpmts(d::DetectorModule) = d.pmts
 """
