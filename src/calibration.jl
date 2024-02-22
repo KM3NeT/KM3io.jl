@@ -1,5 +1,10 @@
 """
-Apply geometry and time calibration to given hits.
+
+Apply full geometry and time calibration to given hits. This way of calibration
+should be used wisely since it creates a very bloaded [`XCalibratedHit`](@ref)
+object, which might not be necessary. Often, we only need time the calibration
+to be applied.
+
 """
 function calibrate(det::Detector, hits)
     calibrated_hits = Vector{XCalibratedHit}()
@@ -23,6 +28,34 @@ function calibrate(det::Detector, hits)
         push!(calibrated_hits, c_hit)
     end
     calibrated_hits
+end
+
+Base.time(det::Detector, hit; correct_slew=true) = time(hit; correct_slew=correct_slew) + getpmt(det, hit).t₀
+
+"""
+
+Calibrate the time of a given array of snapshot hits.
+
+"""
+function calibratetime(det::Detector, hits::Vector{T}) where T<:SnapshotHit
+    out = sizehint!(Vector{CalibratedSnapshotHit}(), length(hits))
+    for h in hits
+        push!(out, CalibratedSnapshotHit(h.dom_id, h.channel_id, h.t + getpmt(det, h).t₀, h.tot))
+    end
+    out
+end
+
+"""
+
+Calibrate the time of a given array of triggered hits.
+
+"""
+function calibratetime(det::Detector, hits::Vector{T}) where T<:TriggeredHit
+    out = sizehint!(Vector{CalibratedTriggeredHit}(), length(hits))
+    for h in hits
+        push!(out, CalibratedSnapshotHit(h.dom_id, h.channel_id, h.t + getpmt(det, h).t₀, h.tot, h.trigger_mask))
+    end
+    out
 end
 
 """

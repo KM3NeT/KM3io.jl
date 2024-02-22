@@ -60,6 +60,18 @@ end
 
 """
 
+A calibrated snapshot hit.
+
+"""
+struct CalibratedSnapshotHit <: AbstractCalibratedHit
+    dom_id::UInt32
+    channel_id::UInt8
+    t::Float64
+    tot::UInt8
+end
+
+"""
+
 A hit which was triggered.
 
 """
@@ -67,6 +79,19 @@ struct TriggeredHit <: AbstractDAQHit
     dom_id::Int32
     channel_id::UInt8
     t::Int32
+    tot::UInt8
+    trigger_mask::UInt64
+end
+
+"""
+
+A calibrated triggered hit.
+
+"""
+struct CalibratedTriggeredHit <: AbstractCalibratedHit
+    dom_id::UInt32
+    channel_id::UInt8
+    t::Float64
     tot::UInt8
     trigger_mask::UInt64
 end
