@@ -97,6 +97,14 @@ struct CalibratedTriggeredHit <: AbstractCalibratedHit
 end
 
 
+"""
+
+A fully dressed hit with all calibration information which can be
+obtained. This structure is similar to the Hit structure in aanet
+and should be used wisely. Most of the time it's much more
+performant to use dedicated (simplified) structures.
+
+"""
 struct XCalibratedHit <: AbstractCalibratedHit
     dom_id::UInt32
     channel_id::UInt32
