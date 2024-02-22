@@ -60,6 +60,18 @@ end
 
 """
 
+A calibrated snapshot hit.
+
+"""
+struct CalibratedSnapshotHit <: AbstractCalibratedHit
+    dom_id::UInt32
+    channel_id::UInt8
+    t::Float64
+    tot::UInt8
+end
+
+"""
+
 A hit which was triggered.
 
 """
@@ -71,7 +83,28 @@ struct TriggeredHit <: AbstractDAQHit
     trigger_mask::UInt64
 end
 
+"""
 
+A calibrated triggered hit.
+
+"""
+struct CalibratedTriggeredHit <: AbstractCalibratedHit
+    dom_id::UInt32
+    channel_id::UInt8
+    t::Float64
+    tot::UInt8
+    trigger_mask::UInt64
+end
+
+
+"""
+
+A fully dressed hit with all calibration information which can be
+obtained. This structure is similar to the Hit structure in aanet
+and should be used wisely. Most of the time it's much more
+performant to use dedicated (simplified) structures.
+
+"""
 struct XCalibratedHit <: AbstractCalibratedHit
     dom_id::UInt32
     channel_id::UInt32

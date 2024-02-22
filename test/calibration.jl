@@ -9,6 +9,12 @@ using Test
     chits = calibrate(det, hits)
     @test 96 == length(hits)
     @test 96 == length(chits)
+
+    @test 30733918 == hits[1].t
+    @test 3.0941664391e7 ≈ chits[1].t
+
+    chits = calibratetime(det, hits)
+    @test 3.0941664391e7 ≈ chits[1].t
 end
 
 

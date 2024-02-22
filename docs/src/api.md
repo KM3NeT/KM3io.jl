@@ -17,6 +17,7 @@ Location
 Evt
 CalibratedHit
 CalibratedMCHit
+XCalibratedHit
 Trk
 MCTrk
 ```
@@ -27,6 +28,8 @@ DAQEvent
 EventHeader
 SnapshotHit
 TriggeredHit
+CalibratedSnapshotHit
+CalibratedTriggeredHit
 UTCTime
 UTCExtended
 Summaryslice
@@ -88,6 +91,7 @@ read(filename::AbstractString, T::Type{AcousticsTriggerParameter})
 ## Calibration
 ```@docs
 calibrate
+calibratetime
 combine
 floordist
 slew

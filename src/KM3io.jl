@@ -40,11 +40,12 @@ export DAQEvent, EventHeader, SnapshotHit, UTCTime, UTCExtended, Summaryslice,
        count_active_channels, count_fifostatus, count_hrvstatus, status,
        maximal_udp_sequence_number, number_of_udp_packets_received
 # Offline dataformat
-export Evt, Hit, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit
+export Evt, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit, CalibratedSnapshotHit,
+       CalibratedTriggeredHit
 
 export K40Rates
 
-export calibrate, floordist, slew, combine
+export calibrate, calibratetime, floordist, slew, combine
 
 export besttrack, bestjppmuon, bestjppshower, bestaashower,
        RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,
