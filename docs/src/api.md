@@ -52,6 +52,9 @@ Detector
 modules
 getmodule
 getpmt
+haslocation
+isbasemodule
+isopticalmodule
 write(::AbstractString, ::Detector)
 write(::IO, ::Detector)
 Hydrophone
@@ -154,4 +157,5 @@ hashistory
 ### Math
 ```@docs
 angle
+distance
 ```

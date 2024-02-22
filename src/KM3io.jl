@@ -27,7 +27,8 @@ export ROOTFile
 export H5File, H5CompoundDataset, create_dataset, addmeta
 
 export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
-export Detector, DetectorModule, PMT, Tripod, Hydrophone, StringMechanics, StringMechanicsParameters, center, isbasemodule, getmodule, modules, getpmt, getpmts
+export Detector, DetectorModule, PMT, Tripod, Hydrophone, StringMechanics, StringMechanicsParameters,
+       center, isbasemodule, isopticalmodule, getmodule, modules, getpmt, getpmts, haslocation
 
 # Acoustics
 export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
@@ -59,6 +60,8 @@ export cherenkov, CherenkovPhoton, azimuth, zenith, theta, phi
 export MCEventMatcher
 
 export CHClient, CHTag, subscribe, @ip_str
+
+export distance
 
 @template (FUNCTIONS, METHODS, MACROS) =
     """

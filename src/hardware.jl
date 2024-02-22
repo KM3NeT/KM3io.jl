@@ -81,7 +81,11 @@ end
 The index in this context is the DAQ channel ID of the PMT, which is counting from 0.
 """
 Base.getindex(d::DetectorModule, i) = d.pmts[i+1]
+"""
+Returns true if the module is a basemodule.
+"""
 isbasemodule(d::DetectorModule) = d.location.floor == 0
+isopticalmodule(d::DetectorModule) = d.n_pmts > 0
 getpmts(d::DetectorModule) = d.pmts
 """
 Get the PMT for a given DAQ channel ID (TDC)
@@ -294,6 +298,10 @@ end
 Base.getindex(d::Detector, module_id::Integer) = d.modules[module_id]
 Base.getindex(d::Detector, string::Integer, floor::Integer) = d.locations[string, floor]
 """
+Return the detector module for a given module ID.
+"""
+@inline getmodule(d::Detector, module_id::Integer) = d[module_id]
+"""
 Return the detector module for a given string and floor.
 """
 @inline getmodule(d::Detector, string::Integer, floor::Integer) = d[string, floor]
@@ -305,6 +313,10 @@ Return the detector module for a given string and floor (as `Tuple`).
 Return the detector module for a given location.
 """
 @inline getmodule(d::Detector, loc::Location) = d[loc.string, loc.floor]
+"""
+Return the `PMT` for a given hit.
+"""
+@inline getpmt(d::Detector, hit) = getpmt(getmodule(d, hit.dom_id), hit.channel_id)
 Base.getindex(d::Detector, string::Int, ::Colon) = sort!(filter(m->m.location.string == string, modules(d)))
 Base.getindex(d::Detector, string::Int, floors::T) where T<:Union{AbstractArray, UnitRange} = [d[string, floor] for floor in sort(floors)]
 Base.getindex(d::Detector, ::Colon, floor::Int) = sort!(filter(m->m.location.floor == floor, modules(d)))
@@ -323,6 +335,13 @@ function Base.getindex(d::Detector, ::Colon, floors::UnitRange{T}) where T<:Inte
     end
     sort!(modules)
 end
+
+"""
+
+Returns true if there is a module at the given location.
+
+"""
+haslocation(d::Detector, loc::Location) = haskey(d.locations, (loc.string, loc.floor))
 
 """
 
