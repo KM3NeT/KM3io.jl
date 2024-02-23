@@ -205,3 +205,39 @@ struct DAQEvent
     snapshot_hits::Vector{SnapshotHit}
     triggered_hits::Vector{TriggeredHit}
 end
+
+"""
+The CLB (Central Logic Board) Common header
+"""
+@kwdef struct CLBCommonHeader
+  data_type::UInt32
+  run_number::UInt32
+  udp_sequence_number::UInt32
+  s::UInt32
+  ns::UInt32
+  dom_id::UInt32
+  dom_status1::UInt32 =0
+  dom_status2::UInt32 =0
+  dom_status3::UInt32 =0
+  dom_status4::UInt32 =0
+end
+
+"""
+The InfoWord that is present in some CLB UDP DataGrams
+"""
+@kwdef struct InfoWord 
+  head::UInt8
+  sampling_rate::UInt8
+  ns::UInt32
+end
+
+"""
+A CLB DataGram
+"""
+@kwdef struct CLBDataGram 
+  size::UInt32
+  header::CLBCommonHeader
+  info::Union{InfoWord,Nothing}
+  payload::Vector{UInt8}
+end
+
