@@ -45,9 +45,16 @@ function Base.show(io::IO, e::DAQEvent)
 end
 
 struct EventContainer
-    headers::Vector{EventHeader}
-    snapshot_hits::Vector{Vector{SnapshotHit}}
-    triggered_hits::Vector{Vector{TriggeredHit}}
+    # For performance reasons we use the lazy types of UnROOT,
+    # otherwise we have no laziness ;) We could also parametrise,
+    # just like with SummarysliceContainer.
+    headers::UnROOT.LazyBranch{EventHeader, UnROOT.Nojagg, Vector{EventHeader}}
+    snapshot_hits::UnROOT.LazyBranch{Vector{SnapshotHit}, UnROOT.Nojagg, Vector{Vector{SnapshotHit}}}
+    triggered_hits::UnROOT.LazyBranch{Vector{TriggeredHit}, UnROOT.Nojagg, Vector{Vector{TriggeredHit}}}
+    # These were the original fields:
+    # headers::Vector{EventHeader}
+    # snapshot_hits::Vector{Vector{SnapshotHit}}
+    # triggered_hits::Vector{Vector{TriggeredHit}}
 end
 Base.getindex(c::EventContainer, idx::Integer) = DAQEvent(c.headers[idx], c.snapshot_hits[idx], c.triggered_hits[idx])
 Base.getindex(c::EventContainer, r::UnitRange) = [c[idx] for idx ∈ r]
@@ -107,8 +114,12 @@ struct Summaryslice
     frames::Vector{SummaryFrame}
 end
 struct SummarysliceContainer
-    headers::Vector{SummarysliceHeader}
-    summaryslices::Vector{Vector{SummaryFrame}}
+    # For performance reasons we use directly the lazy types of UnROOT
+    # We could also parametrise it.
+    # Originally this was headers::Vector{SummarysliceHeader} and
+    # summaryslices::Vector{Vector{SummaryFrame}}
+    headers::UnROOT.LazyBranch{SummarysliceHeader, UnROOT.Nojagg, Vector{SummarysliceHeader}}
+    summaryslices::UnROOT.LazyBranch{Vector{SummaryFrame}, UnROOT.Nojagg, Vector{Vector{SummaryFrame}}}
 end
 
 Base.getindex(c::SummarysliceContainer, idx::Integer) = Summaryslice(c.headers[idx], c.summaryslices[idx])
