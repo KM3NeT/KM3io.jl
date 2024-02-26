@@ -38,7 +38,7 @@ export DAQEvent, EventHeader, SnapshotHit, UTCTime, UTCExtended, Summaryslice,
        SummarysliceHeader, SummaryFrame,
        pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer,
        count_active_channels, count_fifostatus, count_hrvstatus, status,
-       maximal_udp_sequence_number, number_of_udp_packets_received, CLBCommonHeader, InfoWord
+       maximal_udp_sequence_number, number_of_udp_packets_received
 
 # Offline dataformat
 export Evt, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit, CalibratedSnapshotHit,
@@ -102,7 +102,7 @@ include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
 include("controlhost.jl")
-include("csk.jl")
+include("csk/CSK.jl")
 
 include("tools/general.jl")
 include("tools/daq.jl")

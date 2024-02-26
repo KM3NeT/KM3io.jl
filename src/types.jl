@@ -1,4 +1,4 @@
-struct UTMPosition{T} <: FieldVector{3, T}
+struct UTMPosition{T} <: FieldVector{3,T}
     east::T
     north::T
     z::T
@@ -7,7 +7,7 @@ end
 """
 A vector to represent a position in 3D.
 """
-struct Position{T} <: FieldVector{3, T}
+struct Position{T} <: FieldVector{3,T}
     x::T
     y::T
     z::T
@@ -16,12 +16,12 @@ end
 """
 A vector to represent a direction in 3D.
 """
-struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
+struct Direction{T<:AbstractFloat} <: FieldVector{3,T}
     x::T
     y::T
     z::T
 end
-Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
+Direction(ϕ, θ) = Direction(cos(ϕ) * sin(θ), sin(ϕ) * sin(θ), cos(θ))
 
 struct Track
     dir::Direction{Float64}
@@ -29,7 +29,7 @@ struct Track
     t::Float64
 end
 
-struct Quaternion{T} <: FieldVector{4, T}
+struct Quaternion{T} <: FieldVector{4,T}
     q0::T
     qx::T
     qy::T
@@ -42,8 +42,8 @@ struct DateRange
 end
 
 abstract type AbstractHit end
-abstract type AbstractDAQHit<:AbstractHit end
-abstract type AbstractMCHit<:AbstractHit end
+abstract type AbstractDAQHit <: AbstractHit end
+abstract type AbstractMCHit <: AbstractHit end
 abstract type AbstractCalibratedHit <: AbstractDAQHit end
 
 """
@@ -96,7 +96,6 @@ struct CalibratedTriggeredHit <: AbstractCalibratedHit
     trigger_mask::UInt64
 end
 
-
 """
 
 A fully dressed hit with all calibration information which can be
@@ -144,10 +143,12 @@ struct UTCExtended
     function UTCExtended(seconds, ns_cycles)
         wr_status = (seconds >> 31) & 1
         s = seconds & 0x7FFFFFFF  # skipping the most significant bit
-        new(s, ns_cycles * 16, wr_status)
+        return new(s, ns_cycles * 16, wr_status)
     end
 end
-Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
+function Base.show(io::IO, t::UTCExtended)
+    return print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
+end
 
 """
 
@@ -164,7 +165,7 @@ struct SummaryFrame
     fifo::UInt32
     status3::UInt32
     status4::UInt32
-    rates::SVector{31, UInt8}
+    rates::SVector{31,UInt8}
 end
 
 """
@@ -204,40 +205,5 @@ struct DAQEvent
     header::EventHeader
     snapshot_hits::Vector{SnapshotHit}
     triggered_hits::Vector{TriggeredHit}
-end
-
-"""
-The CLB (Central Logic Board) Common header
-"""
-@kwdef struct CLBCommonHeader
-  data_type::UInt32
-  run_number::UInt32
-  udp_sequence_number::UInt32
-  s::UInt32
-  ns::UInt32
-  dom_id::UInt32
-  dom_status1::UInt32 =0
-  dom_status2::UInt32 =0
-  dom_status3::UInt32 =0
-  dom_status4::UInt32 =0
-end
-
-"""
-The InfoWord that is present in some CLB UDP DataGrams
-"""
-@kwdef struct InfoWord 
-  head::UInt8
-  sampling_rate::UInt8
-  ns::UInt32
-end
-
-"""
-A CLB DataGram
-"""
-@kwdef struct CLBDataGram 
-  size::UInt32
-  header::CLBCommonHeader
-  info::Union{InfoWord,Nothing}
-  payload::Vector{UInt8}
 end
 
