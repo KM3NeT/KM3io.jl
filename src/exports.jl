@@ -128,7 +128,7 @@ theta,
 zenith,
 
 # Real-time
-@ip_str
+@ip_str,
 CHClient,
 CHTag,
-subscribe,
+subscribe
