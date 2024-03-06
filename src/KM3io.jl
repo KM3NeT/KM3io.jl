@@ -23,46 +23,9 @@ import UnROOT
 
 using HDF5
 
-export ROOTFile
-export H5File, H5CompoundDataset, create_dataset, addmeta
 
-export Direction, Position, UTMPosition, Location, Quaternion, Track, AbstractCalibratedHit
-export Detector, DetectorModule, PMT, Tripod, Hydrophone, StringMechanics, StringMechanicsParameters,
-       center, isbasemodule, isopticalmodule, getmodule, modules, getpmt, getpmts, haslocation
+include("exports.jl")
 
-# Acoustics
-export Waveform, AcousticSignal, AcousticsTriggerParameter, piezoenabled, hydrophoneenabled
-
-# Online dataformat
-export DAQEvent, EventHeader, SnapshotHit, UTCTime, UTCExtended, Summaryslice,
-       SummarysliceHeader, SummaryFrame,
-       pmtrate, pmtrates, hrvstatus, tdcstatus, wrstatus, fifostatus, hasudptrailer,
-       count_active_channels, count_fifostatus, count_hrvstatus, status,
-       maximal_udp_sequence_number, number_of_udp_packets_received
-# Offline dataformat
-export Evt, TriggeredHit, Trk, CalibratedHit, XCalibratedHit, MCTrk, CalibratedMCHit, CalibratedSnapshotHit,
-       CalibratedTriggeredHit
-
-export K40Rates
-
-export calibrate, calibratetime, floordist, slew, combine
-
-export besttrack, bestjppmuon, bestjppshower, bestaashower,
-       RecStageRange, hashistory, hasjppmuonprefit, hasjppmuonsimplex, hasjppmuongandalf,
-       hasjppmuonenergy, hasjppmuonstart, hasjppmuonfit, hasshowerprefit, hasshowerpositionfit,
-       hasshowercompletefit, hasshowerfit, hasaashowerfit, hasreconstructedjppmuon,
-       hasreconstructedjppshower, hasreconstructedaashower
-
-export is3dshower, ismxshower, is3dmuon, isnb, triggered
-export most_frequent, categorize, nthbitset
-
-export cherenkov, CherenkovPhoton, azimuth, zenith, theta, phi
-
-export MCEventMatcher
-
-export CHClient, CHTag, subscribe, @ip_str
-
-export distance
 
 @template (FUNCTIONS, METHODS, MACROS) =
     """
