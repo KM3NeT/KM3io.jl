@@ -78,8 +78,8 @@ the HDF5 dataset will be extended, the buffer written and cleared.
 
 To force the writing, use [`flush`](@ref)
 """
-function HDF5.create_dataset(f::H5File, path::AbstractString, ::Type{T}; cache_size=1000) where T
-    dset = HDF5.create_dataset(f._h5f, path, T, ((0,), (-1,)); chunk=(100,))
+function HDF5.create_dataset(f::H5File, path::AbstractString, ::Type{T}; cache_size=10000, chunk=(10000,), filters=[Filters.Deflate(5)], kwargs...) where T
+    dset = HDF5.create_dataset(f._h5f, path, T, ((0,), (-1,)); chunk=chunk, filters=filters, kwargs...)
     attrs(dset)["struct_name"] = string(nameof(T))
     cache = H5CompoundDatasetCache(T[], cache_size)
     d = H5CompoundDataset(dset, cache)
