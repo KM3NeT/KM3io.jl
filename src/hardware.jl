@@ -441,9 +441,7 @@ end
 Create a `Detector` instance from an ASCII IO stream using the DETX specification.
 """
 function read_detx(io::IO)
-    lines = readlines(io)
-
-    comments = _extract_comments(lines, DETECTOR_COMMENT_PREFIX)
+    comments, lines = _split_comments(readlines(io), DETECTOR_COMMENT_PREFIX)
 
     filter!(e->!startswith(e, DETECTOR_COMMENT_PREFIX) && !isempty(strip(e)), lines)
 
@@ -557,22 +555,39 @@ end
 
 
 """
-    function _extract_comments(lines<:Vector{AbstractString}, prefix<:AbstractString)
+    function _split_comments(lines<:Vector{AbstractString}, prefix<:AbstractString)
 
-Returns only the lines which are comments, identified by the `prefix`. The prefix is
-omitted.
+Returns a tuple of comments and content. Comment lines are identified by the `prefix`.
+The prefix is omitted.
 
 """
-function _extract_comments(lines::Vector{T}, prefix::T) where {T<:AbstractString}
+function _split_comments(lines::Vector{T}, prefix::T) where {T<:AbstractString}
     comments = String[]
+    content = String[]
     prefix_length = length(prefix)
+    # Multiline comments are not part of the specification but
+    # there are DETX containing such (introduced by Jpp).
+    # This feature is just a workaround until we define proper
+    # multiline comments for DETX/DATX v6+
+    multilinemode = false
     for line ∈ lines
+        if multilinemode
+            if length(findall(raw"\"", line)) == 1
+                multilinemode = false
+            end
+            push!(comments, line)
+            continue
+        end
         if startswith(line, prefix)
             comment = strip(line[prefix_length+1:end])
+            if length(findall(raw"\"", comment)) == 1
+                multilinemode = true
+            end
             push!(comments, comment)
         end
+        push!(content, line)
     end
-    comments
+    comments, content
 end
 
 
