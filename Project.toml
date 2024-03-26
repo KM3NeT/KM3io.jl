@@ -1,7 +1,7 @@
 name = "KM3io"
 uuid = "2cab5852-6f21-4982-99b0-6a4792870cfb"
 authors = ["Tamas Gal", "Johannes Schumann"]
-version = "0.16.7"
+version = "0.16.8"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -19,7 +19,7 @@ UnROOT = "3cd96dde-e98d-4713-81e9-a4a1b0235ce9"
 [compat]
 DocStringExtensions = "0.8, 0.9"
 HDF5 = "^0.16.15, ^0.17"
-KM3NeTTestData = "^0.4.10"
+KM3NeTTestData = "^0.4.12"
 StaticArrays = "1"
 UnROOT = "^0.10.15"
 julia = "1"
