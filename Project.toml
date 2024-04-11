@@ -21,7 +21,7 @@ DocStringExtensions = "0.8, 0.9"
 HDF5 = "^0.16.15, ^0.17"
 KM3NeTTestData = "^0.4.12"
 StaticArrays = "1"
-UnROOT = "^0.10.15"
+UnROOT = "^0.10.26"
 julia = "1"
 
 [extras]
