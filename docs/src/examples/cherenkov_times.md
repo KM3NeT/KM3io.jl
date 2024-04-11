@@ -61,9 +61,12 @@ track. We fill the time residuals in a 1D histogram using the
 
 
 ```@example 1
+using KM3io, KM3NeTTestData
 using FHist
+using PGFPlotsX
 
-Δts = Hist1D(;bins=-10:50)
+f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
+Δts = Hist1D(; counttype=Int, binedges=-10:50)
 
 for evt ∈ f.offline
     m = bestjppmuon(evt)
