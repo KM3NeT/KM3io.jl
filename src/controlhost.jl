@@ -100,6 +100,7 @@ struct CHClient{T}
 end
 CHTag(::Type{T}) where T = error("No controlhost tag defined for type '$(T)'")
 CHTag(::Type{DAQEvent}) = CHTag("IO_EVT")
+CHTag(::Type{DAQSummaryslice}) = CHTag("IO_SUM")
 CHClient(ip::IPv4, port::Integer, tags::Vector{CHTag}) = CHClient{CHMessage}(ip, port, tags)
 CHClient{T}(ip::IPv4, port::Integer) where T = CHClient{T}(ip, port, [CHTag(T)])
 Base.eltype(::CHClient{T}) where T = T

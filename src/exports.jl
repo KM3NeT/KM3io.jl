@@ -44,6 +44,7 @@ ROOTFile,
 
 # Online dataformat
 DAQEvent,
+DAQSummaryslice,
 EventHeader,
 SnapshotHit,
 SummaryFrame,

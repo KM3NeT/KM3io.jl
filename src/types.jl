@@ -205,3 +205,13 @@ struct DAQEvent
     snapshot_hits::Vector{SnapshotHit}
     triggered_hits::Vector{TriggeredHit}
 end
+
+"""
+
+DAQSummaryslice from JLigier
+
+"""
+struct DAQSummaryslice
+    header::SummarysliceHeader
+    summary_frames::Vector{SummaryFrame}
+end
