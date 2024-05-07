@@ -3,6 +3,10 @@ stages:
   - docs
   - deploy
 
+env:
+  script:
+    - export
+
 before_script:
   # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
   - apt-get -qq update; apt-get -y install git
