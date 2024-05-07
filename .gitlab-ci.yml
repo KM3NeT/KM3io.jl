@@ -3,9 +3,14 @@ stages:
   - docs
   - deploy
 
-env:
-  script:
-    - export
+variables:
+  JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
+
+cache:
+  paths:
+    - "$CI_PROJECT_DIR/.julia"
+  key: "$CI_COMMIT_REF_SLUG"
+
 
 before_script:
   # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
