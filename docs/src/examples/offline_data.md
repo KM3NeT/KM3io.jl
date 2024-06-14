@@ -38,6 +38,19 @@ or ranges of events:
 events = f.offline[6:9]
 ```
 
+Another way to access events is given by getter function `getevent()` (which also works for online trees). If a
+single number if passed, it will be treated as a regular index, just like above:
+
+```@example 1
+event = getevent(f.offline, 3)
+```
+
+when two numbers are passed, the first one is interpreted as `frame_index` and the second one as `trigger_counter`:
+
+```@example 1
+event = getevent(f.offline, 87, 2)
+```
+
 ### Hits
 
 Each event consists of a vector of hits, MC hits, tracks and MC tracks. Depending

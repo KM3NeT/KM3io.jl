@@ -21,6 +21,7 @@ makedocs(;
             "manual/tools.md",
         ],
         "Examples" => Any[
+            "examples/online_data.md",
             "examples/offline_data.md",
             "examples/cherenkov_times.md",
             "examples/controlhost.md",
