@@ -57,7 +57,7 @@ event = getevent(f.online, 2)
 when two numbers are passed, the first one is interpreted as `frame_index` and the second one as `trigger_counter`:
 
 ```@example 1
-event = getevent(f.offline, 127, 2)
+event = getevent(f.online, 127, 1)
 ```
 
 !!! note

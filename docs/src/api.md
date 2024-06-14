@@ -126,6 +126,7 @@ CHClient
 
 ### General tools
 ```@docs
+getevent
 categorize
 nthbitset
 most_frequent

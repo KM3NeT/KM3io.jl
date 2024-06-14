@@ -141,6 +141,7 @@ struct OnlineTree
     _fobj::UnROOT.ROOTFile
     events::EventContainer
     summaryslices::SummarysliceContainer
+    _frame_index_trigger_counter_lookup_map::Dict{Tuple{Int, Int}, Int}
 
     function OnlineTree(fobj::UnROOT.ROOTFile)
         new(fobj,
@@ -152,7 +153,8 @@ struct OnlineTree
             SummarysliceContainer(
                 UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/KM3NETDAQ::JDAQSummarysliceHeader"),
                 UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/vector<KM3NETDAQ::JDAQSummaryFrame>")
-            )
+            ),
+            Dict{Tuple{Int, Int}, Int}()
         )
 
     end

@@ -152,6 +152,7 @@ end
 struct OfflineTree{T}
     _fobj::UnROOT.ROOTFile
     header::Union{MCHeader, Missing}
+    _frame_index_trigger_counter_lookup_map::Dict{Tuple{Int, Int}, Int}
     _t::T  # carry the type to ensure type-safety
 
     function OfflineTree(fobj::UnROOT.ROOTFile)
@@ -201,7 +202,7 @@ struct OfflineTree{T}
 
         header = "Head" ∈ keys(fobj) ? MCHeader(fobj["Head"]) : missing
 
-        new{typeof(t)}(fobj, header, t)
+        new{typeof(t)}(fobj, header, Dict{Tuple{Int, Int}, Int}(), t)
     end
 end
 OfflineTree(filename::AbstractString) = OfflineTree(UnROOT.ROOTFile(filename))
@@ -221,6 +222,7 @@ end
 Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.getindex(f::OfflineTree, idx::Integer)
+    idx > length(f) && throw(BoundsError(f, idx))
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
     skip_mc_event_time = !hasproperty(e, :mc_event_time_Sec)

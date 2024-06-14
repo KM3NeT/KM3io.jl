@@ -117,6 +117,7 @@ isnb,
 most_frequent,
 nthbitset,
 triggered,
+getevent,
 
 # Physics and math helpers
 CherenkovPhoton,

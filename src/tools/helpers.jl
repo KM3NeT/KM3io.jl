@@ -18,3 +18,43 @@ function Base.iterate(itr::MCEventMatcher, state=1)
     state > length(itr) && return nothing
     (itr[state], state + 1)
 end
+
+
+countevents(tree::OfflineTree) = length(tree)
+countevents(tree::OnlineTree) = length(tree.events)
+triggercounterof(e::Evt) = e.trigger_counter
+frameindexof(e::Evt) = e.frame_index
+triggercounterof(e::DAQEvent) = e.header.trigger_counter
+frameindexof(e::DAQEvent) = e.header.frame_index
+
+"""
+
+Retrieves the event with for a given `frame_index` and `trigger_counter`.
+
+"""
+function getevent(tree::T, frame_index, trigger_counter) where T<:Union{OnlineTree, OfflineTree}
+    lookup = tree._frame_index_trigger_counter_lookup_map
+    key = (frame_index, trigger_counter)
+    if haskey(lookup, key)
+        event_idx = lookup[key]
+        return getevent(tree, event_idx)
+    end
+
+    highest_event_idx = length(lookup) == 0 ? 0 : maximum(values(lookup))
+
+    for event_idx in (highest_event_idx+1):countevents(tree)
+        event = getevent(tree, event_idx)
+
+        fi = frameindexof(event)
+        tc = triggercounterof(event)
+        lookup[(fi, tc)] = event_idx
+
+        if fi == frame_index && tc == trigger_counter
+            return event
+        end
+    end
+
+    error("No online event found for frame_index=$(frame_index) and trigger_counter=$(trigger_counter).")
+end
+getevent(tree::OfflineTree, idx) = tree[idx]
+getevent(tree::OnlineTree, idx) = tree.events[idx]
