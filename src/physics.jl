@@ -36,7 +36,7 @@ function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, 
     Δt = t - _t
     _pos = V - (d_track * track.dir)
     _dir = normalize(_pos)
-    impact_angle = ismissing(dir) ? NaN : _dir ⋅ dir
+    impact_angle = ismissing(dir) ? NaN : acos(_dir ⋅ dir)
     CherenkovPhoton(
         d_closest,
         d_photon,
