@@ -64,7 +64,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
             @test 9999999999.0 == datetime2unix(d.validity.to)
         end
 
-        @test 31 == d.modules[808992603].n_pmts
+        @test 31 == length(d.modules[808992603])
         @test 30 == d.modules[817287557].location.string
         @test 18 == d.modules[817287557].location.floor
         @test Location(30, 18) == d[817287557].location
@@ -95,8 +95,6 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         @test isapprox([116.60000547853453, 106.95689770873874, 60.463039635848226], d.modules[808992603].pos; atol=0.008)
 
         @test 78.3430067946102 ≈ getpmt(d[15, 13], 0).pos.x
-        m = d[15, 13]
-        @test m.n_pmts == length(getpmts(m))
     end
 
     comments = Detector(joinpath(SAMPLES_DIR, "v3.detx")).comments
@@ -203,7 +201,7 @@ end
 end
 
 @testset "utilities" begin
-    mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
+    mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), PMT[], missing, 0, 0)
     @test hydrophoneenabled(mod)
     @test piezoenabled(mod)
     for version ∈ 1:5

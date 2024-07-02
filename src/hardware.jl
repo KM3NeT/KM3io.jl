@@ -49,24 +49,24 @@ struct DetectorModule
     id::Int32
     pos::Position{Float64}
     location::Location
-    n_pmts::Int8
     pmts::Vector{PMT}
     q::Union{Quaternion{Float64}, Missing}
     status::Int32
     t₀::Float64
 end
 function Base.show(io::IO, m::DetectorModule)
-    info = m.location.floor == 0 ? "base" : "optical, $(m.n_pmts) PMTs"
+    info = m.location.floor == 0 ? "base" : "optical, $(length(m)) PMTs"
     print(io, "Detectormodule ($(info)) on string $(m.location.string) floor $(m.location.floor)")
 end
-Base.length(d::DetectorModule) = d.n_pmts
+Base.length(d::DetectorModule) = length(d.pmts)
 Base.eltype(::Type{DetectorModule}) = PMT
-Base.iterate(d::DetectorModule, state=1) = state > d.n_pmts ? nothing : (d.pmts[state], state+1)
+Base.iterate(d::DetectorModule, state=1) = state > length(d) ? nothing : (d.pmts[state], state+1)
 Base.isless(lhs::DetectorModule, rhs::DetectorModule) = lhs.location < rhs.location
 function Base.isapprox(lhs::DetectorModule, rhs::DetectorModule; kwargs...)
-    for field in [:id, :location, :n_pmts, :status]
+    for field in [:id, :location, :status]
         getfield(lhs, field) == getfield(rhs, field) || return false
     end
+    length(lhs) == length(rhs) || return false
     for field in [:pos, :q, :t₀]
         isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
     end
@@ -88,7 +88,7 @@ isbasemodule(d::DetectorModule) = d.location.floor == 0
 """
 Returns true if the module is an optical module.
 """
-isopticalmodule(d::DetectorModule) = d.n_pmts > 0
+isopticalmodule(d::DetectorModule) = length(d) > 0
 getpmts(d::DetectorModule) = d.pmts
 """
 Get the PMT for a given DAQ channel ID (TDC)
@@ -277,7 +277,6 @@ struct Detector
     validity::Union{DateRange, Missing}
     pos::Union{UTMPosition{Float64}, Missing}
     utm_ref_grid::Union{String, Missing}
-    n_modules::Int32
     modules::Dict{Int32, DetectorModule}
     locations::Dict{Tuple{Int, Int}, DetectorModule}
     strings::Vector{Int}
@@ -287,12 +286,12 @@ end
 Return a vector of all modules of a given detector.
 """
 modules(d::Detector) = collect(values(d.modules))
-Base.show(io::IO, d::Detector) = print(io, "Detector $(d.id) (v$(d.version)) with $(length(d.strings)) strings and $(d.n_modules) modules.")
-Base.length(d::Detector) = d.n_modules
+Base.show(io::IO, d::Detector) = print(io, "Detector $(d.id) (v$(d.version)) with $(length(d.strings)) strings and $(length(d)) modules.")
+Base.length(d::Detector) = length(d.modules)
 Base.eltype(::Type{Detector}) = DetectorModule
 function Base.iterate(d::Detector, state=(Int[], 1))
     module_ids, count = state
-    count > d.n_modules && return nothing
+    count > length(d) && return nothing
     if count == 1
         module_ids = collect(keys(d.modules))
     end
@@ -427,11 +426,11 @@ function read_datx(io::IO)
             pmt_status = read(io, Int32)
             push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
         end
-        m = DetectorModule(module_id, module_pos, location, n_pmts, pmts, q, module_status, module_t₀)
+        m = DetectorModule(module_id, module_pos, location, pmts, q, module_status, module_t₀)
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -543,13 +542,13 @@ function read_detx(io::IO)
             end
         end
 
-        m = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
+        m = DetectorModule(module_id, pos, Location(string, floor), pmts, q, status, t₀)
         modules[module_id] = m
         locations[(string, floor)] = m
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
 end
 
 
@@ -629,7 +628,7 @@ function write(io::IO, d::Detector; version=:same)
         end
     end
     if version == 1
-        writeln(io, "$(d.id) $(d.n_modules)")
+        writeln(io, "$(d.id) $(length(d))")
     elseif version > 1
         writeln(io, "$(d.id) v$(version)")
     end
@@ -658,13 +657,13 @@ function write(io::IO, d::Detector; version=:same)
     end
 
     if version > 1
-        writeln(io, "$(d.n_modules)")
+        writeln(io, "$(length(d))")
     end
 
     # TODO: module sorting is not needed according to specs but Jpp has problems with it
     for mod in sort(collect(values(d.modules)); by=m->(m.location.string, m.location.floor))
         if version < 4
-            writeln(io, "$(mod.id) $(mod.location.string) $(mod.location.floor) $(mod.n_pmts)")
+            writeln(io, "$(mod.id) $(mod.location.string) $(mod.location.floor) $(length(mod))")
         else
             if ismissing(mod.q)
                 q0, qx, qy, qz = (0, 0, 0, 0)
@@ -672,10 +671,10 @@ function write(io::IO, d::Detector; version=:same)
                 q0, qx, qy, qz = mod.q
             end
             if version == 4
-                @printf(io, "%d %d %d %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %d\n", mod.id, mod.location.string, mod.location.floor, mod.pos.x, mod.pos.y, mod.pos.z, q0, qx, qy, qz, mod.t₀, mod.n_pmts)
+                @printf(io, "%d %d %d %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %d\n", mod.id, mod.location.string, mod.location.floor, mod.pos.x, mod.pos.y, mod.pos.z, q0, qx, qy, qz, mod.t₀, length(mod))
             end
             if version > 4
-                @printf(io, "%d %d %d %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %d %d\n", mod.id, mod.location.string, mod.location.floor, mod.pos.x, mod.pos.y, mod.pos.z, q0, qx, qy, qz, mod.t₀, mod.status, mod.n_pmts)
+                @printf(io, "%d %d %d %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %d %d\n", mod.id, mod.location.string, mod.location.floor, mod.pos.x, mod.pos.y, mod.pos.z, q0, qx, qy, qz, mod.t₀, mod.status, length(mod))
             end
         end
         for pmt in mod
