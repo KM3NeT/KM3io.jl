@@ -84,6 +84,7 @@ calibratetime,
 combine,
 floordist,
 slew,
+Orientations,
 
 # Reconstruction
 RecStageRange,
