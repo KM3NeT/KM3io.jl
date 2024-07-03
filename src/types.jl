@@ -29,6 +29,11 @@ struct Track
     t::Float64
 end
 
+"""
+
+A simple quaternion derived from a `FieldVector` of StaticArrays, no more, no less.
+
+"""
 struct Quaternion{T} <: FieldVector{4, T}
     q0::T
     qx::T
