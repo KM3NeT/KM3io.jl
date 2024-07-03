@@ -11,4 +11,4 @@ PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
 [compat]
 Documenter = "1"
 FHist = "^0.11"
-KM3NeTTestData = "^0.4.14"
+KM3NeTTestData = "^0.4.15"
