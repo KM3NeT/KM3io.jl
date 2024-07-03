@@ -1,3 +1,9 @@
+"""
+
+A data structure to hold orientations data. This struct should be instantiated by
+`Base.read(filename, Orientations)`.
+
+"""
 struct Orientations
     module_ids::Set{Int}
     times::Dict{Int, Vector{Float64}}
@@ -39,6 +45,7 @@ function (o::Orientations)(module_id::Integer, time::Real)
 
     slerp(q1, q2, t)
 end
+(o::Orientations)(module_id::Integer) = (t=o.times[module_id], q=o.quaternions[module_id])
 
 
 function Base.read(filename::AbstractString, T::Type{Orientations})
