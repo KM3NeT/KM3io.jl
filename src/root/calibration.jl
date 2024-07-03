@@ -68,10 +68,10 @@ end
 """
 A compass with yaw, pitch and roll.
 """
-struct Compass
-    yaw::Float64
-    pitch::Float64
-    roll::Float64
+struct Compass{T} <: FieldVector{3, T}
+    yaw::T
+    pitch::T
+    roll::T
 end
 
 """
@@ -94,4 +94,21 @@ function Compass(q::Quaternion)
     roll = -atan(2.0 * (q.q0 * q.qx + q.qy * q.qz), 1.0 - 2.0 * (q.qx * q.qx + q.qy * q.qy))
 
     Compass(yaw, pitch, roll)
+end
+
+Quaternion(c::Compass) = Quaternion(c.yaw, c.pitch, c.roll)
+function Quaternion(yaw, pitch, roll)
+    cr = cos(-roll*0.5)
+    sr = sin(-roll*0.5)
+    cp = cos(pitch*0.5)
+    sp = sin(pitch*0.5)
+    cy = cos(-yaw*0.5)
+    sy = sin(-yaw*0.5)
+
+    Quaternion(
+        cr * cp * cy + sr * sp * sy,
+        sr * cp * cy - cr * sp * sy,
+        cr * sp * cy + sr * cp * sy,
+        cr * cp * sy - sr * sp * cy
+    )
 end
