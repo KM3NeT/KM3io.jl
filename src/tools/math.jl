@@ -12,3 +12,44 @@ Calculates the disance between two points.
 
 """
 distance(a::Position, b::Position) = norm(a - b)
+
+
+"""
+
+Interpolate between two vectors (e.g. quaternions) using the slerp method. `t`
+should be between 0 and 1, 0 will produce `q1` and `1` `q2`.
+
+"""
+function slerp(q₁, q₂, t::Real; dot_threshold=0.9995)
+    dot = q₁⋅q₂
+
+    if (dot < 0.0)
+	    q₂ *= -1
+	    dot = -dot
+    end
+
+    s₁ = t
+    s₀ = 1.0 - t
+
+    if dot <= dot_threshold
+        θ₀ = acos(dot)
+        θ₁ = θ₀ * t
+
+        s₁ = sin(θ₁) / sin(θ₀)
+        s₀ = cos(θ₁) - dot * s₁
+    end
+
+    normalize((s₀ * q₁)  +  (s₁ * q₂))
+end
+
+# Another implementation which yields slightly different results.
+# Further reading: http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
+#
+# function slerp(q₁, q₂, t::Real; dot_threshold=0.9995)
+#     dot = acos(q₁⋅q₂)
+#     dot > dot_threshold && return normalize(q₁ + t*(q₂ - q₁))
+#     dot = clamp(dot, -1, 1)
+#     θ = acos(dot) * t
+#     q = normalize(q₂ - q₁*dot)
+#     q₁*cos(θ) + q*sin(θ)
+# end
