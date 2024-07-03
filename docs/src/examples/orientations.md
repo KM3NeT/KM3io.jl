@@ -7,6 +7,7 @@ The data used in this example is provided by [KM3NeTTestData.jl](https://git.km3
 
 ```@example 1
 using KM3io
+using KM3NeTTestData
 using CairoMakie
 using Dates
 ```
@@ -16,6 +17,13 @@ We use [`Makie`](https://makie.org) for plotting:
 fig = Figure(size=(900, 400), fontsize=16)
 ax_yaw =  Axis(fig[1, 1])
 ax_pitch_and_roll =  Axis(fig[1, 2])
+```
+
+We load the orientations data and extract the quaternions including the corresponding times from it:
+
+```@example 1
+o = read(datapath("calib", "KM3NeT_00000049_0.0.0_00007631_00007676_1.orientations.root"), Orientations)
+qdata = o(808972593)
 ```
 
 The times are converted to `DateTime` objects, which Makie will understand and
