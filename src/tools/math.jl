@@ -17,10 +17,19 @@ distance(a::Position, b::Position) = norm(a - b)
 """
 
 Interpolate between two vectors (e.g. quaternions) using the slerp method. `t`
-should be between 0 and 1, 0 will produce `q1` and `1` `q2`.
+should be between 0 and 1. 0 will produce `q₁` and `1` `q₂`.
+
+The input vectors `q₁` and `q₂` will be normalised unless `normalized` is
+`false`. It is not done by default to shave off a few dozens of nanoseconds.
+Make sure to set `normalized=false` if the input vectors are not unit vectors.
 
 """
-function slerp(q₁, q₂, t::Real; dot_threshold=0.9995)
+function slerp(q₁, q₂, t::Real; dot_threshold=0.9995, normalized=true)
+    if !normalized
+        q₁ = normalize(q₁)
+        q₂ = normalize(q₂)
+    end
+
     dot = q₁⋅q₂
 
     if (dot < 0.0)

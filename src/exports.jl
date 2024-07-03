@@ -127,6 +127,7 @@ distance,
 phi,
 theta,
 zenith,
+slerp,
 
 # Real-time
 @ip_str,
