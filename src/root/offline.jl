@@ -52,6 +52,18 @@ struct Trk
     rec_stages::Vector{Int32}
     fitinf::Vector{Float64}
 end
+function Base.show(io::IO, t::Trk)
+    θ = acos(t.dir.z) # assumes t.dir has a norm of 1
+    ϕ = atan(t.dir.y,t.dir.x)
+    @printf(io, "lik=%7.2f  θ=%.3f%s = %7.2f° ϕ = %.3f = %7.2f ° vx %5.0f",t.lik,θ,arrow(t),rad2deg(θ),ϕ,rad2deg(ϕ), t.pos.x)
+end
+function arrow(trk::Trk)
+    trk.dir.z < -0.95 && return "↓"
+    trk.dir.z > 0.95 && return "↑"
+    abs(trk.dir.z) < 0.05 && return "→"
+    trk.dir.z > 0 && return "↗"
+    trk.dir.z < 0 && return "↘"
+end
 
 """
 A simulated (Monte Carlo, hence "MC") track (or shower).
