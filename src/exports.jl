@@ -85,6 +85,7 @@ combine,
 floordist,
 slew,
 Orientations,
+Compass,
 
 # Reconstruction
 RecStageRange,

@@ -64,3 +64,34 @@ function Base.read(filename::AbstractString, T::Type{Orientations})
     end
     T(module_ids, times, quaternions)
 end
+
+"""
+A compass with yaw, pitch and roll.
+"""
+struct Compass
+    yaw::Float64
+    pitch::Float64
+    roll::Float64
+end
+
+"""
+
+Initialises a [`Compass`](@ref) from a [`Quaternion`](@ref).
+
+"""
+function Compass(q::Quaternion)
+    yaw = -atan(2.0 * (q.q0 * q.qz + q.qx * q.qy), 1.0 - 2.0 * (q.qy * q.qy + q.qz * q.qz))
+    sp = 2.0 * (q.q0 * q.qy - q.qz * q.qx)
+
+    if (sp >= +1.0)
+        pitch = asin(+1.0)
+    elseif (sp <= -1.0)
+        pitch = asin(-1.0)
+    else
+        pitch = asin(sp)
+    end
+
+    roll = -atan(2.0 * (q.q0 * q.qx + q.qy * q.qz), 1.0 - 2.0 * (q.qx * q.qx + q.qy * q.qy))
+
+    Compass(yaw, pitch, roll)
+end
