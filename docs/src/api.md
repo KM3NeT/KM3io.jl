@@ -94,6 +94,7 @@ calibrate
 calibratetime
 combine
 Orientations
+Compass
 floordist
 slew
 slerp

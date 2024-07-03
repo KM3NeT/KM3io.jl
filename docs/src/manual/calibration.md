@@ -37,3 +37,10 @@ module_id = 817589211
 
 q = o(module_id,  1693408347)
 ```
+
+The quaternions can be converted to [`Compass`](@ref) object which has the
+fields `.yaw`, `.pitch` and `.roll`:
+
+```@example 1
+compass = Compass(q)
+```
