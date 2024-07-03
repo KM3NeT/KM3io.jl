@@ -10,8 +10,11 @@ test:
 clean:
 	rm -rf docs/build/
 
+docwatch:
+	while true; do fswatch -1 docs src && make doc; done
+
 preview:
 	julia -e 'using LiveServer; serve(dir="docs/build")'
 
 
-.PHONY: build doc test clean preview
+.PHONY: build doc docwatch test clean preview
