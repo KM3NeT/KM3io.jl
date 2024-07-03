@@ -84,6 +84,8 @@ calibratetime,
 combine,
 floordist,
 slew,
+Orientations,
+Compass,
 
 # Reconstruction
 RecStageRange,
@@ -127,6 +129,7 @@ distance,
 phi,
 theta,
 zenith,
+slerp,
 
 # Real-time
 @ip_str,

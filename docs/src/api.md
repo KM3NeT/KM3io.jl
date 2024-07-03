@@ -93,8 +93,11 @@ read(filename::AbstractString, T::Type{AcousticsTriggerParameter})
 calibrate
 calibratetime
 combine
+Orientations
+Compass
 floordist
 slew
+slerp
 ```
 
 ## Physics
