@@ -7,7 +7,7 @@ to identify the problem (see definitions/pmt_status.jl for the bit positions
 and check them using the `nthbitset()` function).
 
 """
-struct PMT
+mutable struct PMT
     id::Int32
     pos::Position{Float64}
     dir::Direction{Float64}
@@ -45,7 +45,7 @@ definitions/module_status.jl for the bit positions and check them using the
 `nthbitset()` function).
 
 """
-struct DetectorModule
+mutable struct DetectorModule
     id::Int32
     pos::Position{Float64}
     location::Location
@@ -58,6 +58,36 @@ function Base.show(io::IO, m::DetectorModule)
     info = m.location.floor == 0 ? "base" : "optical, $(length(m)) PMTs"
     print(io, "Detectormodule ($(info)) on string $(m.location.string) floor $(m.location.floor)")
 end
+<<<<<<< Updated upstream
+=======
+"""
+
+Translates the detector module by a given vector, so it's moved from its current
+position towards the direction of `v`.
+
+"""
+function translate!(d::DetectorModule, v::Position)
+    d.pos += v
+    for pmt in d.pmts
+        pmt.pos += v
+    end
+    d
+end
+"""
+
+Moves the detectore module to a target position.
+
+"""
+function moveto!(d::DetectorModule, target::Position)
+    old_pos = d.pos
+    vec = target - old_pos
+    d.pos = target
+    for pmt in d.pmts
+        pmt.pos += vec
+    end
+    d
+end
+>>>>>>> Stashed changes
 Base.length(d::DetectorModule) = length(d.pmts)
 Base.eltype(::Type{DetectorModule}) = PMT
 Base.iterate(d::DetectorModule, state=1) = state > length(d) ? nothing : (d.pmts[state], state+1)
@@ -278,10 +308,25 @@ struct Detector
     pos::Union{UTMPosition{Float64}, Missing}
     utm_ref_grid::Union{String, Missing}
     modules::Dict{Int32, DetectorModule}
+    pmts::Dict{Int32, PMT}
     locations::Dict{Tuple{Int, Int}, DetectorModule}
     strings::Vector{Int}
     comments::Vector{String}
 end
+"""
+
+Translates the detector by a given vector, so it's moved from its current
+position towards the direction of `v`. The UTM position remains the same, only
+the x, y and z coordinates are mutated.
+
+"""
+function translate!(d::Detector, v::Position)
+    for m in modules(d)
+        translate!(m, v)
+    end
+    d
+end
+
 """
 Return a vector of all modules of a given detector.
 """
@@ -404,6 +449,7 @@ function read_datx(io::IO)
     n_modules = read(io, Int32)
 
     modules = Dict{Int32, DetectorModule}()
+    all_pmts = Dict{Int32, PMT}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int[]
     for _ in 1:n_modules
@@ -424,13 +470,19 @@ function read_datx(io::IO)
             pmt_dir = Direction{Float64}(read(io, Float64), read(io, Float64), read(io, Float64))
             pmt_t₀ = read(io, Float64)
             pmt_status = read(io, Int32)
-            push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
+            pmt = PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status)
+            push!(pmts, pmt)
+            all_pmts[pmt_id] = pmt
         end
         m = DetectorModule(module_id, module_pos, location, pmts, q, module_status, module_t₀)
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
+<<<<<<< Updated upstream
     Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
+=======
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, all_pmts, locations, strings, comments)
+>>>>>>> Stashed changes
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -470,7 +522,9 @@ function read_detx(io::IO)
     floor_counter = 1
     last_string = -1
     floorminusone_warning_has_been_shown = false
-  
+
+    all_pmts = Dict{Int32, PMT}()
+
     for mod ∈ 1:n_modules
         elements = split(lines[idx])
         module_id, string, floor = map(x->parse(Int, x), elements[1:3])
@@ -523,7 +577,9 @@ function read_detx(io::IO)
             else
                 pmt_status = 0  # default value is 0: PMT OK
             end
-            push!(pmts, PMT(pmt_id, Position(x, y, z), Direction(dx, dy, dz), t0, pmt_status))
+            _pmt = PMT(pmt_id, Position(x, y, z), Direction(dx, dy, dz), t0, pmt_status)
+            push!(pmts, _pmt)
+            all_pmts[pmt_id] = _pmt
         end
 
         # If t₀ is missing, we default to 0.0
@@ -548,7 +604,11 @@ function read_detx(io::IO)
         idx += n_pmts + 1
     end
 
+<<<<<<< Updated upstream
     Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
+=======
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, all_pmts, locations, strings, comments)
+>>>>>>> Stashed changes
 end
 
 

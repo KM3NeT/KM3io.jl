@@ -58,3 +58,4 @@ function getevent(tree::T, frame_index, trigger_counter) where T<:Union{OnlineTr
 end
 getevent(tree::OfflineTree, idx) = tree[idx]
 getevent(tree::OnlineTree, idx) = tree.events[idx]
+getevent(::ROOTFile, args...) = error("The function `getevent()` requires either an online or an offline tree as first argument. Try for example `getevent(f.online, ...)`")
