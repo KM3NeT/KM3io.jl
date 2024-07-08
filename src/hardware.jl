@@ -21,6 +21,7 @@ function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
     for field in [:pos, :dir, :t₀]
         isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
     end
+    true
 end
 
 
