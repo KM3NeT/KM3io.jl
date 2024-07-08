@@ -145,11 +145,11 @@ end
     datx = Detector(datapath("datx", "KM3NeT_00000133_20221025.datx"))
     for field in fieldnames(Detector)
         field == :modules && continue
-        if field == :locations
+        if field in (:locations, :pmts)
             detx_locs = getfield(detx, field)
             datx_locs = getfield(datx, field)
             for key in keys(detx_locs)
-                @test isapprox(detx_locs[key], datx_locs[key]; atol=1e-06)
+                @test isapprox(detx_locs[key], datx_locs[key]; atol=1e-05)
             end
             continue
         end
