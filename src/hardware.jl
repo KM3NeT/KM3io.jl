@@ -58,8 +58,6 @@ function Base.show(io::IO, m::DetectorModule)
     info = m.location.floor == 0 ? "base" : "optical, $(length(m)) PMTs"
     print(io, "Detectormodule ($(info)) on string $(m.location.string) floor $(m.location.floor)")
 end
-<<<<<<< Updated upstream
-=======
 """
 
 Translates the detector module by a given vector, so it's moved from its current
@@ -87,7 +85,6 @@ function moveto!(d::DetectorModule, target::Position)
     end
     d
 end
->>>>>>> Stashed changes
 Base.length(d::DetectorModule) = length(d.pmts)
 Base.eltype(::Type{DetectorModule}) = PMT
 Base.iterate(d::DetectorModule, state=1) = state > length(d) ? nothing : (d.pmts[state], state+1)
@@ -478,11 +475,7 @@ function read_datx(io::IO)
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
-<<<<<<< Updated upstream
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
-=======
     Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, all_pmts, locations, strings, comments)
->>>>>>> Stashed changes
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -604,11 +597,7 @@ function read_detx(io::IO)
         idx += n_pmts + 1
     end
 
-<<<<<<< Updated upstream
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, locations, strings, comments)
-=======
     Detector(version, det_id, validity, utm_position, utm_ref_grid, modules, all_pmts, locations, strings, comments)
->>>>>>> Stashed changes
 end
 
 
