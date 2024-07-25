@@ -75,6 +75,7 @@ MCTrk,
 TriggeredHit,
 Trk,
 XCalibratedHit,
+FitInformation,
 
 # Calibration
 AbstractCalibratedHit,
