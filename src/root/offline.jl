@@ -49,7 +49,7 @@ Base.firstindex(::FitInformation) = 0
 Base.lastindex(fitinf::FitInformation) = length(fitinf) - 1
 Base.eltype(::FitInformation) = Float64
 function Base.iterate(fitinf::FitInformation, state=0)
-    state > length(fitinf) ? nothing : (fitinf[state], state+1)
+    state > length(fitinf)+1 ? nothing : (fitinf[state], state+1)
 end
 
 """
