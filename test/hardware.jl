@@ -73,6 +73,10 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         @test 817287557 == getmodule(d, (30, 18)).id
         @test 817287557 == getmodule(d, Location(30, 18)).id
 
+        m = d.modules[808992603]
+        pmt = m[1]
+        @test d.pmts[pmt.pmt_id] == pmt
+
         @test 19 == length(d[:, 18])
         for m in d[:, 17]
             @test 17 == m.location.floor
