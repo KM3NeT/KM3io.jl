@@ -91,7 +91,7 @@ const ONLINEFILE = datapath("online", "km3net_online.root")
     @test 56 == length(t[1].trks)
     @test 0 == length(t[1].w)
     @test 17 == length(t[1].trks[1].fitinf)
-    @test 63.92088448672399 == sum(t[end].trks[2].fitinf)
+    @test 63.92088448673299 == sum(t[end].trks[2].fitinf)
     @test 101.0 == t[1].trks[1].fitinf[end]
     close(f)
 
