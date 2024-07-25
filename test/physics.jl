@@ -17,7 +17,7 @@ using Test
         0,
         0,
         [0],
-        [0]
+        FitInformation([0])
     )
 
     γs = cherenkov(track, hits)
