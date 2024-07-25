@@ -18,7 +18,7 @@ const USRFILE = datapath("offline", "usr-sample.root")
     @test 56 == length(t[1].trks)
     @test 0 == length(t[1].w)
     @test 17 == length(t[1].trks[1].fitinf)
-    @test 0.009290906625313346 == t[end].trks[1].fitinf[1]
+    @test 0.009290906625313346 == t[end].trks[1].fitinf[0]
     close(f)
 
     f = ROOTFile(datapath("offline", "numucc.root"))

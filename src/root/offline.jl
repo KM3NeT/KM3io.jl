@@ -38,6 +38,21 @@ struct CalibratedMCHit
 end
 
 """
+A container object to store fit information which uses 0-based indexing.
+"""
+struct FitInformation
+    values::Vector{Float64}
+end
+Base.getindex(fitinf::FitInformation, idx) = fitinf.values[idx + 1]
+Base.length(fitinf::FitInformation) = length(fitinf.values)
+Base.firstindex(::FitInformation) = 0
+Base.lastindex(fitinf::FitInformation) = length(fitinf) - 1
+Base.eltype(::FitInformation) = Float64
+function Base.iterate(fitinf::FitInformation, state=0)
+    state > length(fitinf) ? nothing : (fitinf[state], state+1)
+end
+
+"""
 Represents a reconstructed "track", which can be e.g. a muon track but also a shower.
 """
 struct Trk
@@ -50,7 +65,7 @@ struct Trk
     lik::Float64
     rec_type::Int32
     rec_stages::Vector{Int32}
-    fitinf::Vector{Float64}
+    fitinf::FitInformation
 end
 
 """
@@ -304,7 +319,7 @@ function Base.getindex(f::OfflineTree, idx::Integer)
                 e.trks_lik[i],
                 e.trks_rec_type[i],
                 e.trks_rec_stages[i],
-                e.trks_fitinf[i],
+                FitInformation(e.trks_fitinf[i]),
             )
         )
     end
