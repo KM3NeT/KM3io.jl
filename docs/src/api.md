@@ -20,6 +20,7 @@ CalibratedMCHit
 XCalibratedHit
 Trk
 MCTrk
+FitInformation
 ```
 
 ## Online Format

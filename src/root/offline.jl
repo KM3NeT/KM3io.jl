@@ -38,7 +38,19 @@ struct CalibratedMCHit
 end
 
 """
-A container object to store fit information which uses 0-based indexing.
+
+A container object to store fit information which uses 0-based indexing. It
+implements the array interface. The entries is this vector are float values and
+their position encodes the meaning of their meaning which is defined in the
+[KM3NeT DataFormat](https://git.km3net.de/common/km3net-dataformat)
+
+!!! note
+    The elements of this object should always be accessed using constants
+    defined in `KM3io.FITINFORMATION`. The use of magic numbers should be
+    avoided to ensure that future changes in the [KM3NeT
+    DataFormat](https://git.km3net.de/common/km3net-dataformat) do not break
+    existing code.
+
 """
 struct FitInformation
     values::Vector{Float64}
