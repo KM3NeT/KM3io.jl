@@ -11,7 +11,19 @@ Base.lastindex(itr::MCEventMatcher) = length(itr)
 function Base.getindex(itr::MCEventMatcher, idx::Integer)
     event = itr.f.online.events[idx]
     mc_idx = event.header.trigger_counter + 1
-    mc_event = itr.f.offline[mc_idx]
+    mc_ids = getproperty.(itr.f.offline, :id)
+    mc_events = itr.f.offline[mc_ids .== mc_idx]
+    if length(mc_events) == 1
+        mc_event = mc_events[begin]
+    else
+        offline_seconds = getproperty.(getproperty.(mc_events, :mc_event_time), :s)
+        online_seconds = itr.f.online.events.headers[idx].t.s
+        time_selection = mc_events[offline_seconds .== online_seconds]
+        if length(time_selection) != 1
+            throw("Online and offline event entry cannot be uniquely merged together.")
+        end
+        mc_event = time_selection[begin]
+    end
     (event, mc_event)
 end
 function Base.iterate(itr::MCEventMatcher, state=1)
