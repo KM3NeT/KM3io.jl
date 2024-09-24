@@ -8,6 +8,7 @@ using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
 using TOML
+using JSON
 
 if !isdefined(Base, :get_extension)
     using Requires
@@ -69,6 +70,7 @@ include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
 include("controlhost.jl")
+include("json.jl")
 
 include("tools/general.jl")
 include("tools/daq.jl")
