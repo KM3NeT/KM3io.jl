@@ -8,6 +8,7 @@ using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
 using TOML
+using JSON
 
 const version = let
     if VERSION < v"1.9"
@@ -65,6 +66,7 @@ include("daq.jl")
 include("acoustics.jl")
 include("calibration.jl")
 include("controlhost.jl")
+include("json.jl")
 
 include("tools/general.jl")
 include("tools/daq.jl")
