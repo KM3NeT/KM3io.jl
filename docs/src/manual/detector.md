@@ -47,6 +47,9 @@ using KM3DB
 det = Detector(133)
 ```
 
+Keyword arguments passed as `Detector(det_id; kwarg1=..., kwarg2=..., ...)` are
+handed over to the `detx()` function in `KM3DB.jl`.
+
 ## Accessing Modules
 
 ### Iterating over all modules
