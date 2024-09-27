@@ -33,7 +33,8 @@ KM3ioKM3DBExt = "KM3DB"
 
 [extras]
 KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
+KM3DB = "a9013879-bb44-4449-9e5b-40f9ac008ab0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "KM3NeTTestData"]
+test = ["Test", "KM3NeTTestData", "KM3DB"]
