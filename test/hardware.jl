@@ -211,3 +211,9 @@ end
         @test isapprox([83.4620946059086, 312.254188175614, 377.8839470243232], center(d); atol=0.01)
     end
 end
+
+@testset "KM3DB extensions" begin
+    using KM3DB
+    d = Detector(133)
+    @test 399 == length(d)
+end

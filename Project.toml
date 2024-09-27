@@ -22,7 +22,14 @@ HDF5 = "^0.16.15, ^0.17"
 KM3NeTTestData = "^0.4.14"
 StaticArrays = "1"
 UnROOT = "^0.10.26"
+KM3DB = "0.2.2"
 julia = "1"
+
+[weakdeps]
+KM3DB = "a9013879-bb44-4449-9e5b-40f9ac008ab0"
+
+[extensions]
+KM3ioKM3DBExt = "KM3DB"
 
 [extras]
 KM3NeTTestData = "3249b543-581e-4f22-b7da-6c2cdf549b24"
