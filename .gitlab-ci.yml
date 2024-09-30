@@ -26,6 +26,7 @@ before_script:
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
       julia --project=@. -e '
         using Pkg
+        Pkg.instantiate()
         Pkg.resolve()
         Pkg.build()
         Pkg.test(coverage=true)'
