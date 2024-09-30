@@ -336,3 +336,25 @@ end
     @test π/2 ≈ angle(Direction(1.,0,0), Direction(0.,0,1))
     @test π ≈ angle(Direction(1.,0,0), Direction(-1.,0,0))
 end
+
+
+@testset "SummarysliceIntervalIterator" begin
+    f = ROOTFile(datapath("online", "summaryslices.root"))
+
+    sii = SummarysliceIntervalIterator(f, 2)
+    suslis = collect(sii)
+    @test 55 == length(suslis)
+    @test 0 == length(suslis[1])
+    @test 1 == length(suslis[2])
+    @test 2 == length(suslis[3])
+    @test all(20 .== length.(suslis[4:end-5]))
+    @test 8 == length(suslis[end-1])
+    @test 6 == length(suslis[end])
+
+    flat_suslis = vcat(suslis...)
+    frame_indices = [s.header.frame_index for s in flat_suslis]
+    @test issorted(frame_indices)
+    @test frame_indices == sort([s.header.frame_index for s in f.online.summaryslices])
+
+    close(f)
+end

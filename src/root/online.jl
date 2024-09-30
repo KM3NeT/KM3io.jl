@@ -113,6 +113,9 @@ struct Summaryslice
     header::SummarysliceHeader
     frames::Vector{SummaryFrame}
 end
+function Base.show(io::IO, s::Summaryslice)
+    print(io, "Summaryslice($(length(s.frames)) frames)")
+end
 struct SummarysliceContainer
     # For performance reasons we use directly the lazy types of UnROOT
     # We could also parametrise it.

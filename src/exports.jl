@@ -110,8 +110,12 @@ hasshowerfit,
 hasshowerpositionfit,
 hasshowerprefit,
 
-# Utils
+# Tools
 MCEventMatcher,
+SummarysliceIntervalIterator,
+getevent,
+
+# Utils
 categorize,
 is3dmuon,
 is3dshower,
@@ -120,7 +124,6 @@ isnb,
 most_frequent,
 nthbitset,
 triggered,
-getevent,
 
 # Physics and math helpers
 CherenkovPhoton,
