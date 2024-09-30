@@ -9,6 +9,10 @@ using Sockets
 using UUIDs
 using TOML
 
+if !isdefined(Base, :get_extension)
+    using Requires
+end
+
 const version = let
     if VERSION < v"1.9"
         VersionNumber(TOML.parsefile(joinpath(pkgdir(KM3io), "Project.toml"))["version"])
@@ -74,5 +78,12 @@ include("tools/math.jl")
 include("tools/helpers.jl")
 
 include("physics.jl")
+
+
+function __init__()
+    @static if !isdefined(Base, :get_extension)
+        @require KM3DB="a9013879-bb44-4449-9e5b-40f9ac008ab0" include("../ext/KM3ioKM3DBExt.jl")
+    end
+end
 
 end # module

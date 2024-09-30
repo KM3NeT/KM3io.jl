@@ -34,6 +34,22 @@ det = Detector(datapath("detx", "detx_v5.detx"))
 A detector configuration (format version 5) has been loaded with 6 strings
 (sometimes also called detection unit or DU) holding a total 114 modules.
 
+## Retrieve a detector from the DB
+
+`KM3io.jl` comes with a `KM3DB.jl` extension which allows to load detector
+information directly from the database. The extension is automatically loaded
+when `KM3DB` is imported:
+
+```@example KM3DB
+using KM3io
+using KM3DB
+
+det = Detector(133)
+```
+
+Keyword arguments passed as `Detector(det_id; kwarg1=..., kwarg2=..., ...)` are
+handed over to the `detx()` function in `KM3DB.jl`.
+
 ## Accessing Modules
 
 ### Iterating over all modules
