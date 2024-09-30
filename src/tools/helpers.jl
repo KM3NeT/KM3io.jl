@@ -58,3 +58,53 @@ function getevent(tree::T, frame_index, trigger_counter) where T<:Union{OnlineTr
 end
 getevent(tree::OfflineTree, idx) = tree[idx]
 getevent(tree::OnlineTree, idx) = tree.events[idx]
+
+
+"""
+
+An iterator which yields a `Vector{Summaryslice}` containing summaryslices of a given
+`time_interval` (in seconds). Useful when analysing summary data with fixed time intervals.
+The returned summaryslices are also sorted in time.
+
+"""
+struct SummarysliceIntervalIterator
+  sc::KM3io.SummarysliceContainer
+  time_interval::Int  # [s]
+  n_chunks::Int
+  timespan::Float64
+  indices::Vector{Int}
+  function SummarysliceIntervalIterator(f::ROOTFile, time_interval)
+    ss = f.online.summaryslices
+    sorted_summaryslice_indices = sortperm([sh.frame_index for sh in ss.headers])
+    timespan = ss.headers[sorted_summaryslice_indices[end]].frame_index / 10
+    n_chunks = Int(ceil(timespan / time_interval))
+    new(f.online.summaryslices, time_interval, n_chunks, timespan, sorted_summaryslice_indices)
+  end
+end
+function Base.show(io::IO, sii::SummarysliceIntervalIterator)
+    print(io, "SummarysliceIntervalIterator ($(sii.timespan)s, $(sii.time_interval)s intervals, $(sii.n_chunks) chunks)")
+end
+Base.eltype(::Type{SummarysliceIntervalIterator}) = Vector{KM3io.Summaryslice}
+Base.length(sii::SummarysliceIntervalIterator) = sii.n_chunks
+function Base.iterate(sii::SummarysliceIntervalIterator, state=(chunk_idx=1, s_idx=1))
+  state.chunk_idx > sii.n_chunks && return nothing
+
+  out_size = sii.time_interval * 10
+  out = empty!(Vector{KM3io.Summaryslice}(undef, out_size))
+
+  frame_index_upper = state.chunk_idx * sii.time_interval * 10
+
+  s_idx = state.s_idx
+  while s_idx <= length(sii.indices)
+    idx = sii.indices[s_idx]
+    summaryslice = sii.sc[idx]
+    if summaryslice.header.frame_index < frame_index_upper
+      push!(out, summaryslice)
+      s_idx += 1
+    else
+      break
+    end
+  end
+
+  return (out, (chunk_idx=state.chunk_idx+1, s_idx=s_idx))
+end

@@ -131,6 +131,7 @@ CHClient
 
 ### General tools
 ```@docs
+SummarysliceIntervalIterator
 getevent
 categorize
 nthbitset
