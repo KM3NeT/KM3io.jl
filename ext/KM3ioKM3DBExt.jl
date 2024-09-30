@@ -1,7 +1,11 @@
 module KM3ioKM3DBExt
 
 import KM3io: Detector, read_detx
-import KM3DB: detx
+if isdefined(Base, :get_extension)
+    import KM3DB: detx
+else
+    import ..KM3DB: detx
+end
 
 """
 Instantiate a detector by polling the database for a given detector ID.
