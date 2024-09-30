@@ -66,6 +66,44 @@ An iterator which yields a `Vector{Summaryslice}` containing summaryslices of a 
 `time_interval` (in seconds). Useful when analysing summary data with fixed time intervals.
 The returned summaryslices are also sorted in time.
 
+# Examples
+```
+julia> f = ROOTFile("/Volumes/Ultraspeed/Data/Obelix/KM3NeT_00000133_00014728.root")
+ROOTFile{OnlineTree (83509 events, 106969 summaryslices)}
+
+julia> sii = SummarysliceIntervalIterator(f, 60)
+SummarysliceIntervalIterator (10753.1s, 60s intervals, 180 chunks)
+
+julia> for summaryslices in sii
+           @show length(summaryslices)
+           @show summaryslices[1].header
+           break
+       end
+length(summaryslices) = 440
+(summaryslices[1]).header = SummarysliceHeader(133, 14728, 134, UTCExtended(1676246413, 400000000, 0))
+```
+
+!!! note
+    Short time intervals (usually less than a few tens of seconds) will likely return empty
+    `Vector{Summaryslice}`s in the first few iterations due to a delay in run changes.
+    Additionally, the number of frames per summaryslice will gradually increase due
+    to the asynchronous nature of the run transition. See the example below with a time
+    inteval of 5s.
+
+```julia-repl
+julia> sii = SummarysliceIntervalIterator(f, 5)
+SummarysliceIntervalIterator (10753.1s, 5s intervals, 2151 chunks)
+
+julia> for summaryslices in sii
+           n = length(summaryslices)
+           @show n
+           n > 0 && break
+       end
+n = 0
+n = 0
+n = 5
+```
+
 """
 struct SummarysliceIntervalIterator
   sc::KM3io.SummarysliceContainer
