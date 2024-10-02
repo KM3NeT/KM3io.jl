@@ -67,7 +67,7 @@ An iterator which yields a `Vector{Summaryslice}` containing summaryslices of a 
 The returned summaryslices are also sorted in time.
 
 # Examples
-```
+```julia-repl
 julia> f = ROOTFile("/Volumes/Ultraspeed/Data/Obelix/KM3NeT_00000133_00014728.root")
 ROOTFile{OnlineTree (83509 events, 106969 summaryslices)}
 
