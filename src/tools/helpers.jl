@@ -68,45 +68,53 @@ The returned summaryslices are also sorted in time.
 
 # Examples
 ```julia-repl
-julia> f = ROOTFile("/Volumes/Ultraspeed/Data/Obelix/KM3NeT_00000133_00014728.root")
+julia> f = ROOTFile("KM3NeT_00000133_00014728.root")
 ROOTFile{OnlineTree (83509 events, 106969 summaryslices)}
 
 julia> sii = SummarysliceIntervalIterator(f, 60)
-SummarysliceIntervalIterator (10753.1s, 60s intervals, 180 chunks)
+SummarysliceIntervalIterator (10739.7s, 60s intervals, 179 chunks)
 
 julia> for summaryslices in sii
            @show length(summaryslices)
            @show summaryslices[1].header
            break
        end
-length(summaryslices) = 440
+length(summaryslices) = 599
 (summaryslices[1]).header = SummarysliceHeader(133, 14728, 134, UTCExtended(1676246413, 400000000, 0))
 ```
 
 !!! note
-    Short time intervals (usually less than a few tens of seconds) will likely return empty
-    `Vector{Summaryslice}`s in the first few iterations due to a delay in run changes.
-    Additionally, the number of frames per summaryslice will gradually increase due
-    to the asynchronous nature of the run transition. See the example below with a time
-    inteval of 5s.
+    Short time intervals (a few tens of seconds) will likely return
+    `Vector{Summaryslice}`s with few entries in the first and last iterations
+    due to a delay in run changes. The number of frames per summaryslice will
+    gradually increase due to the asynchronous nature of the run transition. See
+    the example below with a time inteval of 10s and 100 active optical modules.
 
 ```julia-repl
-julia> sii = SummarysliceIntervalIterator(f, 5)
-SummarysliceIntervalIterator (10753.1s, 5s intervals, 2151 chunks)
+julia> sii = SummarysliceIntervalIterator(f, 10)
+SummarysliceIntervalIterator (106.2s, 10s intervals, 11 chunks)
 
 julia> for summaryslices in sii
            n = length(summaryslices)
            @show n
-           n > 0 && break
        end
-n = 0
-n = 0
-n = 5
+n = 73
+n = 100
+n = 100
+n = 100
+n = 100
+n = 100
+n = 100
+n = 100
+n = 100
+n = 96
+n = 31
 ```
 
 """
 struct SummarysliceIntervalIterator
-  sc::KM3io.SummarysliceContainer
+  sc::SummarysliceContainer
+  first_frame_index::Int
   time_interval::Int  # [s]
   n_chunks::Int
   timespan::Float64
@@ -114,9 +122,10 @@ struct SummarysliceIntervalIterator
   function SummarysliceIntervalIterator(f::ROOTFile, time_interval)
     ss = f.online.summaryslices
     sorted_summaryslice_indices = sortperm([sh.frame_index for sh in ss.headers])
-    timespan = ss.headers[sorted_summaryslice_indices[end]].frame_index / 10
+    first_frame_index = first(f.online.summaryslices).header.frame_index
+    timespan = (ss.headers[sorted_summaryslice_indices[end]].frame_index - ss.headers[first(sorted_summaryslice_indices)].frame_index) / 10
     n_chunks = Int(ceil(timespan / time_interval))
-    new(f.online.summaryslices, time_interval, n_chunks, timespan, sorted_summaryslice_indices)
+    new(f.online.summaryslices, first_frame_index, time_interval, n_chunks, timespan, sorted_summaryslice_indices)
   end
 end
 function Base.show(io::IO, sii::SummarysliceIntervalIterator)
@@ -130,7 +139,7 @@ function Base.iterate(sii::SummarysliceIntervalIterator, state=(chunk_idx=1, s_i
   out_size = sii.time_interval * 10
   out = empty!(Vector{KM3io.Summaryslice}(undef, out_size))
 
-  frame_index_upper = state.chunk_idx * sii.time_interval * 10
+  frame_index_upper = sii.first_frame_index + state.chunk_idx * sii.time_interval * 10
 
   s_idx = state.s_idx
   while s_idx <= length(sii.indices)
