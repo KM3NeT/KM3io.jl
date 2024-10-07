@@ -343,18 +343,34 @@ end
 
     sii = SummarysliceIntervalIterator(f, 2)
     suslis = collect(sii)
-    @test 55 == length(suslis)
-    @test 0 == length(suslis[1])
-    @test 1 == length(suslis[2])
-    @test 2 == length(suslis[3])
-    @test all(20 .== length.(suslis[4:end-5]))
-    @test 8 == length(suslis[end-1])
-    @test 6 == length(suslis[end])
+    @test 54 == length(suslis)
+    @test 2 == length(suslis[1])
+    @test 11 == length(suslis[2])
+    @test all(20 .== length.(suslis[3:end-6]))
+    @test 19 == length(suslis[end-5])
+    @test 17 == length(suslis[end-4])
+    @test 12 == length(suslis[end-3])
+    @test 10 == length(suslis[end-2])
+    @test 6 == length(suslis[end-1])
+    @test 3 == length(suslis[end])
 
     flat_suslis = vcat(suslis...)
+    original_frame_indices = [s.header.frame_index for s in f.online.summaryslices]
+    sorted_original_frame_indices = sort(original_frame_indices)
     frame_indices = [s.header.frame_index for s in flat_suslis]
+    @test !issorted(original_frame_indices)
     @test issorted(frame_indices)
-    @test frame_indices == sort([s.header.frame_index for s in f.online.summaryslices])
+    @test frame_indices == sorted_original_frame_indices
+
+    for time_interval in (1, 3, 4, 10, 30, 50, 100, 120, 10000)
+        sii = SummarysliceIntervalIterator(f, time_interval)
+        suslis = collect(sii)
+        flat_suslis = vcat(suslis...)
+        @test length(f.online.summaryslices) == length(flat_suslis)
+        frame_indices = [s.header.frame_index for s in flat_suslis]
+        @test sorted_original_frame_indices == frame_indices
+        @test length(Set(frame_indices)) == length(frame_indices)  # make sure all frame indices are unique
+    end
 
     close(f)
 end
