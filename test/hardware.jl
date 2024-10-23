@@ -215,5 +215,5 @@ end
 @testset "KM3DB extensions" begin
     using KM3DB
     d = Detector(133)
-    @test 398 == length(d)
+    @test 399 == length(d)
 end
