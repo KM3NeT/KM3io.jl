@@ -385,7 +385,7 @@ end
 """
     function Detector(filename::AbstractString)
 
-Create a `Detector` instance from a DETX file.
+Create a `Detector` instance from a DETX/DATX file.
 """
 function Detector(filename::AbstractString)::Detector
     _, ext = splitext(filename)
