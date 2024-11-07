@@ -756,7 +756,7 @@ struct PMTParameters
     threshold::Float64  # [npe]
     thresholdBand::Float64  # [npe]
 end
-isvalid(p::PMTParameters) = !(p.QE < 0 || p.gain < 0 || p.gainSpread < 0 || p.threshold < 0 || p.thresholdBand < 0)
+Base.isvalid(p::PMTParameters) = !(p.QE < 0 || p.gain < 0 || p.gainSpread < 0 || p.threshold < 0 || p.thresholdBand < 0)
 
 struct PMTData
     QE::Float64
