@@ -217,3 +217,15 @@ end
     d = Detector(133)
     @test 399 == length(d)
 end
+
+
+@testset "PMTFile" begin
+    p = read(datapath("pmt", "calibration_00000117_H_1.0.0_00013757_00013826_1.txt"), PMTFile)
+    @test length(p.pmt_data) == 7254
+    @test 0.808 ≈ p[806451572, 4].QE
+    @test 0.950 ≈ p[806451572, 4].gain
+    @test 0.521 ≈ p[806451572, 4].gainSpread
+    @test 7.24 ≈ p[806451572, 4].riseTime
+    @test -1.00 ≈ p[806451572, 4].TTS_ns
+    @test -1.0 ≈ p[806451572, 4].threshold
+end
