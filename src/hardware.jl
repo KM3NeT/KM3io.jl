@@ -742,6 +742,7 @@ function read(filename::AbstractString, T::Type{StringMechanics})
 end
 
 struct PMTParameters
+    QE::Float64  # probability of underamplified hit
     PunderAmplified::Float64  # probability of underamplified hit
     TTS_ns::Float64  # transition time spread [ns]
     gain::Float64  # [unit]
@@ -755,6 +756,7 @@ struct PMTParameters
     threshold::Float64  # [npe]
     thresholdBand::Float64  # [npe]
 end
+isvalid(p::PMTParameters) = !(p.QE < 0 || p.gain < 0 || p.gainSpread < 0 || p.threshold < 0 || p.thresholdBand < 0)
 
 struct PMTData
     QE::Float64
@@ -811,7 +813,7 @@ function read(filename::AbstractString, T::Type{PMTFile})
             sline = split(line)
             dom_id = parse(Int, sline[2])
             channel_id = parse(Int, sline[3])
-            pmt_data[(dom_id, channel_id)] = PMTData([parse(t, v) for (t, v) in zip(fieldtypes(PMTData), sline[2:9])]...)
+            pmt_data[(dom_id, channel_id)] = PMTData([parse(t, v) for (t, v) in zip(fieldtypes(PMTData), sline[4:9])]...)
             continue
         end
     end
