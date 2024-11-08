@@ -740,3 +740,84 @@ function read(filename::AbstractString, T::Type{StringMechanics})
     end
     T(StringMechanicsParameters(default_a, default_b), stringparams)
 end
+
+struct PMTParameters
+    QE::Float64  # probability of underamplified hit
+    PunderAmplified::Float64  # probability of underamplified hit
+    TTS_ns::Float64  # transition time spread [ns]
+    gain::Float64  # [unit]
+    gainSpread::Float64  # [unit]
+    mean_ns::Float64  # mean time-over-threshold of threshold-band hits [ns]
+    riseTime_ns::Float64  # rise time of analogue pulse [ns]
+    saturation::Float64  # [ns]
+    sigma_ns::Float64 # time-over-threshold standard deviation of threshold-band hits [ns]
+    slewing::Bool # time slewing of analogue signal
+    slope::Float64  # [ns/npe]
+    threshold::Float64  # [npe]
+    thresholdBand::Float64  # [npe]
+end
+Base.isvalid(p::PMTParameters) = !(p.QE < 0 || p.gain < 0 || p.gainSpread < 0 || p.threshold < 0 || p.thresholdBand < 0)
+
+struct PMTData
+    QE::Float64
+    gain::Float64
+    gainSpread::Float64
+    riseTime_ns::Float64
+    TTS_ns::Float64
+    threshold::Float64
+end
+
+struct PMTFile
+    QE::Float64  # relative quantum efficiency
+    mu::Float64
+    comments::Vector{String}
+    parameters::PMTParameters
+    pmt_data::Dict{Tuple{Int, Int}, PMTData}
+end
+function Base.show(io::IO, p::PMTFile)
+    print(io, "PMTFile containing parameters of $(length(p.pmt_data)) PMTs")
+end
+Base.getindex(p::PMTFile, dom_id::Integer, channel_id::Integer) = p.pmt_data[dom_id, channel_id]
+
+"""
+
+Read PMT parameters from a K40 calibration output file.
+
+"""
+function read(filename::AbstractString, T::Type{PMTFile})
+    pmt_data = Dict{Tuple{Int, Int}, PMTData}()
+    fobj = open(filename, "r")
+    comments, content = _split_comments(readlines(fobj), "#")
+    close(fobj)
+
+    QE=0
+    mu=0
+    raw_pmt_parameters = Dict{Symbol, Float64}()
+    pmt_data = Dict{Tuple{Int, Int}, PMTData}()
+    for line in content
+        startswith(line, "#") && continue
+        if startswith(line, "QE=")
+            QE = parse(Float64, split(line, "=")[2])
+            continue
+        end
+        if startswith(line, "mu")
+            mu = parse(Float64, split(line, "=")[2])
+            continue
+        end
+        m = match(r"%\.(.+)=(.+)", line)
+        if !isnothing(m)
+            raw_pmt_parameters[Symbol(m[1])] = parse(Float64, m[2])
+            continue
+        end
+        if startswith(line, "PMT=")
+            sline = split(line)
+            dom_id = parse(Int, sline[2])
+            channel_id = parse(Int, sline[3])
+            pmt_data[(dom_id, channel_id)] = PMTData([parse(t, v) for (t, v) in zip(fieldtypes(PMTData), sline[4:9])]...)
+            continue
+        end
+    end
+
+    pmt_parameters = PMTParameters([raw_pmt_parameters[f] for f in fieldnames(PMTParameters)]...)
+    PMTFile(QE, mu, comments, pmt_parameters, pmt_data)
+end

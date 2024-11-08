@@ -217,3 +217,29 @@ end
     d = Detector(133)
     @test 399 == length(d)
 end
+
+
+@testset "PMTFile" begin
+    p = read(datapath("pmt", "calibration_00000117_H_1.0.0_00013757_00013826_1.txt"), PMTFile)
+    @test length(p.pmt_data) == 7254
+    @test isvalid(p.parameters)
+    @test 0.808 ≈ p[806451572, 4].QE
+    @test 0.950 ≈ p[806451572, 4].gain
+    @test 0.521 ≈ p[806451572, 4].gainSpread
+    @test 7.24 ≈ p[806451572, 4].riseTime_ns
+    @test -1.00 ≈ p[806451572, 4].TTS_ns
+    @test 0.240 ≈ p[806451572, 4].threshold
+    @test 0.05 ≈ p.parameters.PunderAmplified
+    @test 1 ≈ p.parameters.QE
+    @test -1 ≈ p.parameters.TTS_ns
+    @test 1 ≈ p.parameters.gain
+    @test 0.4 ≈ p.parameters.gainSpread
+    @test 4.5 ≈ p.parameters.mean_ns
+    @test 7.24 ≈ p.parameters.riseTime_ns
+    @test 210 ≈ p.parameters.saturation
+    @test 1.5 ≈ p.parameters.sigma_ns
+    @test p.parameters.slewing
+    @test 7 ≈ p.parameters.slope
+    @test 0.24≈ p.parameters.threshold
+    @test 0.12≈ p.parameters.thresholdBand
+end
