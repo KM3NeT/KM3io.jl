@@ -18,6 +18,7 @@ makedocs(;
             "manual/rootfiles.md",
             "manual/detector.md",
             "manual/calibration.md",
+            "manual/auxfiles.md",
             "manual/tools.md",
         ],
         "Examples" => Any[

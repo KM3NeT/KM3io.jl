@@ -53,6 +53,8 @@ flush
 PMT
 DetectorModule
 Detector
+PMTFile
+PMTData
 modules
 getmodule
 getpmt

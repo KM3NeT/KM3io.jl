@@ -758,6 +758,11 @@ struct PMTParameters
 end
 Base.isvalid(p::PMTParameters) = !(p.QE < 0 || p.gain < 0 || p.gainSpread < 0 || p.threshold < 0 || p.thresholdBand < 0)
 
+"""
+
+PMT parameters as stored in [`PMTFile`](@ref)s.
+
+"""
 struct PMTData
     QE::Float64
     gain::Float64
@@ -767,6 +772,20 @@ struct PMTData
     threshold::Float64
 end
 
+"""
+
+A container type to hold PMT data which are stored in "PMT files", created by
+K40 calibrations. This type can be passe to `Base.read` to load the contents
+of such a file.
+
+# Example
+
+```
+julia> f = read("path/to/pmt.txt", PMTFile)
+PMTFile containing parameters of 7254 PMTs
+```
+
+"""
 struct PMTFile
     QE::Float64  # relative quantum efficiency
     mu::Float64
@@ -784,7 +803,7 @@ Base.getindex(p::PMTFile, dom_id::Integer, channel_id::Integer) = p.pmt_data[dom
 Read PMT parameters from a K40 calibration output file.
 
 """
-function read(filename::AbstractString, T::Type{PMTFile})
+function read(filename::AbstractString, ::Type{PMTFile})
     pmt_data = Dict{Tuple{Int, Int}, PMTData}()
     fobj = open(filename, "r")
     comments, content = _split_comments(readlines(fobj), "#")
