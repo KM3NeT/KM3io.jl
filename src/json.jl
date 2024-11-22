@@ -3,22 +3,22 @@
 
 Writes an offline event ([`Evt`]@ref) as a JSON string to a file.
 """
-function tojson(filename::AbstractString, event::Evt, detector::Detector)
+function tojson(filename::AbstractString, event::Evt, detector::Detector; track_time_offset=0)
     open(filename, "w") do io
-        tojson(io, event, detector)
+        tojson(io, event, detector; track_time_offset=track_time_offset)
     end
 end
 
-function tojson(io::IO, event::Evt, detector::Detector)
+function tojson(io::IO, event::Evt, detector::Detector; track_time_offset=0)
     bt = bestjppmuon(event)
-    t₀ = bt.t
+    t₀ = first(event.hits).t
 
     hits = [
         (
             dom_id = h.dom_id,
             channel_id = h.channel_id,
             floor = detector[h.dom_id].location.floor,
-            string = detector[h.dom_id].location.string,
+            detection_unit = detector[h.dom_id].location.string,
             t = h.t - t₀,
             tot = h.tot,
             pos_x = h.pos.x, pos_y = h.pos.y, pos_z = h.pos.z,
@@ -30,9 +30,9 @@ function tojson(io::IO, event::Evt, detector::Detector)
         bt = (
             pos_x = bt.pos.x, pos_y = bt.pos.y, pos_z = bt.pos.z,
             dir_x = bt.dir.x, dir_y = bt.dir.y, dir_z = bt.dir.z,
-            t=0.0
+            t = bt.t - t₀ + track_time_offset
         )
     end
 
-    JSON.print(io, (utc_timestamp=event.t.s + event.t.ns/1e9, hits=hits, best_track=bt))
+    JSON.print(io, (utc_timestamp=event.t.s + (event.t.ns + t₀)/1e9, hits=hits, reconstructed_track=bt))
 end

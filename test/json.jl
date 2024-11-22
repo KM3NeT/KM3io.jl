@@ -12,28 +12,32 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
     e = f.offline[1]
     d = Detector(datapath("detx", "km3net_offline.detx"))
 
+    track_time_offset = 23.5
+
     outfile = tempname()
-    tojson(outfile, e, d)
+    tojson(outfile, e, d; track_time_offset=track_time_offset)
 
     json_evt = JSON.parsefile(outfile)
     json_hits = json_evt["hits"]
-    @test 1.5670368182e9 == json_evt["utc_timestamp"]
+    @test 1.567036818270104e9 == json_evt["utc_timestamp"]
+
+    t₀ = first(e.hits).t
 
     bt = bestjppmuon(e)
-    json_bt = json_evt["best_track"]
+    json_bt = json_evt["reconstructed_track"]
     @test bt.pos.x == json_bt["pos_x"]
     @test bt.pos.y == json_bt["pos_y"]
     @test bt.pos.z == json_bt["pos_z"]
     @test bt.dir.x == json_bt["dir_x"]
     @test bt.dir.y == json_bt["dir_y"]
     @test bt.dir.z == json_bt["dir_z"]
-    @test 0.0 == json_bt["t"]
+    @test bt.t == json_bt["t"] - track_time_offset + t₀
 
     @test 176 == length(json_hits)
     for idx in 1:length(json_hits)
         orig_hit = e.hits[idx]
         json_hit = json_hits[idx]
-        @test orig_hit.t == json_hit["t"] + bt.t  # time offset taken from best track
+        @test orig_hit.t == json_hit["t"] + t₀
         @test orig_hit.pos.x == json_hit["pos_x"]
         @test orig_hit.pos.y == json_hit["pos_y"]
         @test orig_hit.pos.z == json_hit["pos_z"]
@@ -48,7 +52,7 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
         @test dom_id == orig_dom_id
         m = d[dom_id]
         @test json_hit["floor"] == m.location.floor
-        @test json_hit["string"] == m.location.string
+        @test json_hit["detection_unit"] == m.location.string
     end
 
 
