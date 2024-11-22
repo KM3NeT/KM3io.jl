@@ -10,9 +10,10 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
 @testset "JSON output" begin
     f = ROOTFile(OFFLINEFILE)
     e = f.offline[1]
+    d = Detector(datapath("detx", "km3net_offline.detx"))
 
     outfile = tempname()
-    tojson(outfile, e)
+    tojson(outfile, e, d)
 
     json_evt = JSON.parsefile(outfile)
     json_hits = json_evt["hits"]
@@ -26,19 +27,28 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
     @test bt.dir.x == json_bt["dir_x"]
     @test bt.dir.y == json_bt["dir_y"]
     @test bt.dir.z == json_bt["dir_z"]
-    @test bt.t == json_bt["t"]
+    @test 0.0 == json_bt["t"]
 
     @test 176 == length(json_hits)
     for idx in 1:length(json_hits)
         orig_hit = e.hits[idx]
         json_hit = json_hits[idx]
+        @test orig_hit.t == json_hit["t"] + bt.t  # time offset taken from best track
         @test orig_hit.pos.x == json_hit["pos_x"]
         @test orig_hit.pos.y == json_hit["pos_y"]
         @test orig_hit.pos.z == json_hit["pos_z"]
         @test orig_hit.dir.x == json_hit["dir_x"]
         @test orig_hit.dir.y == json_hit["dir_y"]
         @test orig_hit.dir.z == json_hit["dir_z"]
+        @test orig_hit.channel_id == json_hit["channel_id"]
         @test (orig_hit.trigger_mask > 0) == json_hit["triggered"]
+
+        orig_dom_id = orig_hit.dom_id
+        dom_id = json_hit["dom_id"]
+        @test dom_id == orig_dom_id
+        m = d[dom_id]
+        @test json_hit["floor"] == m.location.floor
+        @test json_hit["string"] == m.location.string
     end
 
 
