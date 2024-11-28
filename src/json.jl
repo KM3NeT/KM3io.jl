@@ -36,3 +36,20 @@ function tojson(io::IO, event::Evt, detector::Detector; track_time_offset=0)
 
     JSON.print(io, (utc_timestamp=event.t.s + (event.t.ns + t₀)/1e9, hits=hits, reconstructed_track=bt))
 end
+
+function tojson(filename::AbstractString, detector::Detector)
+    open(filename, "w") do io
+        tojson(io, detector)
+    end
+end
+
+function tojson(io::IO, detector::Detector)
+    modules = [
+        (
+            id=m.id, detection_unit=m.location.string, floor=m.location.floor, pos_x = m.pos.x, pos_y = m.pos.y, pos_z = m.pos.z,
+            pmts=[(id=channel_id - 1, pos_x=p.pos.x, pos_y=p.pos.y, pos_z=p.pos.z, dir_x=p.dir.x, dir_y=p.dir.y, dir_z=p.dir.z) for (channel_id, p) in enumerate(m)]
+        )
+        for m in detector
+    ]
+    JSON.print(io, modules)
+end
