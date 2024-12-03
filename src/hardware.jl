@@ -613,10 +613,7 @@ information will be lost.
 function write(io::IO, d::Detector; version=:same)
     if version == :same
         version = d.version
-#    else
-#        version != d.version && println("Converting detector from format version $(d.version) to $(version).")
     end
-    # version > d.version && @warn "Target version is higher, missing parameters will be filled with reasonable default values."
 
     if version >= 3
         for comment in d.comments
