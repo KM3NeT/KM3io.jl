@@ -26,7 +26,6 @@ end
 
 @testset "orientations" begin
     o = read(datapath("calib", "KM3NeT_00000133_D_1.0.0_00017397_00017496_1.orientations.root"), Orientations)
-    @show o
     module_id = 817589211
     min_t, max_t = extrema(o.times[module_id])
     Δt = max_t - min_t
