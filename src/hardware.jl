@@ -283,6 +283,7 @@ struct Detector
     strings::Vector{Int}
     comments::Vector{String}
 end
+
 """
 Return a vector of all modules of a given detector.
 """
