@@ -8,8 +8,11 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
 
 @testset "displays" begin
     f = ROOTFile(OFFLINEFILE)
-    show(devnull, f.offline[1])  # Evt
-    show(devnull, f.offline[1:4])  # compact Evt
-    show(devnull, f.offline[1].trks)  # Trks
-    show(devnull, f.offline[1].trks[1:4])  # compact Trks
+    open(tempname(), "w") do io
+        show(io, f.offline[1])  # Evt
+        show(io, MIME"text/plain"(), f.offline[1])  # Evt
+        show(io, f.offline[1:4])  # compact Evt
+        show(io, f.offline[1].trks)  # Trks
+        show(io, f.offline[1].trks[1:4])  # compact Trks
+    end
 end
