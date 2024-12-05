@@ -44,7 +44,11 @@ function Base.show(io::IO, ::MIME"text/plain", e::Evt)
     println(io, "  Detector ID: $(e.det_id)")
     println(io, "  MC ID: $(e.mc_id)")
     println(io, "  MC event time: $(e.mc_event_time)")
-    println(io, "  Primary particle: $(first(e.mc_trks))")
+    if length(e.mc_trks) > 0
+        println(io, "  Primary particle: $(first(e.mc_trks))")
+    else
+        println(io, "  Primary particle: missing")
+    end
 end
 
 description(::Type{Trk}) = "Reconstructed track"
