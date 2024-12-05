@@ -59,6 +59,7 @@ modules
 getmodule
 getpmt
 haslocation
+hasstring
 isbasemodule
 isopticalmodule
 write(::AbstractString, ::Detector)

@@ -348,6 +348,14 @@ haslocation(d::Detector, loc::Location) = haskey(d.locations, (loc.string, loc.f
 
 """
 
+Returns true if there is a string with a given number.
+
+"""
+hasstring(d::Detector, s::Integer) = s in d.strings
+
+
+"""
+
 Calculate the center of the detector based on the location of the optical modules.
 
 """
