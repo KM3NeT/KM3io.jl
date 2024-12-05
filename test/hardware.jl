@@ -113,6 +113,13 @@ end
         @test 0 < length(det)
     end
 end
+@testset "DETX tools" begin
+    det = Detector(datapath("detx", "orca_115strings_av20min17mhorizontal_18OMs_alt9mvertical_v2.detx"))
+    @test haslocation(det, Location(1, 1))
+    @test !haslocation(det, Location(1, 100))
+    @test hasstring(det, 1)
+    @test !hasstring(det, 200)
+end
 @testset "DETX floor == -1 bug" begin
     det = Detector(datapath("detx", "orca_115strings_av20min17mhorizontal_18OMs_alt9mvertical_v2.detx"))
     @test Location(1, 1) == det[1].location
