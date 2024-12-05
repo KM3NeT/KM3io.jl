@@ -136,9 +136,6 @@ struct Evt
     flags::Int64
     usr::Dict{String, Float64}
 end
-function Base.show(io::IO, e::Evt)
-    print(io, "$(typeof(e)) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) tracks, $(length(e.mc_trks)) MC tracks)")
-end
 
 struct MCHeader
     _raw::Dict{String, String}
