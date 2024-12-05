@@ -95,6 +95,8 @@ Get the PMT for a given DAQ channel ID (TDC)
 """
 getpmt(d::DetectorModule, channel_id::Integer) = d[channel_id]
 
+Base.filter(f::Function, d::DetectorModule) = filter(f, getpmts(d))
+
 """
 
 Calculate the centre of a module by fitting the crossing point of the PMT axes.
@@ -346,6 +348,8 @@ function Base.getindex(d::Detector, ::Colon, floors::UnitRange{T}) where T<:Inte
     end
     sort!(modules)
 end
+
+Base.filter(f::Function, d::Detector) = filter(f, modules(d))
 
 """
 
