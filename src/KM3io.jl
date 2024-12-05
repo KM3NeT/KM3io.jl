@@ -79,6 +79,8 @@ include("tools/helpers.jl")
 
 include("physics.jl")
 
+include("displays.jl")
+
 
 function __init__()
     @static if !isdefined(Base, :get_extension)

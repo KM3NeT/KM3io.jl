@@ -55,10 +55,6 @@ struct DetectorModule
     status::Int32
     t₀::Float64
 end
-function Base.show(io::IO, m::DetectorModule)
-    info = m.location.floor == 0 ? "base" : "optical, $(m.n_pmts) PMTs"
-    print(io, "Detectormodule ($(info)) on string $(m.location.string) floor $(m.location.floor)")
-end
 Base.length(d::DetectorModule) = d.n_pmts
 Base.eltype(::Type{DetectorModule}) = PMT
 Base.iterate(d::DetectorModule, state=1) = state > d.n_pmts ? nothing : (d.pmts[state], state+1)
@@ -287,7 +283,6 @@ end
 Return a vector of all modules of a given detector.
 """
 modules(d::Detector) = collect(values(d.modules))
-Base.show(io::IO, d::Detector) = print(io, "Detector $(d.id) (v$(d.version)) with $(length(d.strings)) strings and $(d.n_modules) modules.")
 Base.length(d::Detector) = d.n_modules
 Base.eltype(::Type{Detector}) = DetectorModule
 function Base.iterate(d::Detector, state=(Int[], 1))
