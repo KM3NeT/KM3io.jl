@@ -6,183 +6,197 @@ using KM3DB
 
 det = Detector(133)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detector 133 (v5) with 21 strings and 399 modules.</code></pre><p>Keyword arguments passed as <code>Detector(det_id; kwarg1=..., kwarg2=..., ...)</code> are handed over to the <code>detx()</code> function in <code>KM3DB.jl</code>.</p><h2 id="Accessing-Modules"><a class="docs-heading-anchor" href="#Accessing-Modules">Accessing Modules</a><a id="Accessing-Modules-1"></a><a class="docs-heading-anchor-permalink" href="#Accessing-Modules" title="Permalink"></a></h2><h3 id="Iterating-over-all-modules"><a class="docs-heading-anchor" href="#Iterating-over-all-modules">Iterating over all modules</a><a id="Iterating-over-all-modules-1"></a><a class="docs-heading-anchor-permalink" href="#Iterating-over-all-modules" title="Permalink"></a></h3><p>There are multiple ways to access modules within a <a href="../../api/#KM3io.Detector"><code>Detector</code></a>. One of them is iterating over it, which yields <a href="../../api/#KM3io.DetectorModule"><code>DetectorModule</code></a> instances in no specific order:</p><pre><code class="language-julia hljs">for m in det
     println(m)
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 3 floor 5
-Detectormodule (optical, 31 PMTs) on string 2 floor 5
-Detectormodule (optical, 31 PMTs) on string 1 floor 4
-Detectormodule (optical, 31 PMTs) on string 1 floor 12
-Detectormodule (optical, 31 PMTs) on string 9 floor 6
-Detectormodule (optical, 31 PMTs) on string 2 floor 8
-Detectormodule (optical, 31 PMTs) on string 11 floor 11
-Detectormodule (optical, 31 PMTs) on string 9 floor 12
-Detectormodule (optical, 31 PMTs) on string 3 floor 15
-Detectormodule (optical, 31 PMTs) on string 1 floor 1
-Detectormodule (optical, 31 PMTs) on string 10 floor 7
-Detectormodule (optical, 31 PMTs) on string 3 floor 14
-Detectormodule (base) on string 9 floor 0
-Detectormodule (optical, 31 PMTs) on string 3 floor 9
-Detectormodule (optical, 31 PMTs) on string 2 floor 13
-Detectormodule (base) on string 10 floor 0
-Detectormodule (optical, 31 PMTs) on string 3 floor 18
-Detectormodule (optical, 31 PMTs) on string 10 floor 5
-Detectormodule (optical, 31 PMTs) on string 1 floor 2
-Detectormodule (optical, 31 PMTs) on string 1 floor 7
-Detectormodule (optical, 31 PMTs) on string 10 floor 9
-Detectormodule (optical, 31 PMTs) on string 2 floor 9
-Detectormodule (optical, 31 PMTs) on string 11 floor 18
-Detectormodule (optical, 31 PMTs) on string 1 floor 15
-Detectormodule (optical, 31 PMTs) on string 1 floor 8
-Detectormodule (optical, 31 PMTs) on string 1 floor 3
-Detectormodule (optical, 31 PMTs) on string 11 floor 2
-Detectormodule (optical, 31 PMTs) on string 10 floor 13
-Detectormodule (optical, 31 PMTs) on string 9 floor 9
-Detectormodule (optical, 31 PMTs) on string 9 floor 1
-Detectormodule (base) on string 2 floor 0
-Detectormodule (optical, 31 PMTs) on string 9 floor 18
-Detectormodule (optical, 31 PMTs) on string 10 floor 8
-Detectormodule (optical, 31 PMTs) on string 10 floor 15
-Detectormodule (optical, 31 PMTs) on string 1 floor 6
-Detectormodule (optical, 31 PMTs) on string 2 floor 11
-Detectormodule (base) on string 11 floor 0
-Detectormodule (optical, 31 PMTs) on string 9 floor 10
-Detectormodule (optical, 31 PMTs) on string 9 floor 16
-Detectormodule (optical, 31 PMTs) on string 3 floor 16
-Detectormodule (optical, 31 PMTs) on string 11 floor 5
-Detectormodule (optical, 31 PMTs) on string 2 floor 2
-Detectormodule (optical, 31 PMTs) on string 1 floor 10
-Detectormodule (optical, 31 PMTs) on string 10 floor 2
-Detectormodule (optical, 31 PMTs) on string 2 floor 14
-Detectormodule (optical, 31 PMTs) on string 3 floor 6
-Detectormodule (optical, 31 PMTs) on string 11 floor 17
-Detectormodule (optical, 31 PMTs) on string 9 floor 2
-Detectormodule (optical, 31 PMTs) on string 11 floor 14
-Detectormodule (optical, 31 PMTs) on string 10 floor 11
-Detectormodule (optical, 31 PMTs) on string 3 floor 1
-Detectormodule (optical, 31 PMTs) on string 11 floor 10
-Detectormodule (optical, 31 PMTs) on string 11 floor 6
-Detectormodule (optical, 31 PMTs) on string 9 floor 4
-Detectormodule (optical, 31 PMTs) on string 2 floor 12
-Detectormodule (optical, 31 PMTs) on string 2 floor 7
-Detectormodule (optical, 31 PMTs) on string 10 floor 17
-Detectormodule (optical, 31 PMTs) on string 2 floor 16
-Detectormodule (optical, 31 PMTs) on string 11 floor 3
-Detectormodule (optical, 31 PMTs) on string 11 floor 8
-Detectormodule (optical, 31 PMTs) on string 11 floor 13
-Detectormodule (optical, 31 PMTs) on string 11 floor 9
-Detectormodule (optical, 31 PMTs) on string 3 floor 13
-Detectormodule (optical, 31 PMTs) on string 1 floor 5
-Detectormodule (optical, 31 PMTs) on string 1 floor 16
-Detectormodule (optical, 31 PMTs) on string 10 floor 6
-Detectormodule (optical, 31 PMTs) on string 10 floor 10
-Detectormodule (optical, 31 PMTs) on string 2 floor 18
-Detectormodule (optical, 31 PMTs) on string 2 floor 3
-Detectormodule (optical, 31 PMTs) on string 1 floor 18
-Detectormodule (optical, 31 PMTs) on string 11 floor 16
-Detectormodule (optical, 31 PMTs) on string 3 floor 7
-Detectormodule (optical, 31 PMTs) on string 9 floor 7
-Detectormodule (optical, 31 PMTs) on string 9 floor 13
-Detectormodule (optical, 31 PMTs) on string 10 floor 12
-Detectormodule (optical, 31 PMTs) on string 9 floor 3
-Detectormodule (optical, 31 PMTs) on string 1 floor 17
-Detectormodule (optical, 31 PMTs) on string 9 floor 15
-Detectormodule (optical, 31 PMTs) on string 3 floor 10
-Detectormodule (optical, 31 PMTs) on string 1 floor 14
-Detectormodule (optical, 31 PMTs) on string 10 floor 18
-Detectormodule (optical, 31 PMTs) on string 3 floor 4
-Detectormodule (optical, 31 PMTs) on string 11 floor 1
-Detectormodule (optical, 31 PMTs) on string 9 floor 8
-Detectormodule (optical, 31 PMTs) on string 10 floor 1
-Detectormodule (optical, 31 PMTs) on string 9 floor 14
-Detectormodule (optical, 31 PMTs) on string 3 floor 8
-Detectormodule (optical, 31 PMTs) on string 9 floor 11
-Detectormodule (optical, 31 PMTs) on string 10 floor 16
-Detectormodule (optical, 31 PMTs) on string 2 floor 6
-Detectormodule (optical, 31 PMTs) on string 11 floor 4
-Detectormodule (optical, 31 PMTs) on string 2 floor 15
-Detectormodule (optical, 31 PMTs) on string 1 floor 13
-Detectormodule (optical, 31 PMTs) on string 3 floor 3
-Detectormodule (optical, 31 PMTs) on string 11 floor 7
-Detectormodule (optical, 31 PMTs) on string 3 floor 11
-Detectormodule (optical, 31 PMTs) on string 10 floor 14
-Detectormodule (base) on string 3 floor 0
-Detectormodule (optical, 31 PMTs) on string 11 floor 15
-Detectormodule (optical, 31 PMTs) on string 11 floor 12
-Detectormodule (optical, 31 PMTs) on string 10 floor 3
-Detectormodule (optical, 31 PMTs) on string 9 floor 5
-Detectormodule (optical, 31 PMTs) on string 2 floor 1
-Detectormodule (optical, 31 PMTs) on string 1 floor 9
-Detectormodule (optical, 31 PMTs) on string 1 floor 11
-Detectormodule (optical, 31 PMTs) on string 10 floor 4
-Detectormodule (optical, 31 PMTs) on string 3 floor 12
-Detectormodule (optical, 31 PMTs) on string 2 floor 4
-Detectormodule (optical, 31 PMTs) on string 2 floor 10
-Detectormodule (base) on string 1 floor 0
-Detectormodule (optical, 31 PMTs) on string 3 floor 17
-Detectormodule (optical, 31 PMTs) on string 3 floor 2
-Detectormodule (optical, 31 PMTs) on string 2 floor 17
-Detectormodule (optical, 31 PMTs) on string 9 floor 17</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p><code>module</code> is a reserved keyword in Julia and <code>mod</code> is the &quot;modulo function&quot;, so keep this in mind when chosing a variable name for a <a href="../../api/#KM3io.DetectorModule"><code>DetectorModule</code></a>. Most of the time <code>m</code> is fine, or just be verbose with <code>detector_module</code> and use your editors tab-completion.</p></div></div><p>As we can see in the output, there are two types of modules: optical modules and base modules. The main difference between the two in the detector file context is that base modules do not contain PMTs and are always sitting on floor 0.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Although iterating over a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> feels like iterating over a vector, accessing single elements via <code>det[idx]</code> will not work as such since it requires the <code>idx</code> to be a module ID. This design was chosen since the detector dataformat specification does not specify module ordering, so there is no such thing as the &quot;n-th module&quot;. Accessing modules by their module ID however is the standard use case, see below.</p></div></div><h3 id="Detector-Modules"><a class="docs-heading-anchor" href="#Detector-Modules">Detector Modules</a><a id="Detector-Modules-1"></a><a class="docs-heading-anchor-permalink" href="#Detector-Modules" title="Permalink"></a></h3><p>Modules have a unique identification number called module ID (sometimes also called &quot;DOM ID&quot;, where DOM stands for &quot;Digital Optical Module&quot;) and we can use this ID to access individual modules within a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> instance.</p><p>The <code>.modules</code> field is a dictionary which maps the modules to their module IDs:</p><pre><code class="language-julia hljs">det.modules</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{Int32, DetectorModule} with 114 entries:
-  808971294 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 5
-  806483369 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 5
-  808974773 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 4
-  809503416 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 12
-  808982547 =&gt; Detectormodule (optical, 31 PMTs) on string 9 floor 6
-  808447180 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 8
-  808976933 =&gt; Detectormodule (optical, 31 PMTs) on string 11 floor 11
-  808472260 =&gt; Detectormodule (optical, 31 PMTs) on string 9 floor 12
-  808468425 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 15
-  808972698 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 1
-  808961655 =&gt; Detectormodule (optical, 31 PMTs) on string 10 floor 7
-  808956925 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 14
-  808967761 =&gt; Detectormodule (base) on string 9 floor 0
-  808469947 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 9
-  806487231 =&gt; Detectormodule (optical, 31 PMTs) on string 2 floor 13
-  808981528 =&gt; Detectormodule (base) on string 10 floor 0
-  808977319 =&gt; Detectormodule (optical, 31 PMTs) on string 3 floor 18
-  808489117 =&gt; Detectormodule (optical, 31 PMTs) on string 10 floor 5
-  808982077 =&gt; Detectormodule (optical, 31 PMTs) on string 1 floor 2
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DOM(808971294, S003 F05)
+DOM(806483369, S002 F05)
+DOM(808974773, S001 F04)
+DOM(809503416, S001 F12)
+DOM(808982547, S009 F06)
+DOM(808447180, S002 F08)
+DOM(808976933, S011 F11)
+DOM(808472260, S009 F12)
+DOM(808468425, S003 F15)
+DOM(808972698, S001 F01)
+DOM(808961655, S010 F07)
+DOM(808956925, S003 F14)
+BM(808967761, S009 F00)
+DOM(808469947, S003 F09)
+DOM(806487231, S002 F13)
+BM(808981528, S010 F00)
+DOM(808977319, S003 F18)
+DOM(808489117, S010 F05)
+DOM(808982077, S001 F02)
+DOM(808488990, S001 F07)
+DOM(808961504, S010 F09)
+DOM(808472265, S002 F09)
+DOM(808976219, S011 F18)
+DOM(808992657, S001 F15)
+DOM(808964815, S001 F08)
+DOM(808969848, S001 F03)
+DOM(808971812, S011 F02)
+DOM(808469129, S010 F13)
+DOM(806487226, S009 F09)
+DOM(808435278, S009 F01)
+BM(808981515, S002 F00)
+DOM(808972598, S009 F18)
+DOM(808981864, S010 F08)
+DOM(808964883, S010 F15)
+DOM(809544061, S001 F06)
+DOM(808493231, S002 F11)
+BM(808476701, S011 F00)
+DOM(808984711, S009 F10)
+DOM(809521500, S009 F16)
+DOM(808966194, S003 F16)
+DOM(808952697, S011 F05)
+DOM(809006037, S002 F02)
+DOM(808979721, S001 F10)
+DOM(808951460, S010 F02)
+DOM(808961480, S002 F14)
+DOM(808956883, S003 F06)
+DOM(808997243, S011 F17)
+DOM(808981812, S009 F02)
+DOM(808978703, S011 F14)
+DOM(809544058, S010 F11)
+DOM(808451916, S003 F01)
+DOM(808475060, S011 F10)
+DOM(808988794, S011 F06)
+DOM(808981510, S009 F04)
+DOM(808974972, S002 F12)
+DOM(808981672, S002 F07)
+DOM(808982066, S010 F17)
+DOM(808488895, S002 F16)
+DOM(808976172, S011 F03)
+DOM(808979185, S011 F08)
+DOM(808978694, S011 F13)
+DOM(808987016, S011 F09)
+DOM(808969860, S003 F13)
+DOM(808979567, S001 F05)
+DOM(808488997, S001 F16)
+DOM(806451572, S010 F06)
+DOM(808982005, S010 F10)
+DOM(808964852, S002 F18)
+DOM(808982041, S002 F03)
+DOM(808432835, S001 F18)
+DOM(808977572, S011 F16)
+DOM(808976277, S003 F07)
+DOM(808969857, S009 F07)
+DOM(808972593, S009 F13)
+DOM(808949744, S010 F12)
+DOM(808976377, S009 F03)
+DOM(809526097, S001 F17)
+DOM(808451907, S009 F15)
+DOM(808974721, S003 F10)
+DOM(808997793, S001 F14)
+DOM(808956908, S010 F18)
+DOM(808949742, S003 F04)
+DOM(808987107, S011 F01)
+DOM(808974811, S009 F08)
+DOM(808961448, S010 F01)
+DOM(808981523, S009 F14)
+DOM(808987806, S003 F08)
+DOM(809524432, S009 F11)
+DOM(808964908, S010 F16)
+DOM(808974758, S002 F06)
+DOM(808988327, S011 F04)
+DOM(806465101, S002 F15)
+DOM(808489014, S001 F13)
+DOM(808957006, S003 F03)
+DOM(808963149, S011 F07)
+DOM(808956919, S003 F11)
+DOM(808451904, S010 F14)
+BM(816978571, S003 F00)
+DOM(806472265, S011 F15)
+DOM(806469630, S011 F12)
+DOM(808996773, S010 F03)
+DOM(808959411, S009 F05)
+DOM(808946818, S002 F01)
+DOM(808982018, S001 F09)
+DOM(809007627, S001 F11)
+DOM(808493910, S010 F04)
+DOM(808960332, S003 F12)
+DOM(808979729, S002 F04)
+DOM(806455814, S002 F10)
+BM(808469948, S001 F00)
+DOM(808956920, S003 F17)
+DOM(809537130, S003 F02)
+DOM(808447186, S002 F17)
+DOM(806487219, S009 F17)</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p><code>module</code> is a reserved keyword in Julia and <code>mod</code> is the &quot;modulo function&quot;, so keep this in mind when chosing a variable name for a <a href="../../api/#KM3io.DetectorModule"><code>DetectorModule</code></a>. Most of the time <code>m</code> is fine, or just be verbose with <code>detector_module</code> and use your editors tab-completion.</p></div></div><p>As we can see in the output, there are two types of modules: optical modules and base modules. The main difference between the two in the detector file context is that base modules do not contain PMTs and are always sitting on floor 0.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Although iterating over a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> feels like iterating over a vector, accessing single elements via <code>det[idx]</code> will not work as such since it requires the <code>idx</code> to be a module ID. This design was chosen since the detector dataformat specification does not specify module ordering, so there is no such thing as the &quot;n-th module&quot;. Accessing modules by their module ID however is the standard use case, see below.</p></div></div><h3 id="Detector-Modules"><a class="docs-heading-anchor" href="#Detector-Modules">Detector Modules</a><a id="Detector-Modules-1"></a><a class="docs-heading-anchor-permalink" href="#Detector-Modules" title="Permalink"></a></h3><p>Modules have a unique identification number called module ID (sometimes also called &quot;DOM ID&quot;, where DOM stands for &quot;Digital Optical Module&quot;) and we can use this ID to access individual modules within a <a href="../../api/#KM3io.Detector"><code>Detector</code></a> instance.</p><p>The <code>.modules</code> field is a dictionary which maps the modules to their module IDs:</p><pre><code class="language-julia hljs">det.modules</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{Int32, DetectorModule} with 114 entries:
+  808971294 =&gt; DOM(808971294, S003 F05)
+  806483369 =&gt; DOM(806483369, S002 F05)
+  808974773 =&gt; DOM(808974773, S001 F04)
+  809503416 =&gt; DOM(809503416, S001 F12)
+  808982547 =&gt; DOM(808982547, S009 F06)
+  808447180 =&gt; DOM(808447180, S002 F08)
+  808976933 =&gt; DOM(808976933, S011 F11)
+  808472260 =&gt; DOM(808472260, S009 F12)
+  808468425 =&gt; DOM(808468425, S003 F15)
+  808972698 =&gt; DOM(808972698, S001 F01)
+  808961655 =&gt; DOM(808961655, S010 F07)
+  808956925 =&gt; DOM(808956925, S003 F14)
+  808967761 =&gt; BM(808967761, S009 F00)
+  808469947 =&gt; DOM(808469947, S003 F09)
+  806487231 =&gt; DOM(806487231, S002 F13)
+  808981528 =&gt; BM(808981528, S010 F00)
+  808977319 =&gt; DOM(808977319, S003 F18)
+  808489117 =&gt; DOM(808489117, S010 F05)
+  808982077 =&gt; DOM(808982077, S001 F02)
   ⋮         =&gt; ⋮</code></pre><p>A flat vector of modules can be obtained with:</p><pre><code class="language-julia hljs">modules(det)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">114-element Vector{DetectorModule}:
- Detectormodule (optical, 31 PMTs) on string 3 floor 5
- Detectormodule (optical, 31 PMTs) on string 2 floor 5
- Detectormodule (optical, 31 PMTs) on string 1 floor 4
- Detectormodule (optical, 31 PMTs) on string 1 floor 12
- Detectormodule (optical, 31 PMTs) on string 9 floor 6
- Detectormodule (optical, 31 PMTs) on string 2 floor 8
- Detectormodule (optical, 31 PMTs) on string 11 floor 11
- Detectormodule (optical, 31 PMTs) on string 9 floor 12
- Detectormodule (optical, 31 PMTs) on string 3 floor 15
- Detectormodule (optical, 31 PMTs) on string 1 floor 1
+ DOM(808971294, S003 F05)
+ DOM(806483369, S002 F05)
+ DOM(808974773, S001 F04)
+ DOM(809503416, S001 F12)
+ DOM(808982547, S009 F06)
+ DOM(808447180, S002 F08)
+ DOM(808976933, S011 F11)
+ DOM(808472260, S009 F12)
+ DOM(808468425, S003 F15)
+ DOM(808972698, S001 F01)
  ⋮
- Detectormodule (optical, 31 PMTs) on string 10 floor 4
- Detectormodule (optical, 31 PMTs) on string 3 floor 12
- Detectormodule (optical, 31 PMTs) on string 2 floor 4
- Detectormodule (optical, 31 PMTs) on string 2 floor 10
- Detectormodule (base) on string 1 floor 0
- Detectormodule (optical, 31 PMTs) on string 3 floor 17
- Detectormodule (optical, 31 PMTs) on string 3 floor 2
- Detectormodule (optical, 31 PMTs) on string 2 floor 17
- Detectormodule (optical, 31 PMTs) on string 9 floor 17</code></pre><p>To access a module with a given module ID, one can either use the dictionary or index the <a href="../../api/#KM3io.Detector"><code>Detector</code></a> directly, which is the recommended way:</p><pre><code class="language-julia hljs">detector_module = det[808468425]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 3 floor 15</code></pre><p>Or for a given string and floor:</p><pre><code class="language-julia hljs">det[3, 15]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 3 floor 15</code></pre><p>It is possible to select all modules for a given floor on all strings using  the <code>:</code> syntax. Here we select all the base modules on each string:</p><pre><code class="language-julia hljs">det[:, 0]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">6-element Vector{DetectorModule}:
- Detectormodule (base) on string 1 floor 0
- Detectormodule (base) on string 2 floor 0
- Detectormodule (base) on string 3 floor 0
- Detectormodule (base) on string 9 floor 0
- Detectormodule (base) on string 10 floor 0
- Detectormodule (base) on string 11 floor 0</code></pre><p>Another way is using the <code>getmodule(d::Detector, string::Integer, floor::Integer)</code> function to access a module on a given string and floor:</p><pre><code class="language-julia hljs">detector_module = getmodule(det, 3, 15)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Detectormodule (optical, 31 PMTs) on string 3 floor 15</code></pre><h3 id="PMTs"><a class="docs-heading-anchor" href="#PMTs">PMTs</a><a id="PMTs-1"></a><a class="docs-heading-anchor-permalink" href="#PMTs" title="Permalink"></a></h3><p>Each optical module consists of PMTs, which can be access using the <code>getpmts(m::DetectorModule)</code> function:</p><pre><code class="language-julia hljs">getpmts(detector_module)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">31-element Vector{PMT}:
- PMT(891, [474.314, 583.421, 161.816], [0.819287, -0.144441, 0.554893], 208297.659, 0)
- PMT(894, [474.117, 583.262, 161.764], [-0.16594, -0.940939, 0.295133], 208298.035, 0)
- PMT(899, [474.296, 583.327, 161.764], [0.731952, -0.614198, 0.29496], 208298.364, 0)
- PMT(7305, [474.33, 583.515, 161.764], [0.897936, 0.326775, 0.294827], 208301.042, 0)
- PMT(895, [474.257, 583.577, 161.816], [0.534834, 0.637258, 0.554846], 208298.339, 0)
- PMT(7314, [474.207, 583.294, 161.816], [0.284546, -0.781637, 0.555047], 208302.498, 0)
- PMT(6061, [474.183, 583.638, 161.764], [0.166029, 0.941006, 0.294867], 208298.82, 0)
- PMT(6069, [474.043, 583.323, 161.816], [-0.534666, -0.63713, 0.555154], 208298.532, 0)
- PMT(7311, [474.093, 583.606, 161.816], [-0.284378, 0.781764, 0.554953], 208298.132, 0)
- PMT(7312, [473.986, 583.479, 161.816], [-0.819119, 0.144568, 0.555107], 208295.693, 0)
+ DOM(808493910, S010 F04)
+ DOM(808960332, S003 F12)
+ DOM(808979729, S002 F04)
+ DOM(806455814, S002 F10)
+ BM(808469948, S001 F00)
+ DOM(808956920, S003 F17)
+ DOM(809537130, S003 F02)
+ DOM(808447186, S002 F17)
+ DOM(806487219, S009 F17)</code></pre><p>To access a module with a given module ID, one can either use the dictionary or index the <a href="../../api/#KM3io.Detector"><code>Detector</code></a> directly, which is the recommended way:</p><pre><code class="language-julia hljs">detector_module = det[808468425]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DetectorModule 808468425 (optical, 31 PMTs)
+  Location: string 3, floor 15
+  Position: Position{Float64}(474.150, 583.450, 161.705)
+  Time offset: 38297.27 ns</code></pre><p>Or for a given string and floor:</p><pre><code class="language-julia hljs">det[3, 15]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DetectorModule 808468425 (optical, 31 PMTs)
+  Location: string 3, floor 15
+  Position: Position{Float64}(474.150, 583.450, 161.705)
+  Time offset: 38297.27 ns</code></pre><p>It is possible to select all modules for a given floor on all strings using  the <code>:</code> syntax. Here we select all the base modules on each string:</p><pre><code class="language-julia hljs">det[:, 0]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">6-element Vector{DetectorModule}:
+ BM(808469948, S001 F00)
+ BM(808981515, S002 F00)
+ BM(816978571, S003 F00)
+ BM(808967761, S009 F00)
+ BM(808981528, S010 F00)
+ BM(808476701, S011 F00)</code></pre><p>Another way is using the <code>getmodule(d::Detector, string::Integer, floor::Integer)</code> function to access a module on a given string and floor:</p><pre><code class="language-julia hljs">detector_module = getmodule(det, 3, 15)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DetectorModule 808468425 (optical, 31 PMTs)
+  Location: string 3, floor 15
+  Position: Position{Float64}(474.150, 583.450, 161.705)
+  Time offset: 38297.27 ns</code></pre><h3 id="PMTs"><a class="docs-heading-anchor" href="#PMTs">PMTs</a><a id="PMTs-1"></a><a class="docs-heading-anchor-permalink" href="#PMTs" title="Permalink"></a></h3><p>Each optical module consists of PMTs, which can be access using the <code>getpmts(m::DetectorModule)</code> function:</p><pre><code class="language-julia hljs">getpmts(detector_module)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">31-element Vector{PMT}:
+ PMT(891, Position{Float64}(474.314, 583.421, 161.816), Direction{Float64}(0.819, -0.144, 0.555), 208297.659, 0)
+ PMT(894, Position{Float64}(474.117, 583.262, 161.764), Direction{Float64}(-0.166, -0.941, 0.295), 208298.035, 0)
+ PMT(899, Position{Float64}(474.296, 583.327, 161.764), Direction{Float64}(0.732, -0.614, 0.295), 208298.364, 0)
+ PMT(7305, Position{Float64}(474.330, 583.515, 161.764), Direction{Float64}(0.898, 0.327, 0.295), 208301.042, 0)
+ PMT(895, Position{Float64}(474.257, 583.577, 161.816), Direction{Float64}(0.535, 0.637, 0.555), 208298.339, 0)
+ PMT(7314, Position{Float64}(474.207, 583.294, 161.816), Direction{Float64}(0.285, -0.782, 0.555), 208302.498, 0)
+ PMT(6061, Position{Float64}(474.183, 583.638, 161.764), Direction{Float64}(0.166, 0.941, 0.295), 208298.82, 0)
+ PMT(6069, Position{Float64}(474.043, 583.323, 161.816), Direction{Float64}(-0.535, -0.637, 0.555), 208298.532, 0)
+ PMT(7311, Position{Float64}(474.093, 583.606, 161.816), Direction{Float64}(-0.284, 0.782, 0.555), 208298.132, 0)
+ PMT(7312, Position{Float64}(473.986, 583.479, 161.816), Direction{Float64}(-0.819, 0.145, 0.555), 208295.693, 0)
  ⋮
- PMT(7297, [474.15, 583.45, 161.505], [-0.000151, -0.000115, -1.0], 208296.718, 0)
- PMT(2400, [474.273, 583.596, 161.646], [0.614187, 0.731873, -0.295177], 208296.598, 0)
- PMT(3257, [474.254, 583.432, 161.535], [0.518642, -0.091607, -0.850068], 208295.534, 0)
- PMT(3249, [474.218, 583.531, 161.535], [0.338507, 0.403422, -0.850097], 208296.387, 0)
- PMT(7298, [474.186, 583.351, 161.535], [0.180006, -0.495126, -0.849971], 208299.494, 0)
- PMT(787, [474.215, 583.27, 161.646], [0.326696, -0.897925, -0.294947], 208298.439, 0)
- PMT(7293, [474.277, 583.343, 161.594], [0.63711, -0.534814, -0.555035], 208297.429, 0)
- PMT(7161, [474.306, 583.507, 161.594], [0.781616, 0.284399, -0.555151], 208298.477, 0)
- PMT(5068, [474.338, 583.417, 161.646], [0.940928, -0.166018, -0.295123], 208297.061, 0)</code></pre><p>To access a specific PMT with a given channel ID (TDC ID), use the <code>getpmt(m::DetectorModule, channel_id::Integer)</code> function. Here, we access the PMT at DAQ channel 0 of our previously obtained detector module:</p><pre><code class="language-julia hljs">getpmt(detector_module, 0)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">PMT(891, [474.314, 583.421, 161.816], [0.819287, -0.144441, 0.554893], 208297.659, 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rootfiles/">« ROOT Files</a><a class="docs-footer-nextpage" href="../calibration/">Calibration »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Thursday 5 December 2024 11:16">Thursday 5 December 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ PMT(7297, Position{Float64}(474.150, 583.450, 161.505), Direction{Float64}(-0.000, -0.000, -1.000), 208296.718, 0)
+ PMT(2400, Position{Float64}(474.273, 583.596, 161.646), Direction{Float64}(0.614, 0.732, -0.295), 208296.598, 0)
+ PMT(3257, Position{Float64}(474.254, 583.432, 161.535), Direction{Float64}(0.519, -0.092, -0.850), 208295.534, 0)
+ PMT(3249, Position{Float64}(474.218, 583.531, 161.535), Direction{Float64}(0.339, 0.403, -0.850), 208296.387, 0)
+ PMT(7298, Position{Float64}(474.186, 583.351, 161.535), Direction{Float64}(0.180, -0.495, -0.850), 208299.494, 0)
+ PMT(787, Position{Float64}(474.215, 583.270, 161.646), Direction{Float64}(0.327, -0.898, -0.295), 208298.439, 0)
+ PMT(7293, Position{Float64}(474.277, 583.343, 161.594), Direction{Float64}(0.637, -0.535, -0.555), 208297.429, 0)
+ PMT(7161, Position{Float64}(474.306, 583.507, 161.594), Direction{Float64}(0.782, 0.284, -0.555), 208298.477, 0)
+ PMT(5068, Position{Float64}(474.338, 583.417, 161.646), Direction{Float64}(0.941, -0.166, -0.295), 208297.061, 0)</code></pre><p>To access a specific PMT with a given channel ID (TDC ID), use the <code>getpmt(m::DetectorModule, channel_id::Integer)</code> function. Here, we access the PMT at DAQ channel 0 of our previously obtained detector module:</p><pre><code class="language-julia hljs">getpmt(detector_module, 0)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">PMT
+  id: 891
+  pos: Position{Float64}(474.314, 583.421, 161.816)
+  dir: Direction{Float64}(0.819, -0.144, 0.555)
+  t₀: 208297.659
+  status: 0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rootfiles/">« ROOT Files</a><a class="docs-footer-nextpage" href="../calibration/">Calibration »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Thursday 5 December 2024 14:38">Thursday 5 December 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
