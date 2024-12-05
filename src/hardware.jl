@@ -298,8 +298,16 @@ function Base.iterate(d::Detector, state=(Int[], 1))
     end
     (d.modules[module_ids[count]], (module_ids, count + 1))
 end
-Base.getindex(d::Detector, module_id::Integer) = d.modules[module_id]
-Base.getindex(d::Detector, string::Integer, floor::Integer) = d.locations[string, floor]
+function Base.getindex(d::Detector, module_id::Integer)
+    haskey(d.modules, module_id) && return d.modules[module_id]
+    error("Module with ID $(module_id) not found.")
+end
+function Base.getindex(d::Detector, string::Integer, floor::Integer)
+    haskey(d.locations, (string, floor)) && return d.locations[string, floor]
+    available_strings = join(d.strings, ", ", " and ")
+    !(hasstring(d, string)) && error("String $(string) not found. Available strings: $(available_strings).")
+    error("String $(string) has no module at floor $(floor).")
+end
 """
 Return the detector module for a given module ID.
 """
