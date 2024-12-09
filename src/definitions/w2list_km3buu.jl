@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.1.0-7-gab56b85
+# KM3NeT Data Definitions v3.5.1
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -22,4 +22,5 @@ module W2LIST_KM3BUU
   const W2LIST_KM3BUU_LEPINCAN = 18
   const W2LIST_KM3BUU_GIBUU_WEIGHT = 23
   const W2LIST_KM3BUU_GIBUU_SCAT_TYPE = 24
+  const W2LIST_KM3BUU_LEPPROP_SAMPLES = 25
 end

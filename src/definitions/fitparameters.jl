@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.1.0-7-gab56b85
+# KM3NeT Data Definitions v3.5.1
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -12,6 +12,9 @@ module FITPARAMETERS
   const JENERGY_CHI2 = 5
   const JGANDALF_LAMBDA = 6
   const JGANDALF_NUMBER_OF_ITERATIONS = 7
+  const JMUONFEATURES_NUMBER_OF_HITS = 25
+  const JMUONFEATURES_NUMBER_OF_DOMS = 23
+  const JMUONFEATURES_NUMBER_OF_LINES = 24
   const JSTART_NPE_MIP = 8
   const JSTART_NPE_MIP_TOTAL = 9
   const JSTART_NPE_MIP_MISSED = 22

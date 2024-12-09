@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.1.0-7-gab56b85
+# KM3NeT Data Definitions v3.5.1
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -12,6 +12,7 @@ module ROOT
   const TTREE_ONLINE_SUMMARYSLICE =  "KM3NET_SUMMARYSLICE"
   const TTREE_ONLINE_EVENT =         "KM3NET_EVENT"       
   const TTREE_OFFLINE_EVENT =        "E"                  
+  const TTREE_OSC_OPENDATA =         "flat_detresponse"   
   const TBRANCH_ONLINE_TIMESLICE =     "KM3NET_TIMESLICE"   
   const TBRANCH_ONLINE_TIMESLICEL0 =   "km3net_timeslice_L0"
   const TBRANCH_ONLINE_TIMESLICEL1 =   "km3net_timeslice_L1"
@@ -44,4 +45,12 @@ module ROOT
   const SPLIT_LEVEL_ONLINE_SUMMARYSLICE =  1
   const SPLIT_LEVEL_ONLINE_EVENT =         1
   const SPLIT_LEVEL_OFFLINE_EVENT =        4
+  const AUTOFLUSH_LEVEL_ONLINE_TIMESLICE =     1000
+  const AUTOFLUSH_LEVEL_ONLINE_TIMESLICEL0 =   1000
+  const AUTOFLUSH_LEVEL_ONLINE_TIMESLICEL1 =   1000
+  const AUTOFLUSH_LEVEL_ONLINE_TIMESLICEL2 =   1000
+  const AUTOFLUSH_LEVEL_ONLINE_TIMESLICESN =   1000
+  const AUTOFLUSH_LEVEL_ONLINE_SUMMARYSLICE =  1000
+  const AUTOFLUSH_LEVEL_ONLINE_EVENT =         1000
+  const AUTOFLUSH_LEVEL_OFFLINE_EVENT =         500
 end
