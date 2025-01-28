@@ -617,6 +617,7 @@ The `version` parameter can be a version number or `:same`, which is the default
 and writes the same version as the provided detector has.
 """
 function write(filename::AbstractString, d::Detector; version=:same)
+    !endswith(filename, ".detx") && error("Only DETX is supported for detector writing.")
     isfile(filename) && @warn "File '$(filename)' already exists, overwriting."
     open(filename, "w") do fobj
         write(fobj, d; version=version)
