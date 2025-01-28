@@ -9,6 +9,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
 
 @testset "DETX parsing" begin
     mchit_sample = KM3io.CalibratedMCHit(7636, 0, 0, 0, 0, Position(0.0, 0.0, 0.0), Direction(0.0, 0.0, 0.0))
+    daqhit_sample = KM3io.SnapshotHit(808966287, 0, 0, 0)
 
     for version ∈ 1:5
         d = Detector(joinpath(SAMPLES_DIR, "v$(version).detx"))
@@ -74,6 +75,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         @test 817287557 == getmodule(d, 30, 18).id
         @test 817287557 == getmodule(d, (30, 18)).id
         @test 817287557 == getmodule(d, Location(30, 18)).id
+        @test 808966287 == getmodule(d, daqhit_sample).id
         @test 808966287 == getmodule(d, mchit_sample).id
 
         @test 19 == length(d[:, 18])
