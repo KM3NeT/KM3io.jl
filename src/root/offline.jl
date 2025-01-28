@@ -25,7 +25,7 @@ A calibrated MC hit of the offline dataformat. Caveat: the `position` and
 the offline format (one class for all).
 
 """
-struct CalibratedMCHit
+struct CalibratedMCHit <: AbstractCalibratedMCHit
     pmt_id::Int32
     t::Float64  # MC truth
     a::Float64  # amplitude (in p.e.)

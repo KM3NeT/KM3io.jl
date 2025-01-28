@@ -280,6 +280,7 @@ struct Detector
     locations::Dict{Tuple{Int, Int}, DetectorModule}
     strings::Vector{Int}
     comments::Vector{String}
+    _pmt_id_module_map::Dict{Int, DetectorModule}
 end
 """
 Return a vector of all modules of a given detector.
@@ -324,7 +325,15 @@ Return the detector module for a given location.
 """
 Return the `PMT` for a given hit.
 """
-@inline getpmt(d::Detector, hit) = getpmt(getmodule(d, hit.dom_id), hit.channel_id)
+@inline getpmt(d::Detector, hit::AbstractDAQHit) = getpmt(getmodule(d, hit.dom_id), hit.channel_id)
+"""
+Return the detector module for a given DAQ hit.
+"""
+@inline getmodule(d::Detector, hit::AbstractDAQHit) = getmodule(d, hit.dom_id)
+"""
+Return the detector module for a given MC hit.
+"""
+@inline getmodule(d::Detector, hit::AbstractMCHit) = d._pmt_id_module_map[hit.pmt_id]
 Base.getindex(d::Detector, string::Int, ::Colon) = sort!(filter(m->m.location.string == string, modules(d)))
 Base.getindex(d::Detector, string::Int, floors::T) where T<:Union{AbstractArray, UnitRange} = [d[string, floor] for floor in sort(floors)]
 Base.getindex(d::Detector, ::Colon, floor::Int) = sort!(filter(m->m.location.floor == floor, modules(d)))
@@ -422,6 +431,7 @@ function read_datx(io::IO)
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int[]
+    _pmt_id_module_map = Dict{Int, DetectorModule}()
     for _ in 1:n_modules
         module_id = read(io, Int32)
         location = Location(read(io, Int32), read(io, Int32))
@@ -443,10 +453,13 @@ function read_datx(io::IO)
             push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
         end
         m = DetectorModule(module_id, module_pos, location, n_pmts, pmts, q, module_status, module_t₀)
+        for pmt in pmts
+            _pmt_id_module_map[pmt.id] = m
+        end
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -481,6 +494,7 @@ function read_detx(io::IO)
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int8[]
+    _pmt_id_module_map = Dict{Int, DetectorModule}()
 
     # a counter to work around the floor == -1 bug in some older DETX files
     floor_counter = 1
@@ -556,10 +570,14 @@ function read_detx(io::IO)
         m = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
         modules[module_id] = m
         locations[(string, floor)] = m
+        for pmt in pmts
+            _pmt_id_module_map[pmt.id] = m
+        end
+
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 
 
@@ -607,6 +625,7 @@ The `version` parameter can be a version number or `:same`, which is the default
 and writes the same version as the provided detector has.
 """
 function write(filename::AbstractString, d::Detector; version=:same)
+    !endswith(filename, ".detx") && error("Only DETX is supported for detector writing.")
     isfile(filename) && @warn "File '$(filename)' already exists, overwriting."
     open(filename, "w") do fobj
         write(fobj, d; version=version)

@@ -50,6 +50,7 @@ abstract type AbstractHit end
 abstract type AbstractDAQHit<:AbstractHit end
 abstract type AbstractMCHit<:AbstractHit end
 abstract type AbstractCalibratedHit <: AbstractDAQHit end
+abstract type AbstractCalibratedMCHit <: AbstractMCHit end
 
 """
 
