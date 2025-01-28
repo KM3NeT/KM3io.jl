@@ -280,6 +280,7 @@ struct Detector
     locations::Dict{Tuple{Int, Int}, DetectorModule}
     strings::Vector{Int}
     comments::Vector{String}
+    _pmt_id_module_map::Dict{Int, DetectorModule}
 end
 """
 Return a vector of all modules of a given detector.
@@ -422,6 +423,7 @@ function read_datx(io::IO)
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int[]
+    _pmt_id_module_map = Dict{Int, DetectorModule}()
     for _ in 1:n_modules
         module_id = read(io, Int32)
         location = Location(read(io, Int32), read(io, Int32))
@@ -443,10 +445,13 @@ function read_datx(io::IO)
             push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
         end
         m = DetectorModule(module_id, module_pos, location, n_pmts, pmts, q, module_status, module_t₀)
+        for pmt in pmts
+            _pmt_id_module_map[pmt.id] = m
+        end
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -481,6 +486,7 @@ function read_detx(io::IO)
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
     strings = Int8[]
+    _pmt_id_module_map = Dict{Int, DetectorModule}()
 
     # a counter to work around the floor == -1 bug in some older DETX files
     floor_counter = 1
@@ -556,10 +562,14 @@ function read_detx(io::IO)
         m = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
         modules[module_id] = m
         locations[(string, floor)] = m
+        for pmt in pmts
+            _pmt_id_module_map[pmt.id] = m
+        end
+
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments)
+    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 
 
