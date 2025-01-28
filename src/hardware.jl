@@ -325,7 +325,15 @@ Return the detector module for a given location.
 """
 Return the `PMT` for a given hit.
 """
-@inline getpmt(d::Detector, hit) = getpmt(getmodule(d, hit.dom_id), hit.channel_id)
+@inline getpmt(d::Detector, hit::AbstractDAQHit) = getpmt(getmodule(d, hit.dom_id), hit.channel_id)
+"""
+Return the detector module for a given DAQ hit.
+"""
+@inline getmodule(d::Detector, hit::AbstractDAQHit) = getmodule(d, hit.dom_id)
+"""
+Return the detector module for a given MC hit.
+"""
+@inline getmodule(d::Detector, hit::AbstractMCHit) = d._pmt_id_module_map[hit.pmt_id]
 Base.getindex(d::Detector, string::Int, ::Colon) = sort!(filter(m->m.location.string == string, modules(d)))
 Base.getindex(d::Detector, string::Int, floors::T) where T<:Union{AbstractArray, UnitRange} = [d[string, floor] for floor in sort(floors)]
 Base.getindex(d::Detector, ::Colon, floor::Int) = sort!(filter(m->m.location.floor == floor, modules(d)))
