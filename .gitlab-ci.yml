@@ -66,6 +66,13 @@ Julia 1.10:
     - .script
     - .coverage
 
+Julia 1.11:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11
+  stage: test
+  extends:
+    - .script
+    - .coverage
+
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10-tex
   stage: docs
