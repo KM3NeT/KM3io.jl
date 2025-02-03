@@ -2,6 +2,7 @@ using Test
 
 include("root.jl")
 include("hdf5.jl")
+include("json.jl")
 include("daq.jl")
 include("tools.jl")
 include("hardware.jl")

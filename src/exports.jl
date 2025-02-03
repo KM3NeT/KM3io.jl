@@ -80,6 +80,9 @@ Trk,
 XCalibratedHit,
 FitInformation,
 
+# Misc I/O
+tojson,
+
 # Calibration
 AbstractCalibratedHit,
 K40Rates,
