@@ -282,6 +282,7 @@ struct Detector
     comments::Vector{String}
     _pmt_id_module_map::Dict{Int, DetectorModule}
 end
+
 """
 Return a vector of all modules of a given detector.
 """
