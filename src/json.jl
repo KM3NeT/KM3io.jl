@@ -3,13 +3,13 @@
 
 Writes an offline event ([`Evt`]@ref) as a JSON string to a file.
 """
-function tojson(filename::AbstractString, event::Evt, detector::Detector; track_time_offset=0)
+function tojson(filename::AbstractString, event::Evt, detector::Detector)
     open(filename, "w") do io
-        tojson(io, event, detector; track_time_offset=track_time_offset)
+        tojson(io, event, detector)
     end
 end
 
-function tojson(io::IO, event::Evt, detector::Detector; track_time_offset=0)
+function tojson(io::IO, event::Evt, detector::Detector)
     bt = bestjppmuon(event)
     t₀ = first(event.hits).t
 
@@ -31,7 +31,7 @@ function tojson(io::IO, event::Evt, detector::Detector; track_time_offset=0)
         bt = (
             pos_x = bt.pos.x, pos_y = bt.pos.y, pos_z = bt.pos.z,
             dir_x = bt.dir.x, dir_y = bt.dir.y, dir_z = bt.dir.z,
-            t = bt.t - t₀ + track_time_offset
+            t = bt.t - t₀
         )
     end
 

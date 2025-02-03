@@ -12,10 +12,8 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
     e = f.offline[1]
     d = Detector(datapath("detx", "km3net_offline.detx"))
 
-    track_time_offset = 23.5
-
     outfile = tempname()
-    tojson(outfile, e, d; track_time_offset=track_time_offset)
+    tojson(outfile, e, d)
 
     json_evt = JSON.parsefile(outfile)
     json_hits = json_evt["hits"]
@@ -31,7 +29,7 @@ const OFFLINEFILE = datapath("offline", "km3net_offline.root")
     @test bt.dir.x == json_bt["dir_x"]
     @test bt.dir.y == json_bt["dir_y"]
     @test bt.dir.z == json_bt["dir_z"]
-    @test bt.t == json_bt["t"] - track_time_offset + t₀
+    @test bt.t == json_bt["t"] + t₀
 
     @test 176 == length(json_hits)
     for idx in 1:length(json_hits)
