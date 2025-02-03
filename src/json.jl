@@ -19,6 +19,7 @@ function tojson(io::IO, event::Evt, detector::Detector; track_time_offset=0)
             channel_id = h.channel_id,
             floor = detector[h.dom_id].location.floor,
             detection_unit = detector[h.dom_id].location.string,
+	    tdc = h.tdc,
             t = h.t - t₀,
             tot = h.tot,
             pos_x = h.pos.x, pos_y = h.pos.y, pos_z = h.pos.z,
