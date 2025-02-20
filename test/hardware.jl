@@ -215,7 +215,7 @@ end
 end
 
 @testset "utilities" begin
-    mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
+    mod = DetectorModule(1, UTMPosition(0, 0, 0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
     @test hydrophoneenabled(mod)
     @test piezoenabled(mod)
     for version ∈ 1:5
