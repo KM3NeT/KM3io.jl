@@ -132,6 +132,7 @@ MCEventMatcher,
 SummarysliceIntervalIterator,
 getevent,
 LonLat,  # TODO: move this to types?
+LonLatExtended,  # TODO: move this to types?
 lonlat,
 isnorthern,
 

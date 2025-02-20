@@ -4,6 +4,15 @@ A position in longitude and latitude.
 struct LonLat
     lon::Float64
     lat::Float64
+end
+
+"""
+A position in longitude and latitude including the point scale factor and the meridian
+convergence angle.
+"""
+struct LonLatExtended
+    lon::Float64
+    lat::Float64
     point_scale_factor::Float64
     meridian_convergence::Float64
 end
@@ -18,7 +27,7 @@ which were originally derived by Johann Heinrich Louis Krüger in 1912.
 millimeter within 3000 km of the central meridian.
 """
 function lonlat end
-function lonlat(utm::UTMPosition)::LonLat
+function lonlat(utm::UTMPosition)::LonLatExtended
     N = utm.northing / 1000
     E = utm.easting / 1000
     hemi = isnorthern(utm) ? +1 : -1
@@ -65,7 +74,7 @@ function lonlat(utm::UTMPosition)::LonLat
     k = k₀*A/a * √( (1 + ((1 - n)/(1 + n))*tan(ϕ))^2 * (cos(ξ′)^2 + sinh(η′)^2)/(σ′^2 + τ′^2) )
     # meridian convergence
     γ = hemi * atan( (τ′ + σ′*tan(ξ′)*tanh(η′)) / (σ′ + τ′*tan(ξ′)*tanh(η′)) )
-    return LonLat(λ, ϕ, k, γ)
+    return LonLatExtended(λ, ϕ, k, γ)
 end
 lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)
 
@@ -114,5 +123,5 @@ function lonlat_aanet(utm::UTMPosition)::LonLat
     longitude = ((δ * (180.0 / π)) + s) + diflon
     latitude = ((lat + (1 + e2cuadrada * cos(lat)^2 - (3.0 / 2.0) * e2cuadrada * sin(lat) * cos(lat) * (tao - lat)) * (tao - lat)) * (180.0 / π)) + diflat
 
-    return LonLat(longitude * π / 180, latitude * π / 180, 0, 0)
+    return LonLat(longitude * π / 180, latitude * π / 180)
 end
