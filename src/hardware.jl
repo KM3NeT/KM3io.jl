@@ -321,7 +321,7 @@ struct Detector
     version::Int8
     id::Int32
     validity::Union{DateRange, Missing}
-    pos::Union{UTMPosition{Float64}, Missing}
+    pos::Union{UTMPosition, Missing}
     utm_ref_grid::Union{String, Missing}
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
@@ -473,8 +473,10 @@ function read_datx(io::IO)
     _readstring(io)  # says "UTM", ignoring
     wgs = _readstring(io)
     zone = _readstring(io)
+    zone_number = parse(Int, match(r"^\d+", zone).match)
     utm_ref_grid = "$wgs $zone"
-    utm_position = UTMPosition(read(io, Float64), read(io, Float64), read(io, Float64))
+    zone_letter = utm_ref_grid[end]
+    utm_position = UTMPosition(read(io, Float64), read(io, Float64), zone_number, zone_letter, read(io, Float64))
     n_modules = read(io, Int32)
 
     modules = Dict{Int32, DetectorModule}()
@@ -527,8 +529,11 @@ function read_detx(io::IO)
     if occursin("v", first_line)
         det_id, version = map(x->parse(Int,x), split(first_line, 'v'))
         validity = DateRange(map(unix2datetime, map(x->parse(Float64, x), split(lines[2])))...)
-        utm_position = UTMPosition(map(x->parse(Float64, x), split(lines[3])[4:6])...)
         utm_ref_grid = join(split(lines[3])[2:3], " ")
+        zone_number = parse(Int, match(r"^\d+", split(utm_ref_grid)[2]).match)
+        zone_letter = utm_ref_grid[end]
+        easting, northing, z = map(x->parse(Float64, x), split(lines[3])[4:6])
+        utm_position = UTMPosition(easting, northing, zone_number, zone_letter, z)
         n_modules = parse(Int, lines[4])
         idx = 5
     else
