@@ -186,3 +186,11 @@ hashistory
 angle
 distance
 ```
+
+### Coordinate Systems
+```@docs
+UTMPosition
+LonLat
+lonlat
+isnorthern
+```

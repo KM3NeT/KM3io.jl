@@ -3,6 +3,9 @@ import KM3io: nthbitset, SnapshotHit, tonumifpossible
 using KM3NeTTestData
 using Test
 
+const OFFLINEFILE = datapath("offline", "km3net_offline.root")
+const USRFILE = datapath("offline", "usr-sample.root")
+
 @testset "tools" begin
     @testset "nthbitset()" begin
         @test nthbitset(2, 12)
@@ -335,6 +338,10 @@ end
     @test π/2 ≈ angle(Direction(1.,0,0), Direction(0.,1,0))
     @test π/2 ≈ angle(Direction(1.,0,0), Direction(0.,0,1))
     @test π ≈ angle(Direction(1.,0,0), Direction(-1.,0,0))
+end
+
+@testset "coords" begin
+    @test LonLat(0.2788192376901837, 0.6334068249925653) == lonlat(Detector(datapath("detx", "KM3NeT_00000133_20221025.detx")))
 end
 
 
