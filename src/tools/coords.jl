@@ -4,13 +4,81 @@ A position in longitude and latitude.
 struct LonLat
     lon::Float64
     lat::Float64
+    point_scale_factor::Float64
+    meridian_convergence::Float64
 end
 
 """
 Calculate the longitude and latitude for a given [`UTMPosition`](@ref).
+Distances are in km and angles in radians.
+
+These formulae are truncated version of Transverse Mercator: flattening series,
+which were originally derived by Johann Heinrich Louis Krüger in 1912.
+(https://apps.dtic.mil/sti/tr/pdf/ADA266497.pdf). They are accurate to around a
+millimeter within 3000 km of the central meridian.
 """
 function lonlat end
-function lonlat(utm::UTMPosition)
+function lonlat(utm::UTMPosition)::LonLat
+    N = utm.northing / 1000
+    E = utm.easting / 1000
+    hemi = isnorthern(utm) ? +1 : -1
+    N₀ = isnorthern(utm) ? 0 : 10000  # [km]
+    a = 6378.137  # [km]
+    f = 1/298.257223563  # flattening
+    E₀ = 500  # [km]
+    k₀ = 0.9996
+
+    n = f/(2-f)
+    A = a/(1+n) * (1 + n^2/4 + n^4/64)  # + ...?
+
+    # used in backwards conversion, leaving it here for later ;)
+    # α = SVector(
+    #     (1/2)n - (2/3)n^2 + (5/16)n^3,
+    #     (13/48)n^2 - (3/5)n^3,
+    #     (61/240)n^3
+    # )
+
+    β = SVector(
+        (1/2)n - (2/3)n^2 + (37/96)n^3,
+        (1/48)n^2 + (1/15)n^3,
+        (17/480)n^3
+    )
+
+    δ = SVector(
+        2n - (2/3)n^2 - 2n^3,
+        (7/3)n^2 - (8/5)n^3,
+        (56/15)n^3
+    )
+
+    ξ = (N - N₀)/(k₀ * A)
+    η = (E - E₀)/(k₀ * A)
+    ξ′ = ξ - sum(β[j] * sin(2j*ξ) * cosh(2j*η) for j ∈ 1:3)
+    η′ = η - sum(β[j] * cos(2j*ξ) * sinh(2j*η) for j ∈ 1:3)
+    σ′ = 1 - sum(2j*β[j] * cos(2j*ξ) * cosh(2j*η) for j ∈ 1:3)
+    τ′ = sum(2j*β[j] * sin(2j*ξ) * sinh(2j*η) for j ∈ 1:3)
+    χ = asin(sin(ξ′)/cosh(η′))
+
+    ϕ = χ + sum(δ[j] * sin(2j*χ) for j ∈ 1:3)  # latitude [rad]
+    λ₀ = deg2rad(utm.zone_number * 6 - 183)
+    λ = λ₀ + atan(sinh(η′)/cos(ξ′))  # longitude [rad]
+    # point scale factor
+    k = k₀*A/a * √( (1 + ((1 - n)/(1 + n))*tan(ϕ))^2 * (cos(ξ′)^2 + sinh(η′)^2)/(σ′^2 + τ′^2) )
+    # meridian convergence
+    γ = hemi * atan( (τ′ + σ′*tan(ξ′)*tanh(η′)) / (σ′ + τ′*tan(ξ′)*tanh(η′)) )
+    return LonLat(λ, ϕ, k, γ)
+end
+lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)
+
+
+"""
+Calculate the longitude and latitude for a given [`UTMPosition`](@ref).
+
+This implementation is the one in [`aanet`](https://git.km3net.de/common/aanet) but does
+not calculate the point scale factor and the meridian convergence angle. In `aanet`, those
+are calculated separately. The returned [`LonLat`](@ref) has those values set to `0` in
+this case.
+"""
+function lonlat_aanet(utm::UTMPosition)::LonLat
     diflat = -0.00066286966871111111111111111111111111
     diflon = -0.0003868060578
 
@@ -46,6 +114,5 @@ function lonlat(utm::UTMPosition)
     longitude = ((δ * (180.0 / π)) + s) + diflon
     latitude = ((lat + (1 + e2cuadrada * cos(lat)^2 - (3.0 / 2.0) * e2cuadrada * sin(lat) * cos(lat) * (tao - lat)) * (tao - lat)) * (180.0 / π)) + diflat
 
-    return LonLat(longitude * π / 180, latitude * π / 180)
+    return LonLat(longitude * π / 180, latitude * π / 180, 0, 0)
 end
-lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)

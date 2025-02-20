@@ -341,8 +341,8 @@ end
 end
 
 @testset "coords" begin
-    @test LonLat(0.2788192376901837, 0.6334068249925653) == lonlat(Detector(datapath("detx", "KM3NeT_00000133_20221025.detx")))
-    @test LonLat(0.2788192376901837, 0.6334068249925653) == lonlat(Detector(datapath("datx", "KM3NeT_00000133_20221025.datx")))
+    @test LonLat(0.2788259891652955, 0.6334183919376817, 1.3971407689009945, 0.010078736515781934) == lonlat(Detector(datapath("detx", "KM3NeT_00000133_20221025.detx")))
+    @test LonLat(0.2788259891652955, 0.6334183919376817, 1.3971407689009945, 0.010078736515781934) == lonlat(Detector(datapath("datx", "KM3NeT_00000133_20221025.datx")))
     @test isnorthern(UTMPosition(1, 2, 3, 'N', 0.0))
     @test !isnorthern(UTMPosition(1, 2, 3, 'D', 0.0))
 end
