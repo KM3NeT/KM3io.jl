@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.5.1
+# KM3NeT Data Definitions v3.6.0
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -12,7 +12,9 @@ module ROOT
   const TTREE_ONLINE_SUMMARYSLICE =  "KM3NET_SUMMARYSLICE"
   const TTREE_ONLINE_EVENT =         "KM3NET_EVENT"       
   const TTREE_OFFLINE_EVENT =        "E"                  
-  const TTREE_OSC_OPENDATA =         "flat_detresponse"   
+  const TTREE_OSC_OPENDATA_NU =      "binned_nu_response" 
+  const TTREE_OSC_OPENDATA_DATA =    "binned_data"        
+  const TTREE_OSC_OPENDATA_MUONS =   "binned_muon"        
   const TBRANCH_ONLINE_TIMESLICE =     "KM3NET_TIMESLICE"   
   const TBRANCH_ONLINE_TIMESLICEL0 =   "km3net_timeslice_L0"
   const TBRANCH_ONLINE_TIMESLICEL1 =   "km3net_timeslice_L1"

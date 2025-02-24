@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.5.1
+# KM3NeT Data Definitions v3.6.0
 https://git.km3net.de/common/km3net-dataformat
 """
 
