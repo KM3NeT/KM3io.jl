@@ -27,6 +27,7 @@ using StaticArrays: FieldVector, @SArray, SVector
 import UnROOT
 
 using HDF5
+using Corpuscles
 
 
 include("exports.jl")
@@ -63,6 +64,7 @@ include("types.jl")
 include("hardware.jl")
 include("root/online.jl")
 include("root/offline.jl")
+include("root/oscillations.jl")
 include("root/root.jl")
 include("root/calibration.jl")
 include("hdf5/hdf5.jl")
