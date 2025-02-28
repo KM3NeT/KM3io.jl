@@ -139,6 +139,8 @@ getevent
 categorize
 nthbitset
 most_frequent
+packedsize
+writestruct
 ```
 
 ### DAQ

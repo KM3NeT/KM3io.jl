@@ -109,3 +109,42 @@ function tonumifpossible(v::AbstractString)
     end
     v
 end
+
+
+"""
+Calculates the packed size in bytes of an immutable struct containing only
+primitives and other isbitstypes.
+"""
+function packedsize(dt::DataType)
+    isbitstype(dt) || error("Only isbits types are supported")
+    n = 0
+    for ftype in fieldtypes(dt)
+        if isprimitivetype(ftype)
+            n += sizeof(ftype)
+        else
+            n += packedsize(ftype)
+        end
+    end
+    n
+end
+packedsize(::T) where T = packedsize(T)
+
+
+"""
+Serialises an immutable struct containing only primitives and
+other isbitstypes. Returns the number of bytes written.
+"""
+function writestruct(io::IO, s::T) where T
+    isbitstype(T) || error("Only isbits types are supported")
+    n = 0
+    for fname in fieldnames(T)
+        v = getfield(s, fname)
+        if isprimitivetype(fieldtype(T, fname))
+            write(io, v)
+            n += sizeof(v)
+        else
+            n += writestruct(io, v)
+        end
+    end
+    n
+end

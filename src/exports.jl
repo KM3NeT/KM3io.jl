@@ -121,6 +121,10 @@ MCEventMatcher,
 SummarysliceIntervalIterator,
 getevent,
 
+# I/O
+packedsize,
+writestruct,
+
 # Utils
 categorize,
 is3dmuon,
