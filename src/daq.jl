@@ -52,3 +52,9 @@ function Base.read(s::IO, ::Type{T}; legacy=false) where T<:DAQEvent
 
     T(header, snapshot_hits, triggered_hits)
 end
+
+function Base.write(io::IO, s::Summaryslice)
+    # write(io, Int32(size?))
+    # write(io, Int32(DAQDATATYPES.DAQSUMMARYSLICE))
+    writestruct(io, s.header)
+end
