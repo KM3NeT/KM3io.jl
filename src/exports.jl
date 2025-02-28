@@ -80,6 +80,15 @@ Trk,
 XCalibratedHit,
 FitInformation,
 
+# Oscillations open data
+OscillationsData,
+OSCFile,
+ResponseMatrixBin,
+ResponseMatrixBinNeutrinos,
+ResponseMatrixBinMuons,
+ResponseMatrixBinData,
+OscOpenDataTree,
+
 # Misc I/O
 tojson,
 

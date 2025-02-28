@@ -22,6 +22,7 @@ end
 
 countevents(tree::OfflineTree) = length(tree)
 countevents(tree::OnlineTree) = length(tree.events)
+countevents(tree::OscillationsData) = length(tree)
 triggercounterof(e::Evt) = e.trigger_counter
 frameindexof(e::Evt) = e.frame_index
 triggercounterof(e::DAQEvent) = e.header.trigger_counter
@@ -58,6 +59,7 @@ function getevent(tree::T, frame_index, trigger_counter) where T<:Union{OnlineTr
 end
 getevent(tree::OfflineTree, idx) = tree[idx]
 getevent(tree::OnlineTree, idx) = tree.events[idx]
+getevent(tree::OscillationsData, idx) = tree[idx]
 
 
 """

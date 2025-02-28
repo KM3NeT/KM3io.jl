@@ -301,3 +301,44 @@ ROOTFile{OnlineTree (136335 events, 107632 summaryslices)}
 
 Now you can use it as if it was on your local filesystem. `UnROOT.jl` will take
 care of loading only the needed data from the server.
+
+## [Oscillations Open Dataformat](@id oscillations dataformat)
+
+The [oscillations
+dataformat](https://git.km3net.de/vcarretero/prepare-opendata-orca6-433kty/-/tree/main?ref_type=heads)
+is used to store the responses from a particular oscillations analysis data release. The
+`OSCFile` type represents an actual ROOT file and it is essentially a
+vector of Response like entries (`Vector{ResponseMatrixBin}`) . Depending on what is stored in the initial ROOT file, neutrinos, data and muons response trees are accessible via the `.osc_opendata_nu`, `.osc_opendata_data` and `.osc_opendata_muons`  fields of the `ROOTFile` type respectively.
+
+### ResponseMatrixBin
+
+The `ResponseMatrixBin` stores individual directions of a bin in order to fill a histogram.
+
+``` julia-repl
+julia> using KM3io, KM3NeTTestData
+
+julia> f = OSCFile(datapath("oscillations", "ORCA6_433kt-y_opendata_v0.4_testdata.root"))
+OSCFile{OscOpenDataTree of Neutrinos (59301 events), OscOpenDataTree of Data (106 events), OscOpenDataTree of Muons (99 events)}
+
+julia> f.osc_opendata_nu
+OscOpenDataTree (59301 events)
+
+julia> f.osc_opendata_nu[1]
+KM3io.ResponseMatrixBinNeutrinos(10, 1, 30, 18, -12, 1, 1, 52.25311519561337, 2730.388047646041)
+
+julia> dump(f.osc_opendata_nu[1])
+KM3io.ResponseMatrixBinNeutrinos
+  E_reco_bin: Int64 10
+  Ct_reco_bin: Int64 1
+  E_true_bin: Int64 30
+  Ct_true_bin: Int64 18
+  Flav: Int16 -12
+  IsCC: Int16 1
+  AnaClass: Int16 1
+  W: Float64 52.25311519561337
+  Werr: Float64 2730.388047646041
+
+julia> f.osc_opendata_data[1]
+KM3io.ResponseMatrixBinData(2, 6, 1, 2.0)
+
+```

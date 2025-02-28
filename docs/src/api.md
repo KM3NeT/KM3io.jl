@@ -38,6 +38,17 @@ SummarysliceHeader
 SummaryFrame
 ```
 
+## Oscillations Open Data
+```@docs
+OscillationsData
+OSCFile
+ResponseMatrixBin
+ResponseMatrixBinNeutrinos
+ResponseMatrixBinMuons
+ResponseMatrixBinData
+OscOpenDataTree
+```
+
 ## HDF5
 ```@docs
 H5File
