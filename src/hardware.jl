@@ -23,50 +23,53 @@ function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
     end
 end
 
+"""
+The physical address of a PMT consisting of the ring (A-F) and the position (1-6).
+"""
 struct PMTPhysicalAddress
     ring::Char
     position::Int
 end
 
 
-const PMTAddressMap = Dict(
-	22 => PMTPhysicalAddress('A', 1),
-
-	14 => PMTPhysicalAddress('B', 1),
-	19 => PMTPhysicalAddress('B', 2),
-	25 => PMTPhysicalAddress('B', 3),
-	24 => PMTPhysicalAddress('B', 4),
-	26 => PMTPhysicalAddress('B', 5),
-	18 => PMTPhysicalAddress('B', 6),
-
-	13 => PMTPhysicalAddress('C', 1),
-	21 => PMTPhysicalAddress('C', 2),
-	29 => PMTPhysicalAddress('C', 3),
-	28 => PMTPhysicalAddress('C', 4),
-	20 => PMTPhysicalAddress('C', 5),
-	17 => PMTPhysicalAddress('C', 6),
-
-	12 => PMTPhysicalAddress('D', 1),
-	15 => PMTPhysicalAddress('D', 2),
-	23 => PMTPhysicalAddress('D', 3),
-	30 => PMTPhysicalAddress('D', 4),
-	27 => PMTPhysicalAddress('D', 5),
-	16 => PMTPhysicalAddress('D', 6),
-
-	10 => PMTPhysicalAddress('E', 1),
-	 6 => PMTPhysicalAddress('E', 2),
-	 3 => PMTPhysicalAddress('E', 3),
-	 2 => PMTPhysicalAddress('E', 4),
-	 1 => PMTPhysicalAddress('E', 5),
-	11 => PMTPhysicalAddress('E', 6),
-
-	 9 => PMTPhysicalAddress('F', 1),
-	 8 => PMTPhysicalAddress('F', 2),
-	 4 => PMTPhysicalAddress('F', 3),
-	 0 => PMTPhysicalAddress('F', 4),
-	 5 => PMTPhysicalAddress('F', 5),
-	 7 => PMTPhysicalAddress('F', 6)
+const _PMTAddressMapSV = SVector(
+    PMTPhysicalAddress('F', 4),
+    PMTPhysicalAddress('E', 5),
+    PMTPhysicalAddress('E', 4),
+    PMTPhysicalAddress('E', 3),
+    PMTPhysicalAddress('F', 3),
+    PMTPhysicalAddress('F', 5),
+    PMTPhysicalAddress('E', 2),
+    PMTPhysicalAddress('F', 6),
+    PMTPhysicalAddress('F', 2),
+    PMTPhysicalAddress('F', 1),
+    PMTPhysicalAddress('E', 1),
+    PMTPhysicalAddress('E', 6),
+    PMTPhysicalAddress('D', 1),
+    PMTPhysicalAddress('C', 1),
+    PMTPhysicalAddress('B', 1),
+    PMTPhysicalAddress('D', 2),
+    PMTPhysicalAddress('D', 6),
+    PMTPhysicalAddress('C', 6),
+    PMTPhysicalAddress('B', 6),
+    PMTPhysicalAddress('B', 2),
+    PMTPhysicalAddress('C', 5),
+    PMTPhysicalAddress('C', 2),
+    PMTPhysicalAddress('A', 1),
+    PMTPhysicalAddress('D', 3),
+    PMTPhysicalAddress('B', 4),
+    PMTPhysicalAddress('B', 3),
+    PMTPhysicalAddress('B', 5),
+    PMTPhysicalAddress('D', 5),
+    PMTPhysicalAddress('C', 4),
+    PMTPhysicalAddress('C', 3),
+    PMTPhysicalAddress('D', 4)
 )
+"""
+Get the physical address of a PMT.
+"""
+getaddress(pmt::PMT) = _PMTAddressMap[pmt.id + 1]
+getaddress(channel_id::Integer) = _PMTAddressMap[channel_id + 1]
 
 
 """
