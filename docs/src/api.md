@@ -66,9 +66,11 @@ DetectorModule
 Detector
 PMTFile
 PMTData
+PMTPhysicalAddress
 modules
 getmodule
 getpmt
+getaddress
 haslocation
 hasstring
 isbasemodule
