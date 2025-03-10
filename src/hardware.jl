@@ -23,6 +23,54 @@ function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
     end
 end
 
+"""
+The physical address of a PMT consisting of the ring (A-F) and the position (1-6).
+"""
+struct PMTPhysicalAddress
+    ring::Char
+    position::Int
+end
+
+
+const _PMTAddressMapSV = SVector(
+    PMTPhysicalAddress('F', 4),
+    PMTPhysicalAddress('E', 5),
+    PMTPhysicalAddress('E', 4),
+    PMTPhysicalAddress('E', 3),
+    PMTPhysicalAddress('F', 3),
+    PMTPhysicalAddress('F', 5),
+    PMTPhysicalAddress('E', 2),
+    PMTPhysicalAddress('F', 6),
+    PMTPhysicalAddress('F', 2),
+    PMTPhysicalAddress('F', 1),
+    PMTPhysicalAddress('E', 1),
+    PMTPhysicalAddress('E', 6),
+    PMTPhysicalAddress('D', 1),
+    PMTPhysicalAddress('C', 1),
+    PMTPhysicalAddress('B', 1),
+    PMTPhysicalAddress('D', 2),
+    PMTPhysicalAddress('D', 6),
+    PMTPhysicalAddress('C', 6),
+    PMTPhysicalAddress('B', 6),
+    PMTPhysicalAddress('B', 2),
+    PMTPhysicalAddress('C', 5),
+    PMTPhysicalAddress('C', 2),
+    PMTPhysicalAddress('A', 1),
+    PMTPhysicalAddress('D', 3),
+    PMTPhysicalAddress('B', 4),
+    PMTPhysicalAddress('B', 3),
+    PMTPhysicalAddress('B', 5),
+    PMTPhysicalAddress('D', 5),
+    PMTPhysicalAddress('C', 4),
+    PMTPhysicalAddress('C', 3),
+    PMTPhysicalAddress('D', 4)
+)
+"""
+Get the physical address of a PMT.
+"""
+getaddress(pmt::PMT) = _PMTAddressMap[pmt.id + 1]
+getaddress(channel_id::Integer) = _PMTAddressMap[channel_id + 1]
+
 
 """
 A module's location in the detector where string represents the
@@ -385,7 +433,7 @@ end
 """
     function Detector(filename::AbstractString)
 
-Create a `Detector` instance from a DETX file.
+Create a `Detector` instance from a DETX/DATX file.
 """
 function Detector(filename::AbstractString)::Detector
     _, ext = splitext(filename)
