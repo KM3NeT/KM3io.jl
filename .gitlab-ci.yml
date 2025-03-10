@@ -3,13 +3,13 @@ stages:
   - docs
   - deploy
 
-variables:
-  JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
-
-cache:
-  paths:
-    - $JULIA_DEPOT_PATH
-  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+# variables:
+#   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
+#
+# cache:
+#   paths:
+#     - $JULIA_DEPOT_PATH
+#   key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 before_script:
