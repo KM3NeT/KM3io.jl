@@ -28,6 +28,10 @@ struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
         new{T}(x, y, z)
     end
 end
+"""
+Fallback constructor to show a proper error message.
+"""
+Direction{T}(::T, ::T, ::T) where T = throw(ArgumentError("All elements of a `Direction` must be convertible to an AbstractFloat"))
 Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 
 struct Track
