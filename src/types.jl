@@ -20,6 +20,13 @@ struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
     x::T
     y::T
     z::T
+    function Direction(x, y, z)
+        T = promote_type(typeof(x), typeof(y), typeof(z))
+        if !(T <: AbstractFloat)
+            throw(ArgumentError("All elements must be convertible to an AbstractFloat"))
+        end
+        new{T}(x, y, z)
+    end
 end
 Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 
