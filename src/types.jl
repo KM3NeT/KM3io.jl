@@ -21,20 +21,15 @@ struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
     x::T
     y::T
     z::T
-    function Direction{U}(x, y, z) where U
-        T = promote_type(typeof(x), typeof(y), typeof(z), U)
-        if !(T <: AbstractFloat)
-            throw(ArgumentError("All elements must be convertible to an AbstractFloat"))
-        end
-        new{T}(x, y, z)
+end
+function Direction(x, y, z)
+    T = promote_type(typeof(x), typeof(y), typeof(z))
+    if !(T <: AbstractFloat)
+       throw(ArgumentError("All elements must be convertible to an AbstractFloat"))
     end
+    Direction{T}(x, y, z)
 end
 similar_type(::Type{<:Direction}, ::Type{T}, s::Size{(3,)}) where {T} = Direction{T}
-
-"""
-Fallback constructor to show a proper error message.
-"""
-Direction{T}(::T, ::T, ::T) where T = throw(ArgumentError("All elements of a `Direction` must be convertible to an AbstractFloat"))
 Direction(ϕ, θ) = Direction(cos(ϕ)*sin(θ), sin(ϕ)*sin(θ), cos(θ))
 
 struct Track
