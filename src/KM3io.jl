@@ -23,7 +23,8 @@ const version = let
 end
 
 using DocStringExtensions
-using StaticArrays: FieldVector, @SArray, SVector
+using StaticArrays: FieldVector, @SArray, SVector, Size
+import StaticArrays: similar_type
 import UnROOT
 
 using HDF5

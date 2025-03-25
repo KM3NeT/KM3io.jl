@@ -12,6 +12,7 @@ struct Position{T} <: FieldVector{3, T}
     y::T
     z::T
 end
+similar_type(::Type{<:Position}, ::Type{T}, s::Size{(3,)}) where {T} = Position{T}
 
 """
 A vector to represent a direction in 3D.
@@ -20,14 +21,16 @@ struct Direction{T<:AbstractFloat} <: FieldVector{3, T}
     x::T
     y::T
     z::T
-    function Direction(x, y, z)
-        T = promote_type(typeof(x), typeof(y), typeof(z))
+    function Direction{U}(x, y, z) where U
+        T = promote_type(typeof(x), typeof(y), typeof(z), U)
         if !(T <: AbstractFloat)
             throw(ArgumentError("All elements must be convertible to an AbstractFloat"))
         end
         new{T}(x, y, z)
     end
 end
+similar_type(::Type{<:Direction}, ::Type{T}, s::Size{(3,)}) where {T} = Direction{T}
+
 """
 Fallback constructor to show a proper error message.
 """
