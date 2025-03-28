@@ -33,37 +33,37 @@ end
 
 
 const _PMTAddressMap = SVector(
-    PMTPhysicalAddress('F', 4),
-    PMTPhysicalAddress('E', 5),
-    PMTPhysicalAddress('E', 4),
-    PMTPhysicalAddress('E', 3),
-    PMTPhysicalAddress('F', 3),
-    PMTPhysicalAddress('F', 5),
-    PMTPhysicalAddress('E', 2),
-    PMTPhysicalAddress('F', 6),
-    PMTPhysicalAddress('F', 2),
-    PMTPhysicalAddress('F', 1),
-    PMTPhysicalAddress('E', 1),
-    PMTPhysicalAddress('E', 6),
-    PMTPhysicalAddress('D', 1),
-    PMTPhysicalAddress('C', 1),
-    PMTPhysicalAddress('B', 1),
-    PMTPhysicalAddress('D', 2),
-    PMTPhysicalAddress('D', 6),
-    PMTPhysicalAddress('C', 6),
-    PMTPhysicalAddress('B', 6),
-    PMTPhysicalAddress('B', 2),
-    PMTPhysicalAddress('C', 5),
-    PMTPhysicalAddress('C', 2),
-    PMTPhysicalAddress('A', 1),
-    PMTPhysicalAddress('D', 3),
-    PMTPhysicalAddress('B', 4),
-    PMTPhysicalAddress('B', 3),
-    PMTPhysicalAddress('B', 5),
-    PMTPhysicalAddress('D', 5),
-    PMTPhysicalAddress('C', 4),
-    PMTPhysicalAddress('C', 3),
-    PMTPhysicalAddress('D', 4)
+    PMTPhysicalAddress('F', 4),   # 0
+    PMTPhysicalAddress('E', 5),   # 1
+    PMTPhysicalAddress('E', 4),   # 2
+    PMTPhysicalAddress('E', 3),   # 3
+    PMTPhysicalAddress('F', 3),   # 4
+    PMTPhysicalAddress('F', 5),   # 5
+    PMTPhysicalAddress('E', 2),   # 6
+    PMTPhysicalAddress('F', 6),   # 7
+    PMTPhysicalAddress('F', 2),   # 8
+    PMTPhysicalAddress('F', 1),   # 9
+    PMTPhysicalAddress('E', 1),   # 10
+    PMTPhysicalAddress('E', 6),   # 11
+    PMTPhysicalAddress('D', 1),   # 12
+    PMTPhysicalAddress('C', 1),   # 13
+    PMTPhysicalAddress('B', 1),   # 14
+    PMTPhysicalAddress('D', 2),   # 15
+    PMTPhysicalAddress('D', 6),   # 16
+    PMTPhysicalAddress('C', 6),   # 17
+    PMTPhysicalAddress('B', 6),   # 18
+    PMTPhysicalAddress('B', 2),   # 19
+    PMTPhysicalAddress('C', 5),   # 20
+    PMTPhysicalAddress('C', 2),   # 21
+    PMTPhysicalAddress('A', 1),   # 22
+    PMTPhysicalAddress('D', 3),   # 23
+    PMTPhysicalAddress('B', 4),   # 24
+    PMTPhysicalAddress('B', 3),   # 25
+    PMTPhysicalAddress('B', 5),   # 26
+    PMTPhysicalAddress('D', 5),   # 27
+    PMTPhysicalAddress('C', 4),   # 28
+    PMTPhysicalAddress('C', 3),  # 29
+    PMTPhysicalAddress('D', 4)   # 30
 )
 """
 Get the physical address of a PMT.
@@ -71,6 +71,21 @@ Get the physical address of a PMT.
 getaddress(pmt::PMT) = _PMTAddressMap[pmt.id + 1]  # Julia has 1-based indexing, DAQ channels start at 0
 getaddress(channel_id::Integer) = _PMTAddressMap[channel_id + 1]
 
+"""
+A representation of a ring of PMTs in a DOM. Essentially, it's just
+a set of PMT (DAQ channel) IDs.
+"""
+struct Ring
+    channel_ids::Set{Int8}
+end
+const ringA = Ring(Set(22))
+const ringB = Ring(Set([14, 18, 19, 24, 25, 26]))
+const ringC = Ring(Set([13, 17, 20, 21, 28, 29]))
+const ringD = Ring(Set([12, 15, 16, 23, 27, 30]))
+const ringE = Ring(Set([1, 2, 3, 6, 10, 11]))
+const ringF = Ring(Set([0, 4, 5, 7, 8, 9]))
+Base.in(pmt::PMT, ring::Ring) = pmt.id ∈ ring.channel_ids
+Base.in(channel_id::Integer, ring::Ring) = channel_id ∈ ring.channel_ids
 
 """
 A module's location in the detector where string represents the

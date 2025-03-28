@@ -145,3 +145,16 @@ PMT at DAQ channel 0 of our previously obtained detector module:
 ```@example 1
 getpmt(detector_module, 0)
 ```
+
+#### Rings
+
+PMTs are grouped in horizontal rings, named by letters from `A` to `F`. Ring `A` consists of a single PMT pointing downwards and each of the other five rings hold six PMTs. All the six rings are defined and accessible via
+
+```@example 2
+ringA
+ringB
+ringC
+ringD
+ringE
+ringF
+```
