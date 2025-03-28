@@ -3,13 +3,13 @@ stages:
   - docs
   - deploy
 
-# variables:
-#   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
-#
-# cache:
-#   paths:
-#     - $JULIA_DEPOT_PATH
-#   key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+variables:
+  JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
+
+cache:
+  paths:
+    - $JULIA_DEPOT_PATH
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 before_script:
@@ -51,8 +51,8 @@ Julia 1.8:
   extends:
     - .script
     - .coverage
-  cache:
-    key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+  tags:
+    - shared-cache
 
 
 Julia 1.9:
@@ -61,8 +61,8 @@ Julia 1.9:
   extends:
     - .script
     - .coverage
-  cache:
-    key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+  tags:
+    - shared-cache
 
 Julia 1.10:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10
@@ -70,8 +70,8 @@ Julia 1.10:
   extends:
     - .script
     - .coverage
-  cache:
-    key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+  tags:
+    - shared-cache
 
 Julia 1.11:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11
@@ -79,8 +79,8 @@ Julia 1.11:
   extends:
     - .script
     - .coverage
-  cache:
-    key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+  tags:
+    - shared-cache
 
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10-tex
@@ -105,8 +105,8 @@ docs:
 #  only:
 #    - main
 #    - tags
-  cache:
-    key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+  tags:
+    - shared-cache
 
 #register:
 #  image: docker.km3net.de/base/julia:1.8
