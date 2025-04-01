@@ -5,6 +5,25 @@
 abstract type OscillationsData end
 
 """
+`_check_version` is a function to check for the version of the file if it is supported.
+
+"""
+
+function _check_version(filename::String)
+    match_result = match(r"_v(\d+\.\d+)", filename)
+    if match_result !== nothing
+        version = match_result.captures[1]
+        if version == "0.5"
+            return true
+        else
+            error("Only version supported now is v 0.5 . Not supported version: $version")
+        end
+    else
+        error("Version not found in filename: $filename")
+    end
+end
+
+"""
 
 `OSCFile` is a structure representing an oscillation open data file. Depending on the trees inside the root file it will have different fields (neutrino, muons, data).
 
@@ -17,6 +36,7 @@ struct OSCFile
     osc_opendata_muons::Union{OscillationsData,Nothing}
 
     function OSCFile(filename::AbstractString)
+        _check_version(filename)
         if endswith(filename, ".root")
             fobj = UnROOT.ROOTFile(filename)
             osc_opendata_nu = ROOT.TTREE_OSC_OPENDATA_NU ∈ keys(fobj) ? OscOpenDataTree(fobj, ROOT.TTREE_OSC_OPENDATA_NU) : nothing
@@ -63,13 +83,17 @@ A concrete type representing a response matrix bin for neutrino events.
 struct ResponseMatrixBinNeutrinos <: ResponseMatrixBin
     E_reco_bin::Int64
     Ct_reco_bin::Int64
+    E_reco_bin_center::Float64
+    Ct_reco_bin_center::Float64
     E_true_bin::Int64
     Ct_true_bin::Int64
-    Flav::Int16
+    E_true_bin_center::Float64
+    Ct_true_bin_center::Float64
+    Pdg::Int16
     IsCC::Int16
     AnaClass::Int16
     W::Float64
-    Werr::Float64
+    WE::Float64
 end
 
 """
@@ -80,9 +104,11 @@ A concrete type representing a response matrix bin for muon events. There is no 
 struct ResponseMatrixBinMuons <: ResponseMatrixBin
     E_reco_bin::Int64
     Ct_reco_bin::Int64
+    E_reco_bin_center::Float64
+    Ct_reco_bin_center::Float64
     AnaClass::Int16
     W::Float64
-    Werr::Float64
+    WE::Float64
 end
 
 """
@@ -93,6 +119,8 @@ A concrete type representing a response matrix bin for data events. There is no 
 struct ResponseMatrixBinData <: ResponseMatrixBin
     E_reco_bin::Int64
     Ct_reco_bin::Int64
+    E_reco_bin_center::Float64
+    Ct_reco_bin_center::Float64
     AnaClass::Int16
     W::Float64
 end
@@ -140,30 +168,40 @@ struct OscOpenDataTree{T} <: OscillationsData
 
     function OscOpenDataTree(fobj::UnROOT.ROOTFile, tpath::String)
         if tpath == ROOT.TTREE_OSC_OPENDATA_NU
-            branch_paths = ["E_reco_bin",
+            branch_paths = [
+                "E_reco_bin",
                 "Ct_reco_bin",
-                "Flav",
+                "E_reco_bin_center",
+                "Ct_reco_bin_center",
+                "Pdg",
                 "IsCC",
-                "IsNB",
                 "E_true_bin",
                 "Ct_true_bin",
+                "E_true_bin_center",
+                "Ct_true_bin_center",
                 "W",
                 "WE",
-                "Class",
+                "AnaClass",
             ]
 
         elseif tpath == ROOT.TTREE_OSC_OPENDATA_DATA
-            branch_paths = ["E_reco_bin",
-            "Ct_reco_bin",
-            "W",
-            "Class",
+            branch_paths = [
+                "E_reco_bin",
+                "Ct_reco_bin",
+                "E_reco_bin_center",
+                "Ct_reco_bin_center",
+                "W",
+                "AnaClass",
             ]
         elseif tpath == ROOT.TTREE_OSC_OPENDATA_MUONS 
-            branch_paths = ["E_reco_bin",
-            "Ct_reco_bin",
-            "W",
-            "WE",
-            "Class",
+            branch_paths = [
+                "E_reco_bin",
+                "Ct_reco_bin",
+                "E_reco_bin_center",
+                "Ct_reco_bin_center",
+                "W",
+                "WE",
+                "AnaClass",
             ]
         end
 
@@ -209,25 +247,33 @@ function Base.getindex(f::OscOpenDataTree, idx::Integer)
         ResponseMatrixBinNeutrinos(
             e.E_reco_bin,
             e.Ct_reco_bin,
+            e.E_reco_bin_center,
+            e.Ct_reco_bin_center,
             e.E_true_bin,
             e.Ct_true_bin,
-            _getpdgnumber(e.Flav, e.IsNB),
+            e.E_true_bin_center,
+            e.Ct_true_bin_center,
+            e.Pdg,
             e.IsCC,
-            e.Class,
+            e.AnaClass,
             e.W,
             e.WE)
     elseif f.tpath == ROOT.TTREE_OSC_OPENDATA_MUONS
         ResponseMatrixBinMuons(
             e.E_reco_bin,
             e.Ct_reco_bin,
-            e.Class,
+            e.E_reco_bin_center,
+            e.Ct_reco_bin_center,
+            e.AnaClass,
             e.W,
             e.WE)
     elseif f.tpath == ROOT.TTREE_OSC_OPENDATA_DATA
         ResponseMatrixBinData(
             e.E_reco_bin,
             e.Ct_reco_bin,
-            e.Class,
+            e.E_reco_bin_center,
+            e.Ct_reco_bin_center,
+            e.AnaClass,
             e.W)
     end
 
