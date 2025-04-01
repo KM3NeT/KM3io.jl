@@ -4,6 +4,7 @@ stages:
   - deploy
 
 variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
 
 cache:
