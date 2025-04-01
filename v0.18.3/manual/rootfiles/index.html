@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>ROOT Files · KM3io.jl</title><meta name="title" content="ROOT Files · KM3io.jl"/><meta property="og:title" content="ROOT Files · KM3io.jl"/><meta property="twitter:title" content="ROOT Files · KM3io.jl"/><meta name="description" content="Documentation for KM3io.jl."/><meta property="og:description" content="Documentation for KM3io.jl."/><meta property="twitter:description" content="Documentation for KM3io.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="KM3io.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href>ROOT Files</a><ul class="internal"><li><a class="tocitem" href="#offline-dataformat"><span>Offline Dataformat</span></a></li><li><a class="tocitem" href="#online_dataformat"><span>Online Dataformat</span></a></li><li><a class="tocitem" href="#xrootd-access"><span>xrootd access</span></a></li><li><a class="tocitem" href="#oscillations-dataformat"><span>Oscillations Open Dataformat</span></a></li></ul></li><li><a class="tocitem" href="../detector/">Detector and its Components</a></li><li><a class="tocitem" href="../calibration/">Calibration</a></li><li><a class="tocitem" href="../auxfiles/">Auxiliary Files</a></li><li><a class="tocitem" href="../tools/">Tools</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/online_data/">Online data</a></li><li><a class="tocitem" href="../../examples/offline_data/">Offline data</a></li><li><a class="tocitem" href="../../examples/cherenkov_times/">Cherenkov times</a></li><li><a class="tocitem" href="../../examples/orientations/">Orientations</a></li><li><a class="tocitem" href="../../examples/controlhost/">Accessing Live Data</a></li><li><a class="tocitem" href="../../examples/hdf5/">HDF5</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>ROOT Files</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>ROOT Files</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl" title="View the repository"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">Repository</span></a><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl/blob/main/docs/src/manual/rootfiles.md#L" title="Edit source"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="ROOT-Files"><a class="docs-heading-anchor" href="#ROOT-Files">ROOT Files</a><a id="ROOT-Files-1"></a><a class="docs-heading-anchor-permalink" href="#ROOT-Files" title="Permalink"></a></h1><p>The two main types of ROOT files in KM3NeT are the online and offline files, however, both types can be mixed together as the data is stored in distinct ROOT trees. <code>UnROOT</code> has a single <code>ROOTFile</code> type to represent a KM3NeT ROOT file which can be used to access both the online and offline information. This section describes what kind of data is stored in each tree and how to access them.</p><h2 id="offline-dataformat"><a class="docs-heading-anchor" href="#offline-dataformat">Offline Dataformat</a><a id="offline-dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#offline-dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline">offline dataformat</a> is used to store Monte Carlo (MC) simulations and reconstruction results. The <code>OfflineTree</code> type represents an actual offline file and it is essentially a vector of events (<code>Vector{Evt}</code>) with some fancy caching, lazy access and slicing magic. The offline tree is accessible via the <code>.offline</code> field of the <code>ROOTFile</code> type.</p><h3 id="MC-Header"><a class="docs-heading-anchor" href="#MC-Header">MC Header</a><a id="MC-Header-1"></a><a class="docs-heading-anchor-permalink" href="#MC-Header" title="Permalink"></a></h3><p>The MC header stores metadata related to the simulation chain. The individual entries can be accessed as properties, as shown below.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;offline&quot;, &quot;numucc.root&quot;))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
+
+julia&gt; f.offline
+OfflineTree (10 events)
+
+julia&gt; f.offline.header
+MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; [0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; [&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Real[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; [0.0, 3450.0]
+
+
+julia&gt; f.offline.header.genvol
+(zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+
+julia&gt; f.offline.header.genvol.volume
+2.649e9</code></pre><h3 id="Event-data"><a class="docs-heading-anchor" href="#Event-data">Event data</a><a id="Event-data-1"></a><a class="docs-heading-anchor-permalink" href="#Event-data" title="Permalink"></a></h3><p>The following REPL session shows how to open a file, access individual events or slices of events, loop through events and access e.g. the tracks which are stored in the events.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;))
+ROOTFile{OfflineTree (10 events)}
+
+julia&gt; f.offline[5]
+KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; f.offline[3:5]
+3-element Vector{KM3io.Evt}:
+ KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event = f.offline[1]
+KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event.trks[1:4]
+4-element Vector{KM3io.Trk}:
+ KM3io.Trk(1, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(2, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
+ KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
+
+julia&gt; for event in f.offline
+           @show event
+       end
+event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+event = KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><h2 id="online_dataformat"><a class="docs-heading-anchor" href="#online_dataformat">Online Dataformat</a><a id="online_dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#online_dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/online">online dataformat</a> refers to the dataformat which is written by the data acquisition system (DAQ) of the KM3NeT detectors, more precisely, the ROOT files produced by the <code>JDataFilter</code> which is part of the <a href="https://git.km3net.de/common/jpp"><code>Jpp</code></a> framework. The very same format is used in run-by-run (RBR) Monte Carlo (MC) productions, which mimic the detector response and therefore produce similarly structured data. The online data can be accessed via the <code>.online</code> field of the <code>ROOTFile</code> type.</p><h3 id="Event-data-2"><a class="docs-heading-anchor" href="#Event-data-2">Event data</a><a class="docs-heading-anchor-permalink" href="#Event-data-2" title="Permalink"></a></h3><p>The events are accessible via <code>ROOTFile(filename).online.events</code> which supports indexing, slicing and iteration, just like the we have seen above, in case of the offline events. Notice however that the online format also contains other types of trees, that&#39;s why the explicit <code>.events</code> field is needed. Everything is lazily loaded so that the data is only occupying memory when it&#39;s actually accessed, similar to the offline access. In the examples below, we use <strong><a href="https://git.km3net.de/km3py/km3net-testdata"><code>KM3NeTTestdata</code></a></strong> to get access to small sample files.</p><pre><code class="language-julia hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
+
+julia&gt; event = f.online.events[1]
+KM3io.DAQEvent with 96 snapshot and 18 triggered hits
+
+julia&gt; event.triggered_hits[4:8]
+5-element Vector{KM3io.TriggeredHit}:
+ KM3io.TriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
+ KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
+
+julia&gt; for event ∈ f.online.events
+           @show event.header.frame_index length(event.snapshot_hits)
+       end
+event.header.frame_index = 127
+length(event.snapshot_hits) = 96
+event.header.frame_index = 127
+length(event.snapshot_hits) = 124
+event.header.frame_index = 129
+length(event.snapshot_hits) = 78</code></pre><h3 id="Summaryslices-and-Summary-Frames"><a class="docs-heading-anchor" href="#Summaryslices-and-Summary-Frames">Summaryslices and Summary Frames</a><a id="Summaryslices-and-Summary-Frames-1"></a><a class="docs-heading-anchor-permalink" href="#Summaryslices-and-Summary-Frames" title="Permalink"></a></h3><p>Summaryslices are generated from timeslices (raw hit data) and are produced by the DataFilter. A slice contains the data of 100ms and is divided into so-called frames, each corresponding to the data of a single optical module. Due to the high amount of data, the storage of timeslices is usually reduced by a factor of 10-100 after the event triggering stage. However, summaryslices are covering the full data taking period. They however do not contain hit data but only the rates of the PMTs encoded into a single byte, which therefore is only capable to store 256 different values. The actual rate is calcuated by the helper functions <code>pmtrate()</code> and <code>pmtrates()</code> which take a <code>SummaryFrame</code> and optionally a PMT channel ID as arguments.</p><p>The summaryslices are accessible using the <code>.summaryslices</code> attribute of the <code>OnlineTree</code> instance, which again is hidden behind the <code>.online</code> field of a <code>ROOTFile</code>:</p><pre><code class="language-julia hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
+
+julia&gt; f.online.summaryslices
+KM3io.SummarysliceContainer with 3 summaryslices
+
+julia&gt; for s ∈ f.online.summaryslices
+           @show s.header
+       end
+s.header = KM3io.SummarysliceHeader(44, 6633, 126, KM3io.UTCExtended(0x5dc6018c, 0x23c34600, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c, 0x29b92700, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))</code></pre><p>Each summaryslice consists of multiple frames, one for every optical module which has sent data during the recording time of the corresponding timeslice.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>During run transistions, the number of summaryframes in a summaryslice is fluctuating a lot until it eventually saturates, usually within a few seconds or minutes. Therefore, it is expected that the number of summaryframes (i.e. active DOMs) is low at the beginning of the file and stabilises after a few summaryslices.</p></div></div><p>To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO status) of a summaryframe, several helper functions exist. Let&#39;s grab a summaryslice:</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+
+s = f.online.summaryslices[1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Summaryslice(64 frames)</code></pre><p>and have a look at one of the frames, the 23rd of the first summaryslice:</p><pre><code class="language-julia hljs">frame = s.frames[23]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SummaryFrame(808951460, 0x00240025, 0xc8bffc08, 0xb7400000, 0x00000000, 0x00000000, UInt8[0x48, 0x4d, 0x52, 0x57, 0x4a, 0x41, 0x4e, 0x49, 0x51, 0x51  …  0xff, 0xff, 0xee, 0xfd, 0xff, 0xf9, 0x81, 0xe7, 0xff, 0xd8])</code></pre><p>The White Rabbit status:</p><pre><code class="language-julia hljs">wrstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>Checking if any of the PMTs is in high rate veto:</p><pre><code class="language-julia hljs">hrvstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>The number of PMTs in high rate veto:</p><pre><code class="language-julia hljs">count_hrvstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">16</code></pre><p>Checking if any of the TDC FIFOs were almost full:</p><pre><code class="language-julia hljs">fifostatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>Counting the number of TDCs which had FIFO almost full:</p><pre><code class="language-julia hljs">count_fifostatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">6</code></pre><p>The rates of each individual PMT channel ordered by increasing channel ID:</p><pre><code class="language-julia hljs">pmtrates(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">31-element StaticArraysCore.SVector{31, Float64} with indices SOneTo(31):
+  14063.351095892936
+  16103.205997541078
+  18438.93689569998
+  21113.45988466659
+  14846.299960355871
+  11634.182658748716
+  16545.391748267397
+  14449.523480635129
+  17946.144988571265
+  17946.144988571265
+      ⋮
+      1.9999999999999995e6
+      1.2619146889603864e6
+      1.8945260615030485e6
+      1.9999999999999995e6
+      1.69997196921803e6
+  65868.39094601915
+      1.0439436440871295e6
+      1.9999999999999995e6
+ 695354.8149531552</code></pre><p>Individual PMT parameters can be accessed as well, by passing the summaryframe and the PMT ID (DAQ channel ID):</p><pre><code class="language-julia hljs">pmtrate(frame, 3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">21113.45988466659</code></pre><p>Here is an example of a simple summary output:</p><pre><code class="language-julia hljs">for pmt in 0:30
+    println(&quot;PMT $(pmt): HRV($(hrvstatus(frame, pmt))) FIFO($(fifostatus(frame, pmt)))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">PMT 0: HRV(false) FIFO(false)
+PMT 1: HRV(false) FIFO(false)
+PMT 2: HRV(false) FIFO(false)
+PMT 3: HRV(true) FIFO(false)
+PMT 4: HRV(false) FIFO(false)
+PMT 5: HRV(false) FIFO(false)
+PMT 6: HRV(false) FIFO(false)
+PMT 7: HRV(false) FIFO(false)
+PMT 8: HRV(false) FIFO(false)
+PMT 9: HRV(false) FIFO(false)
+PMT 10: HRV(true) FIFO(false)
+PMT 11: HRV(true) FIFO(false)
+PMT 12: HRV(true) FIFO(false)
+PMT 13: HRV(true) FIFO(false)
+PMT 14: HRV(true) FIFO(false)
+PMT 15: HRV(true) FIFO(false)
+PMT 16: HRV(true) FIFO(false)
+PMT 17: HRV(true) FIFO(false)
+PMT 18: HRV(true) FIFO(false)
+PMT 19: HRV(true) FIFO(false)
+PMT 20: HRV(true) FIFO(false)
+PMT 21: HRV(true) FIFO(false)
+PMT 22: HRV(false) FIFO(true)
+PMT 23: HRV(true) FIFO(false)
+PMT 24: HRV(false) FIFO(true)
+PMT 25: HRV(false) FIFO(true)
+PMT 26: HRV(false) FIFO(true)
+PMT 27: HRV(true) FIFO(false)
+PMT 28: HRV(false) FIFO(true)
+PMT 29: HRV(false) FIFO(true)
+PMT 30: HRV(true) FIFO(false)</code></pre><h2 id="xrootd-access"><a class="docs-heading-anchor" href="#xrootd-access">xrootd access</a><a id="xrootd-access-1"></a><a class="docs-heading-anchor-permalink" href="#xrootd-access" title="Permalink"></a></h2><p>You can access files directly via <code>xrootd</code> by providing the URL on e.g. HPSS. Be aware that URL has to be typed correctly, <code>/</code> instead of <code>//</code> results in an error!), so it should always start with something like <code>root://ccxroot:1999//hpss/...</code>.</p><pre><code class="language-julia hljs">julia&gt; using KM3io
+
+julia&gt; f = ROOTFile(&quot;root://ccxroot:1999//hpss/in2p3.fr/group/km3net/data/raw/sea/KM3NeT_00000132/14/KM3NeT_00000132_00014481.root&quot;)
+ROOTFile{OnlineTree (136335 events, 107632 summaryslices)}</code></pre><p>Now you can use it as if it was on your local filesystem. <code>UnROOT.jl</code> will take care of loading only the needed data from the server.</p><h2 id="oscillations-dataformat"><a class="docs-heading-anchor" href="#oscillations-dataformat">Oscillations Open Dataformat</a><a id="oscillations-dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#oscillations-dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/vcarretero/prepare-opendata-orca6-433kty/-/tree/main?ref_type=heads">oscillations dataformat</a> is used to store the responses from a particular oscillations analysis data release. The <code>OSCFile</code> type represents an actual ROOT file and it is essentially a vector of Response like entries (<code>Vector{ResponseMatrixBin}</code>) . Depending on what is stored in the initial ROOT file, neutrinos, data and muons response trees are accessible via the <code>.osc_opendata_nu</code>, <code>.osc_opendata_data</code> and <code>.osc_opendata_muons</code>  fields of the <code>ROOTFile</code> type respectively.</p><h3 id="ResponseMatrixBin"><a class="docs-heading-anchor" href="#ResponseMatrixBin">ResponseMatrixBin</a><a id="ResponseMatrixBin-1"></a><a class="docs-heading-anchor-permalink" href="#ResponseMatrixBin" title="Permalink"></a></h3><p>The <code>ResponseMatrixBin</code> stores individual directions of a bin in order to fill a histogram.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = OSCFile(datapath(&quot;oscillations&quot;, &quot;ORCA6_433kt-y_opendata_v0.4_testdata.root&quot;))
+OSCFile{OscOpenDataTree of Neutrinos (59301 events), OscOpenDataTree of Data (106 events), OscOpenDataTree of Muons (99 events)}
+
+julia&gt; f.osc_opendata_nu
+OscOpenDataTree (59301 events)
+
+julia&gt; f.osc_opendata_nu[1]
+KM3io.ResponseMatrixBinNeutrinos(10, 1, 30, 18, -12, 1, 1, 52.25311519561337, 2730.388047646041)
+
+julia&gt; dump(f.osc_opendata_nu[1])
+KM3io.ResponseMatrixBinNeutrinos
+  E_reco_bin: Int64 10
+  Ct_reco_bin: Int64 1
+  E_true_bin: Int64 30
+  Ct_true_bin: Int64 18
+  Flav: Int16 -12
+  IsCC: Int16 1
+  AnaClass: Int16 1
+  W: Float64 52.25311519561337
+  Werr: Float64 2730.388047646041
+
+julia&gt; f.osc_opendata_data[1]
+KM3io.ResponseMatrixBinData(2, 6, 1, 2.0)
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Home</a><a class="docs-footer-nextpage" href="../detector/">Detector and its Components »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.1 on <span class="colophon-date" title="Tuesday 1 April 2025 13:20">Tuesday 1 April 2025</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
