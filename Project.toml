@@ -1,7 +1,7 @@
 name = "KM3io"
 uuid = "2cab5852-6f21-4982-99b0-6a4792870cfb"
 authors = ["Tamas Gal", "Johannes Schumann"]
-version = "0.18.3"
+version = "0.18.4"
 
 [deps]
 Corpuscles = "e78a0372-c628-4773-9c8d-eb17d149bf93"
