@@ -1,0 +1,82 @@
+\RequirePackage{luatex85}
+\documentclass[tikz]{standalone}
+% Default preamble
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{polar}
+\usepgfplotslibrary{smithchart}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{dateplot}
+\usepgfplotslibrary{ternary}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[ybar, const plot, grid, xlabel={\Delta t / ns}, ylabel={counts}]
+    \addplot+
+        coordinates {
+            (-9.5,3)
+            (-8.5,5)
+            (-7.5,6)
+            (-6.5,5)
+            (-5.5,34)
+            (-4.5,81)
+            (-3.5,202)
+            (-2.5,413)
+            (-1.5,699)
+            (-0.5,950)
+            (0.5,874)
+            (1.5,778)
+            (2.5,601)
+            (3.5,425)
+            (4.5,319)
+            (5.5,231)
+            (6.5,181)
+            (7.5,171)
+            (8.5,134)
+            (9.5,122)
+            (10.5,93)
+            (11.5,91)
+            (12.5,87)
+            (13.5,65)
+            (14.5,71)
+            (15.5,63)
+            (16.5,59)
+            (17.5,54)
+            (18.5,50)
+            (19.5,36)
+            (20.5,44)
+            (21.5,42)
+            (22.5,37)
+            (23.5,40)
+            (24.5,42)
+            (25.5,35)
+            (26.5,37)
+            (27.5,24)
+            (28.5,36)
+            (29.5,36)
+            (30.5,44)
+            (31.5,23)
+            (32.5,30)
+            (33.5,28)
+            (34.5,24)
+            (35.5,25)
+            (36.5,18)
+            (37.5,17)
+            (38.5,16)
+            (39.5,20)
+            (40.5,13)
+            (41.5,17)
+            (42.5,11)
+            (43.5,15)
+            (44.5,14)
+            (45.5,13)
+            (46.5,6)
+            (47.5,11)
+            (48.5,7)
+            (49.5,15)
+        }
+        \closedcycle
+        ;
+\end{axis}
+\end{tikzpicture}
+\end{document}
