@@ -88,6 +88,14 @@ are calculated separately. The returned [`LonLat`](@ref) has those values set to
 this case.
 
 The original source of the implementation is unknown.
+There is a very similar code from 2013 in https://github.com/pwcazenave/fvcom-toolbox/blob/master/utilities/utm2deg.m which states it's based on the "UTMIP.m function by Gabriel Ruiz Martinez". This leads to this code from 2006 https://de.mathworks.com/matlabcentral/fileexchange/10914-utm2deg from Rafael Palacios with another reference to the "UTMIP.m function by Gabriel Ruiz Martinez".
+
+Unfortunately, the original UTMIP.m could not be found yet. Further findings:
+
+From 2018 on the MATLAB forum:
+https://de.mathworks.com/matlabcentral/answers/381403-coordinate-transformation-geographic-to-projected-utm
+Another from from 2020 written in C# on a Korean website: https://www.iotworks.co.kr/xe/index.php?mid=board_hCcz16&document_srl=36066
+and another one (basically the same) in a document from the university of Catalunya (Escola d'Enginyeria de Telecommunicació i Aerospacial de Castelldefels) https://upcommons.upc.edu/bitstream/handle/2117/349264/memoria.pdf;jsessionid=89D86F73867CB1B216B1C28D54DDCB3B?sequence=1 (page 220ff)
 There is a very similar code from 2020 written in C# on a Korean website: https://www.iotworks.co.kr/xe/index.php?mid=board_hCcz16&document_srl=36066
 and another one (basically the same) in a document from the university of Catalunya (Escola d'Enginyeria de Telecommunicació i Aerospacial de Castelldefels) https://upcommons.upc.edu/bitstream/handle/2117/349264/memoria.pdf;jsessionid=89D86F73867CB1B216B1C28D54DDCB3B?sequence=1 (page 220ff)
 """
