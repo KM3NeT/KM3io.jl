@@ -730,8 +730,8 @@ function write(io::IO, d::Detector; version=:same)
             z = 0
         else
             utm_ref_grid = d.utm_ref_grid
-            east = d.pos.east
-            north = d.pos.north
+            east = d.pos.easting
+            north = d.pos.northing
             z = d.pos.z
         end
         @printf(io, "UTM %s %.3f %.3f %.3f\n", utm_ref_grid, east, north, z)
