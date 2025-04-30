@@ -137,3 +137,4 @@ function lonlat_aanet(utm::UTMPosition)::LonLat
 
     return LonLat(longitude * π / 180, latitude * π / 180)
 end
+lonlat_aanet(d::Detector; kwargs...) = lonlat_aanet(d.pos; kwargs...)
