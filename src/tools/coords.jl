@@ -86,6 +86,10 @@ This implementation is the one in [`aanet`](https://git.km3net.de/common/aanet) 
 not calculate the point scale factor and the meridian convergence angle. In `aanet`, those
 are calculated separately. The returned [`LonLat`](@ref) has those values set to `0` in
 this case.
+
+The original source of the implementation is unknown.
+There is a very similar code from 2020 written in C# on a Korean website: https://www.iotworks.co.kr/xe/index.php?mid=board_hCcz16&document_srl=36066
+and another one (basically the same) in a document from the university of Catalunya (Escola d'Enginyeria de Telecommunicació i Aerospacial de Castelldefels) https://upcommons.upc.edu/bitstream/handle/2117/349264/memoria.pdf;jsessionid=89D86F73867CB1B216B1C28D54DDCB3B?sequence=1 (page 220ff)
 """
 function lonlat_aanet(utm::UTMPosition)::LonLat
     diflat = -0.00066286966871111111111111111111111111
