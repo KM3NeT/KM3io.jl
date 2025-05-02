@@ -39,15 +39,15 @@ function Base.show(io::IO, e::Evt)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", e::Evt)
-    println(io, "MC Event (Evt) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) tracks, $(length(e.mc_trks)) MC tracks)")
+    println(io, "MC/Reco Event (Evt) ($(length(e.hits)) hits, $(length(e.mc_hits)) MC hits, $(length(e.trks)) reco tracks, $(length(e.mc_trks)) MC tracks)")
     println(io, "  ID: $(e.id)")
     println(io, "  Detector ID: $(e.det_id)")
     println(io, "  MC ID: $(e.mc_id)")
     println(io, "  MC event time: $(e.mc_event_time)")
     if length(e.mc_trks) > 0
-        println(io, "  Primary particle: $(first(e.mc_trks))")
+        println(io, "  Primary MC particle: $(first(e.mc_trks))")
     else
-        println(io, "  Primary particle: missing")
+        println(io, "  Primary MC particle: missing")
     end
 end
 
