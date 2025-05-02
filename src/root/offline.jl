@@ -46,11 +46,35 @@ their position encodes the meaning of their meaning which is defined in the
 
 !!! note
     The elements of this object should always be accessed using constants
-    defined in `KM3io.FITINFORMATION`. The use of magic numbers should be
+    defined in `KM3io.FITPARAMETERS`. The use of magic numbers should be
     avoided to ensure that future changes in the [KM3NeT
     DataFormat](https://git.km3net.de/common/km3net-dataformat) do not break
     existing code.
 
+# Example
+
+```
+julia> using KM3io, KM3NeTTestData
+
+julia> f = ROOTFile(datapath("offline", "numucc.root"))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
+
+julia> reco = bestjppmuon(f.offline[1])
+Trk (Reconstructed track)
+  id: 1
+  pos: Position{Float64}(-647.396, -138.621, 319.288)
+  dir: Direction{Float64}(0.939, 0.269, 0.213)
+  t: 8.849343007963674e7
+  E: 117.28604237509933
+  len: 0.0
+  lik: 92.7921433955364
+  rec_type: 4000
+  rec_stages: Int32[1, 2, 3, 4, 5]
+  fitinf: FitInformation([0.0020367251782607574, 0.0014177681261476852, -92.7921433955364, 107.0, 1141.8713789917795, 264.38698486751207, 0.3629813537326686, 11.0, 5.265362302261376, 13.45233763002935, 671.9039327646219, 0.0, 0.0, 2543.769772201125, -312.0874580760447, 31061.0, 107.0])
+
+julia> reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_CHI2]
+-92.7921433955364
+```
 """
 struct FitInformation
     values::Vector{Float64}
