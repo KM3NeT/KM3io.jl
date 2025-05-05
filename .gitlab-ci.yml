@@ -51,6 +51,8 @@ Julia 1.8:
   extends:
     - .script
     - .coverage
+  tags:
+    - shared-cache
 
 Julia 1.9:
   image: docker.km3net.de/base/julia:1.9
@@ -58,6 +60,8 @@ Julia 1.9:
   extends:
     - .script
     - .coverage
+  tags:
+    - shared-cache
 
 Julia 1.10:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10
@@ -65,6 +69,8 @@ Julia 1.10:
   extends:
     - .script
     - .coverage
+  tags:
+    - shared-cache
 
 Julia 1.11:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11
@@ -72,6 +78,8 @@ Julia 1.11:
   extends:
     - .script
     - .coverage
+  tags:
+    - shared-cache
 
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10-tex
@@ -96,6 +104,8 @@ docs:
 #  only:
 #    - main
 #    - tags
+  tags:
+    - shared-cache
 
 #register:
 #  image: docker.km3net.de/base/julia:1.8
