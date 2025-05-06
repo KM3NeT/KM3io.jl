@@ -95,6 +95,7 @@ docs:
         Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         Pkg.resolve()
+        Pkg.add("OpenSSL_jll@3.0")
         using Documenter: doctest
         using KM3io
         doctest(KM3io)
