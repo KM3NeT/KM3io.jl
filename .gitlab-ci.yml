@@ -80,7 +80,7 @@ Julia 1.11:
     - shared-cache
 
 docs:
-  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10-tex
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11-tex
   stage: docs
   script:
     - |
