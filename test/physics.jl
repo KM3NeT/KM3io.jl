@@ -56,10 +56,10 @@ end
 
 
 @testset "azimuth()" begin
-    @test π/2 == azimuth(Direction(0.0, 1.0, 0.0))
+    @test π/2*3 == azimuth(Direction(0.0, 1.0, 0.0))
     @test 0 ≈ azimuth(Direction(1.0, 0.0, 0.0))
-    @test -π/2 ≈ azimuth(Direction(0.0, -1.0, 0.0))
-    @test π ≈ azimuth(Direction(-1.0, 0.0, 0.0))
+    @test π/2 ≈ azimuth(Direction(0.0, -1.0, 0.0))
+    @test 0 ≈ azimuth(Direction(-1.0, 0.0, 0.0))
 end
 
 @testset "zenith()" begin
