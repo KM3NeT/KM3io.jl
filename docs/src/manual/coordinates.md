@@ -23,8 +23,12 @@ det.pos
 Positions and orientations of everything else inside the detector (hits,
 detector modules, PMTs, reconstructed tracks and showers etc.) are given in
 local coordinates using the x, y, z components. The x-axis is hereby pointing to
-the east, the y-axis to the south and the z-axis upwards to the zenith. The
-origin of the local coordinate system is at the detector's UTM position.
+the east (UTM Easting), corresponding to `phi = 0 deg`, the y-axis to the north
+(UTM Northing), corresponding to `phi = 90 deg`, hence the angle phi is
+increasing counter clockwise and the z-axis upwards towards the zenith with its
+zero value at the sea surface. More details can be found in the
+`KM3NeT_SOFT_WD_2016_002 - Coordinate System Proposal` internal note. The origin
+of the local coordinate system is at the detector's UTM position.
 
 ## Earth Coordinates
 
