@@ -58,6 +58,11 @@ create_dataset
 flush
 ```
 
+## JSON
+```@docs
+tojson
+```
+
 ## Hardware
 
 ```@docs
@@ -191,6 +196,7 @@ distance
 ```@docs
 UTMPosition
 LonLat
+LonLatExtended
 lonlat
 isnorthern
 ```
