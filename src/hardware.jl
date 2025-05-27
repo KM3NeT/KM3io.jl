@@ -12,7 +12,7 @@ struct PMT
     pos::Position{Float64}
     dir::Direction{Float64}
     t₀::Float64
-    status::Union{Int32, Missing}
+    status::Int32
 end
 function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
     for field in [:id, :status]
@@ -99,7 +99,7 @@ struct DetectorModule
     location::Location
     n_pmts::Int8
     pmts::Vector{PMT}
-    q::Union{Quaternion{Float64}, Missing}
+    q::Quaternion{Float64}
     status::Int32
     t₀::Float64
 end
@@ -320,9 +320,9 @@ A KM3NeT detector.
 struct Detector
     version::Int8
     id::Int32
-    validity::Union{DateRange, Missing}
-    pos::Union{UTMPosition, Missing}
-    utm_ref_grid::Union{String, Missing}
+    validity::DateRange
+    pos::UTMPosition
+    utm_ref_grid::String
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
     locations::Dict{Tuple{Int, Int}, DetectorModule}
@@ -533,17 +533,21 @@ function read_detx(io::IO)
         zone_number = parse(Int, match(r"^\d+", split(utm_ref_grid)[2]).match)
         zone_letter = utm_ref_grid[end]
         easting, northing, z = map(x->parse(Float64, x), split(lines[3])[4:6])
-        utm_position = UTMPosition(easting, northing, zone_number, zone_letter, z)
         n_modules = parse(Int, lines[4])
         idx = 5
-    else
+    else  # this is v1
         det_id, n_modules = map(x->parse(Int,x), split(first_line))
         version = 1
-        utm_position = missing
-        utm_ref_grid = missing
-        validity = missing
+        utm_position = UTMPosition(0, 0, 0, 0, 0)
+        utm_ref_grid = "WGS84 0X"  # an invalid zone
+        zone_number = 0
+        zone_letter = 'X'
+        easting = northing = z = 0.0
+        validity = DateRange(unix2datetime(0.), unix2datetime(999999999999.9))  # fallback
         idx = 2
     end
+
+    utm_position = UTMPosition(easting, northing, zone_number, zone_letter, z)
 
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
@@ -581,7 +585,7 @@ function read_detx(io::IO)
             q = Quaternion(q0, qx, qy, qz)
         else
             pos = missing
-            q = missing
+            q = Quaternion(0.0, 0.0, 0.0, 0.0)
             t₀ = missing
         end
         if version >= 5
@@ -617,7 +621,7 @@ function read_detx(io::IO)
             if length(pmts) > 0
                 pos = center(pmts)
             else
-                pos = Position(0, 0, 0)
+                pos = Position(0.0, 0.0, 0.0)
             end
         end
 
@@ -715,25 +719,13 @@ function write(io::IO, d::Detector; version=:same)
     end
 
     if version > 1
-        if ismissing(d.validity)
-            valid_from = 0.0
-            valid_to = 9999999999.0
-        else
-            valid_from = datetime2unix(d.validity.from)
-            valid_to = datetime2unix(d.validity.to)
-        end
+        valid_from = datetime2unix(d.validity.from)
+        valid_to = datetime2unix(d.validity.to)
         @printf(io, "%.1f %.1f\n", valid_from, valid_to)
-        if ismissing(d.pos)
-            utm_ref_grid = "WGS84 32N"  # grid of ORCA and ARCA
-            east = 0
-            north = 0
-            z = 0
-        else
-            utm_ref_grid = d.utm_ref_grid
-            east = d.pos.easting
-            north = d.pos.northing
-            z = d.pos.z
-        end
+        utm_ref_grid = d.utm_ref_grid
+        east = d.pos.easting
+        north = d.pos.northing
+        z = d.pos.z
         @printf(io, "UTM %s %.3f %.3f %.3f\n", utm_ref_grid, east, north, z)
     end
 
@@ -746,11 +738,7 @@ function write(io::IO, d::Detector; version=:same)
         if version < 4
             writeln(io, "$(mod.id) $(mod.location.string) $(mod.location.floor) $(mod.n_pmts)")
         else
-            if ismissing(mod.q)
-                q0, qx, qy, qz = (0, 0, 0, 0)
-            else
-                q0, qx, qy, qz = mod.q
-            end
+            q0, qx, qy, qz = mod.q
             if version == 4
                 @printf(io, "%d %d %d %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %d\n", mod.id, mod.location.string, mod.location.floor, mod.pos.x, mod.pos.y, mod.pos.z, q0, qx, qy, qz, mod.t₀, mod.n_pmts)
             end
