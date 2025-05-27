@@ -62,7 +62,7 @@ const SAMPLES_DIR = joinpath(@__DIR__, "samples")
         end
 
         if version > 1
-            @test UTMPosition(587600, 4016800, -3450) ≈ d.pos
+            @test UTMPosition(587600.0, 4016800.0, 33, 'N', -3450.0) == d.pos
             @test 1654207200.0 == datetime2unix(d.validity.from)
             @test 9999999999.0 == datetime2unix(d.validity.to)
         end
@@ -215,7 +215,7 @@ end
 end
 
 @testset "utilities" begin
-    mod = DetectorModule(1, UTMPosition(0, 0, 0), Location(0, 0), 0, PMT[], missing, 0, 0)
+    mod = DetectorModule(1, Position(0.0, 0.0, 0.0), Location(0, 0), 0, PMT[], Quaternion(0, 0, 0, 0), 0, 0)
     @test hydrophoneenabled(mod)
     @test piezoenabled(mod)
     for version ∈ 1:5

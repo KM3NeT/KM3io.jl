@@ -1,8 +1,18 @@
-struct UTMPosition{T} <: FieldVector{3, T}
-    east::T
-    north::T
-    z::T
+"""
+A UTM position with an additional depth (`z`) field.
+"""
+struct UTMPosition
+    easting::Float64
+    northing::Float64
+    zone_number::Int
+    zone_letter::Char
+    z::Float64  # depth [m]
 end
+"""
+Returns `true` if the [`UTMPosition`](@ref) is on the Northern
+hemisphere.
+"""
+@inline isnorthern(utm::UTMPosition) = utm.zone_letter >= 'N'
 
 """
 A vector to represent a position in 3D.

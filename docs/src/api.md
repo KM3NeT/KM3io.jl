@@ -58,6 +58,11 @@ create_dataset
 flush
 ```
 
+## JSON
+```@docs
+tojson
+```
+
 ## Hardware
 
 ```@docs
@@ -185,4 +190,13 @@ hashistory
 ```@docs
 angle
 distance
+```
+
+### Coordinate Systems
+```@docs
+UTMPosition
+LonLat
+LonLatExtended
+lonlat
+isnorthern
 ```
