@@ -584,9 +584,9 @@ function read_detx(io::IO)
             pos = Position(x, y, z)
             q = Quaternion(q0, qx, qy, qz)
         else
-            pos = missing
+            pos = missing  # dealing with it later
             q = Quaternion(0.0, 0.0, 0.0, 0.0)
-            t₀ = missing
+            t₀ = missing  # dealing with it later
         end
         if version >= 5
             status = parse(Float64, elements[12])
