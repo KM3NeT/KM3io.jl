@@ -20,11 +20,11 @@ det = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
 det.pos
 ```
 
-Positions and orientations of everything else inside the detector (hits,
-detector modules, PMTs, reconstructed tracks and showers etc.) are given in
-local coordinates using the x, y, z components. The x-axis is hereby pointing to
-the east (UTM Easting), corresponding to `phi = 0 deg`, the y-axis to the north
-(UTM Northing), corresponding to `phi = 90 deg`, hence the angle phi is
+Positions and orientations of everything else inside and around the detector
+(hits, detector modules, PMTs, reconstructed tracks and showers etc.) are given
+in local coordinates using the x, y, z components. The x-axis is hereby pointing
+to the east (UTM Easting), corresponding to `phi = 0 deg`, the y-axis to the
+north (UTM Northing), corresponding to `phi = 90 deg`, hence the angle phi is
 increasing counter clockwise and the z-axis upwards towards the zenith with its
 zero value at the sea surface. More details can be found in the
 `KM3NeT_SOFT_WD_2016_002 - Coordinate System Proposal` internal note. The origin
@@ -45,11 +45,12 @@ The [`lonlat`](@ref) function also has a method which accepts a [`Detector`](@re
 lonlat(det)
 ```
 
-The output value not a simple longitude and latitude pair but contains
+The output value is not a simple longitude and latitude pair but contains
 additional information. The current implementation includes the meridian
 convergence angle, which is the angle of difference between true north and
 coordinate north, and the point scale factor. These quantities are important for
-astronomic coordinate transformations.
+astronomic coordinate transformations and are required due to the fact that the
+Earth's shape is not a perfect sphere.
 
 !!! note
 
