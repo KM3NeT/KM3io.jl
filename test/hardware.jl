@@ -224,10 +224,14 @@ end
     end
 end
 
-@testset "KM3DB extensions" begin
-    using KM3DB
-    d = Detector(133)
-    @test 399 == length(d)
+if haskey(ENV, "GITLAB_CI") || (haskey(ENV, "KM3NET_DB_USERNAME") && haskey(ENV, "KM3NET_DB_PASSWORD"))
+    @testset "KM3DB extensions" begin
+        using KM3DB
+        d = Detector(133)
+        @test 399 == length(d)
+    end
+else
+    @info "Skipping tests which require database access: ENV[\"KM3NET_DB_USERNAME\"] and ENV[\"KM3NET_DB_PASSWORD\"] are not set"
 end
 
 
