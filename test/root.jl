@@ -39,6 +39,18 @@ const USRFILE = datapath("offline", "usr-sample.root")
     @test 94 ≈ sum([h.origin for h ∈ f.offline[1].mc_hits])
     @test -164 ≈ sum([h.type for h ∈ f.offline[1].mc_hits])
 
+    n_events = length(f.offline)
+    n = Threads.Atomic{Int}(0)
+    n_total_tracks = Threads.Atomic{Int}(0)
+    Threads.@threads for event in f.offline
+        Threads.atomic_add!(n, 1)
+        n_tracks = 0
+        for track in event.trks
+            n_tracks += 1
+        end
+        Threads.atomic_add!(n_total_tracks, n_tracks)
+    end
+    @test 407 == n_total_tracks[]
 
 
     close(f)
@@ -142,11 +154,18 @@ end
     @test headers[2].overlays == 21
     @test headers[3].overlays == 0
 
-    events = []
+    n_events = Threads.Atomic{Int}(0)
+    n_total_hits = Threads.Atomic{Int}(0)
     Threads.@threads for event in f.online.events
-        push!(events, event)
+        Threads.atomic_add!(n_events, 1)
+        n_hits = 0
+        for hit in event.snapshot_hits
+            n_hits += 1
+        end
+        Threads.atomic_add!(n_total_hits, n_hits)
     end
-    @test 3 == length(events)
+    @test 3 == n_events[]
+    @test 298 == n_total_hits[]
 
     events = []
     for event in f.online.events
@@ -184,6 +203,18 @@ end
             @test frame.dom_id ∈ module_ids
         end
     end
+
+    n_frames = Threads.Atomic{Int}(0)
+    n_pmts = Threads.Atomic{Int}(0)
+    n_total_pmt_rate = Threads.Atomic{Float64}(0.0)
+    Threads.@threads for s in f.online.summaryslices
+        for f in s.frames
+            rates = pmtrates(f)
+            Threads.atomic_add!(n_total_pmt_rate, sum(rates))
+            Threads.atomic_add!(n_pmts, length(rates))
+        end
+    end
+    @test 57008.977876930316 ≈ n_total_pmt_rate[] / n_pmts[]
 
     close(f)
 end
