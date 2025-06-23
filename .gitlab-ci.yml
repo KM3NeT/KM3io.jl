@@ -126,6 +126,8 @@ Julia 1.11-multi-thread:
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11-tex
   stage: docs
+  variables:
+    JULIA_NUM_THREADS: 10,1
   script:
     - |
       julia -e '
