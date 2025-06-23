@@ -28,6 +28,15 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+
+      # Update packages and add KM3NeT registry
+      - name: Update Julia packages and add KM3NeT registry
+        run: |
+          julia -e '
+            using Pkg
+            Pkg.update()
+            Pkg.Registry.add(Pkg.Registry.RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
+
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
