@@ -79,6 +79,50 @@ Julia 1.11:
   tags:
     - shared-cache
 
+Julia 1.8-multi-thread:
+  image: docker.km3net.de/base/julia:1.8
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    - JULIA_NUM_THREADS=10,1
+  tags:
+    - shared-cache
+
+Julia 1.9-multi-thread:
+  image: docker.km3net.de/base/julia:1.9
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    - JULIA_NUM_THREADS=10,1
+  tags:
+    - shared-cache
+
+Julia 1.10-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    - JULIA_NUM_THREADS=10,1
+  tags:
+    - shared-cache
+
+Julia 1.11-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    - JULIA_NUM_THREADS=10,1
+  tags:
+    - shared-cache
+
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11-tex
   stage: docs
