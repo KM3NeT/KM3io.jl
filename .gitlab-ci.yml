@@ -86,7 +86,7 @@ Julia 1.8-multi-thread:
     - .script
     - .coverage
   variables:
-    - JULIA_NUM_THREADS=10,1
+    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
@@ -97,7 +97,7 @@ Julia 1.9-multi-thread:
     - .script
     - .coverage
   variables:
-    - JULIA_NUM_THREADS=10,1
+    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
@@ -108,7 +108,7 @@ Julia 1.10-multi-thread:
     - .script
     - .coverage
   variables:
-    - JULIA_NUM_THREADS=10,1
+    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
@@ -119,7 +119,7 @@ Julia 1.11-multi-thread:
     - .script
     - .coverage
   variables:
-    - JULIA_NUM_THREADS=10,1
+    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
