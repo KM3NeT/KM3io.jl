@@ -1,9 +1,9 @@
-![](https://git.km3net.de/common/KM3io.jl/-/raw/main/docs/src/assets/logo.svg)
+![](https://git.km3net.de/common/KM3io.jl/-/raw/main/docs/src/assets/logo.svg?)
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://common.pages.km3net.de/KM3io.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://common.pages.km3net.de/KM3io.jl/dev)
-[![Build Status](https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg)](https://git.km3net.de/common/KM3io.jl/pipelines)
-[![Coverage](https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg)](https://git.km3net.de/common/KM3io.jl/commits/main)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg?)](https://common.pages.km3net.de/KM3io.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg?)](https://common.pages.km3net.de/KM3io.jl/dev)
+[![Build Status](https://git.km3net.de/common/KM3io.jl/badges/main/pipeline.svg?)](https://git.km3net.de/common/KM3io.jl/pipelines)
+[![Coverage](https://git.km3net.de/common/KM3io.jl/badges/main/coverage.svg?)](https://git.km3net.de/common/KM3io.jl/commits/main)
 
 `KM3io.jl` is a Julia library which implements high-performance I/O functions
 and additional utilities to deal with dataformats used in KM3NeT, e.g.
