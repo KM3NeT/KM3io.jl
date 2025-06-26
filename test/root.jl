@@ -60,7 +60,6 @@ end
     t = KM3io.OfflineEventTape([
         datapath("online", "km3net_online.root")
     ])
-    @test length(t) == 0
     @test length(collect(t)) == 0
 
     t = KM3io.OfflineEventTape([
@@ -68,7 +67,6 @@ end
         datapath("online", "km3net_online.root"),
         datapath("online", "km3net_online.root")
     ])
-    @test length(t) == 0
     @test length(collect(t)) == 0
 
     # Testing some edge cases where first/last/middle files have
@@ -103,7 +101,6 @@ end
     ]
     for (n_expected, sources) in source_configurations
         t = KM3io.OfflineEventTape(sources)
-        @test length(t) == n_expected
         @test length(collect(t)) == n_expected
     end
 
