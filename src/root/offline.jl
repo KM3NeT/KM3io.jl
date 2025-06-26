@@ -269,7 +269,7 @@ end
 
 Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
-function Base.getindex(f::OfflineTree, idx::Integer)
+function Base.getindex(f::OfflineTree, idx::Integer)::Evt
     idx > length(f) && throw(BoundsError(f, idx))
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
