@@ -56,6 +56,71 @@ const USRFILE = datapath("offline", "usr-sample.root")
     close(f)
 end
 
+@testset "OfflineEventTape" begin
+    t = KM3io.OfflineEventTape([
+        datapath("online", "km3net_online.root")
+    ])
+    @test length(t) == 0
+    @test length(collect(t)) == 0
+
+    t = KM3io.OfflineEventTape([
+        datapath("online", "km3net_online.root"),
+        datapath("online", "km3net_online.root"),
+        datapath("online", "km3net_online.root")
+    ])
+    @test length(t) == 0
+    @test length(collect(t)) == 0
+
+    # Testing some edge cases where first/last/middle files have
+    # no offline events
+    source_configurations = [
+        (10, [
+            datapath("offline", "km3net_offline.root"),
+            datapath("online", "km3net_online.root"),
+            datapath("online", "km3net_online.root")
+        ]),
+        (10, [
+            datapath("online", "km3net_online.root"),
+            datapath("offline", "km3net_offline.root"),
+            datapath("online", "km3net_online.root")
+        ]),
+        (20, [
+            datapath("offline", "km3net_offline.root"),
+            datapath("online", "km3net_online.root"),
+            datapath("offline", "km3net_offline.root")
+        ]),
+        (20, [
+            datapath("online", "km3net_online.root"),
+            datapath("offline", "km3net_offline.root"),
+            datapath("offline", "km3net_offline.root"),
+            datapath("online", "km3net_online.root"),
+        ]),
+        (10, [
+            datapath("online", "km3net_online.root"),
+            datapath("online", "km3net_online.root"),
+            datapath("offline", "km3net_offline.root")
+        ])
+    ]
+    for (n_expected, sources) in source_configurations
+        t = KM3io.OfflineEventTape(sources)
+        @test length(t) == n_expected
+        @test length(collect(t)) == n_expected
+    end
+
+    sources = [
+        datapath("offline", "km3net_offline.root"),
+        datapath("offline", "numucc.root"),
+        datapath("online", "km3net_online.root"),
+        datapath("offline", "muon_cc_events.root")
+    ]
+    for (event_a, event_b) in zip(
+        vcat([collect(ROOTFile(source).offline) for source in sources]...),
+        OfflineEventTape(sources)
+    )
+        @test event_a == event_b
+    end
+end
+
 @testset "Usr fields" begin
     f = ROOTFile(USRFILE)
     evt = f.offline[1]
