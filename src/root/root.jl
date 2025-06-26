@@ -59,24 +59,16 @@ end
 """
 mutable struct OfflineEventTape
     sources::Vector{String}
-    n_events::Int
     event_counts::Vector{Int}
     current_file::ROOTFile
     current_sidx::Int
 
     function OfflineEventTape(sources::Vector{String})
-        n_events = 0
-        event_counts = Int[]
-        for source in sources
-            f = ROOTFile(source)
-            n = isnothing(f.offline) ? 0 : length(f.offline)
-            n_events += n
-            push!(event_counts, n)
-        end
-        new(sources, n_events, event_counts, ROOTFile(sources |> first), 1)
+        f = ROOTFile(sources |> first)
+        event_counts = Int[length(f.offline)]
+        new(sources, event_counts, f, 1)
     end
 end
-Base.length(t::OfflineEventTape) = t.n_events
 Base.eltype(::OfflineEventTape) = Evt
 function Base.iterate(t::OfflineEventTape, state=(1, 1))
     if state > (length(t.sources), last(t.event_counts))
@@ -89,6 +81,9 @@ function Base.iterate(t::OfflineEventTape, state=(1, 1))
     if event_idx > t.event_counts[source_idx]
         event_idx = 1
         source_idx += 1
+        if length(t.event_counts) < source_idx
+            push!(t.event_counts, length(ROOTFile(t.sources[source_idx])))
+        end
         for event_count in t.event_counts[source_idx:end]
             if event_count == 0
                 source_idx += 1
