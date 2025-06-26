@@ -1,3 +1,15 @@
+"""
+
+The main container for a `ROOTFile` which takes care of a proper initialisation
+of all the custom bootstrapping needed to be able to read KM3NeT files.
+
+The `filename` can be an XRootD path.
+
+This struct shadows the name of `UnROOT.ROOTFile` for historic reasons. If you
+use both `KM3io` and `UnROOT` in the same scope, prefixing will be required
+(`UnROOT.ROOTFile` and `KM3io.ROOTFile`).
+
+"""
 struct ROOTFile
     _fobj::UnROOT.ROOTFile
     online::Union{OnlineTree, Nothing}
