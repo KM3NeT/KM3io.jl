@@ -1,3 +1,15 @@
+"""
+
+The main container for a `ROOTFile` which takes care of a proper initialisation
+of all the custom bootstrapping needed to be able to read KM3NeT files.
+
+The `filename` can be an XRootD path.
+
+This struct shadows the name of `UnROOT.ROOTFile` for historic reasons. If you
+use both `KM3io` and `UnROOT` in the same scope, prefixing will be required
+(`UnROOT.ROOTFile` and `KM3io.ROOTFile`).
+
+"""
 struct ROOTFile
     _fobj::UnROOT.ROOTFile
     online::Union{OnlineTree, Nothing}
@@ -26,4 +38,70 @@ function Base.show(io::IO, f::ROOTFile)
     !isnothing(f.offline) && push!(s, "$(f.offline)")
     info = join(s, ", ")
     print(io, "ROOTFile{$info}")
+end
+
+
+"""
+
+A helper container which makes it easy to iterate over the offline
+tree of many offline files. It automatically skips files which have
+no offline events (due to an empty offline tree).
+
+# Examples
+```
+t = OfflineEventTape(["somefile.root", "anotherfile.root"])
+
+for event in t
+    # process the offline event
+end
+```
+
+"""
+mutable struct OfflineEventTape
+    sources::Vector{String}
+    n_events::Int
+    event_counts::Vector{Int}
+    current_file::ROOTFile
+    current_sidx::Int
+
+    function OfflineEventTape(sources::Vector{String})
+        n_events = 0
+        event_counts = Int[]
+        for source in sources
+            f = ROOTFile(source)
+            n = isnothing(f.offline) ? 0 : length(f.offline)
+            n_events += n
+            push!(event_counts, n)
+        end
+        new(sources, n_events, event_counts, ROOTFile(sources |> first), 1)
+    end
+end
+Base.length(t::OfflineEventTape) = t.n_events
+Base.eltype(::OfflineEventTape) = Evt
+function Base.iterate(t::OfflineEventTape, state=(1, 1))
+    if state > (length(t.sources), last(t.event_counts))
+        # reset and end iteration
+        t.current_file = ROOTFile(t.sources |> first)
+        t.current_sidx = 1
+        return nothing
+    end
+    source_idx, event_idx = state
+    if event_idx > t.event_counts[source_idx]
+        event_idx = 1
+        source_idx += 1
+        for event_count in t.event_counts[source_idx:end]
+            if event_count == 0
+                source_idx += 1
+            else
+                break
+            end
+        end
+        source_idx > length(t.sources) && return nothing # no more files with events left
+        t.current_file = ROOTFile(t.sources[source_idx])
+        t.current_sidx = source_idx
+    end
+    (t.current_file.offline[event_idx], (source_idx, event_idx+1))
+end
+function Base.show(io::IO, t::OfflineEventTape)
+    print(io, "OfflineEventTape($(length(t.sources)) sources, $(t.n_events) events)")
 end

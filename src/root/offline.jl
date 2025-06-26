@@ -79,6 +79,7 @@ julia> reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_CHI2]
 struct FitInformation
     values::Vector{Float64}
 end
+==(a::T, b::T) where T<:FitInformation = a.values == b.values
 Base.getindex(fitinf::FitInformation, idx) = fitinf.values[idx + 1]
 Base.length(fitinf::FitInformation) = length(fitinf.values)
 Base.firstindex(::FitInformation) = 0
@@ -102,6 +103,13 @@ struct Trk
     rec_type::Int32
     rec_stages::Vector{Int32}
     fitinf::FitInformation
+end
+function ==(a::T, b::T) where T<:Trk
+    typeof(a) === typeof(b) || return false
+    for name in fieldnames(T)
+        getfield(a, name) == getfield(b, name) || return false
+    end
+    return true
 end
 
 """
@@ -159,6 +167,13 @@ struct Evt
     index::Int64
     flags::Int64
     usr::Dict{String, Float64}
+end
+function ==(a::Evt, b::Evt)
+    typeof(a) === typeof(b) || return false
+    for name in fieldnames(Evt)
+        getfield(a, name) == getfield(b, name) || return false
+    end
+    return true
 end
 
 struct MCHeader

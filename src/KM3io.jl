@@ -1,6 +1,6 @@
 module KM3io
 
-import Base: read, write
+import Base: read, write, ==
 import Statistics: mean
 using LinearAlgebra
 using Printf: @printf

@@ -121,6 +121,36 @@ event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
 event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 ```
 
+### Multiple Files
+
+The [`OfflineEventTape`](@ref) offers an easy way to iterate over many sources
+(can be a mix of filepaths and XRootD URLs). During the iteration, files with an
+empty offline tree are automatically skipped.
+
+!!! note
+
+    The initialisation of the `OfflineEventTape` will quickly
+    iterate through all sources and open them just to count the number
+    of offline events, which might take a few seconds. During
+    the actual iteration, only one file is kept open at a time.
+
+The following example takes two files from the [KM3NeT
+TestData](https://git.km3net.de/common/km3net-testdata) samples and iterate
+through both of them in a simple loop.
+
+```@example OfflineEventTape
+using KM3io, KM3NeTTestData
+
+tape = KM3io.OfflineEventTape([
+    datapath("offline", "numucc.root"),
+    datapath("offline", "km3net_offline.root")
+])
+
+for event in tape
+    @show event
+end
+```
+
 ## [Online Dataformat](@id online_dataformat)
 
 The [online

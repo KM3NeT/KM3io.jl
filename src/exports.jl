@@ -71,6 +71,7 @@ tdcstatus,
 wrstatus,
 
 # Offline dataformat
+OfflineEventTape,
 CalibratedHit,
 CalibratedMCHit,
 CalibratedSnapshotHit,

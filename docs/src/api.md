@@ -12,9 +12,15 @@ Direction
 Location
 ```
 
+## ROOT
+```@docs
+ROOTFile
+```
+
 ## Offline Format
 ```@docs
 Evt
+OfflineEventTape
 CalibratedHit
 CalibratedMCHit
 XCalibratedHit
