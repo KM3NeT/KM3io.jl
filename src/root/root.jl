@@ -71,28 +71,50 @@ mutable struct OfflineEventTape
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
+function rewind!(t::OfflineEventTape)
+    t.current_file = ROOTFile(t.sources |> first)
+    t.current_sidx = 1
+    t.event_counts = Int[length(t.current_file.offline)]
+    return t
+end
 function Base.iterate(t::OfflineEventTape, state=(1, 1))
-    if state[1] >= length(t.sources) && state > (length(t.sources), last(t.event_counts))
+    if state[1] > length(t.sources) || (length(t.sources) == length(t.event_counts) && state[2] > t.event_counts[state[1]])
         # reset and end iteration
-        t.current_file = ROOTFile(t.sources |> first)
-        t.current_sidx = 1
+        rewind!(t)
         return nothing
     end
     source_idx, event_idx = state
     if event_idx > t.event_counts[source_idx]
         event_idx = 1
         source_idx += 1
+	t.current_file = ROOTFile(t.sources[source_idx])
         if length(t.event_counts) < source_idx
-            push!(t.event_counts, length(ROOTFile(t.sources[source_idx]).offline))
+	    if isnothing(t.current_file.offline)
+                push!(t.event_counts, 0)
+            else
+                push!(t.event_counts, length(t.current_file.offline))
+            end
         end
-        for event_count in t.event_counts[source_idx:end]
+        for _sidx in source_idx:length(t.sources)
+            if _sidx > length(t.event_counts)
+                t.current_file = ROOTFile(t.sources[source_idx])
+                if isnothing(t.current_file.offline)
+                    push!(t.event_counts, 0)
+                else
+                    push!(t.event_counts, length(t.current_file.offline))
+                end
+            end
+            event_count = t.event_counts[_sidx]
             if event_count == 0
                 source_idx += 1
             else
                 break
             end
         end
-        source_idx > length(t.sources) && return nothing # no more files with events left
+        if source_idx > length(t.sources)
+            rewind!(t)
+            return nothing # no more files with events left
+        end
         t.current_file = ROOTFile(t.sources[source_idx])
         t.current_sidx = source_idx
     end

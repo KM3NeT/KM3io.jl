@@ -102,6 +102,7 @@ end
     for (n_expected, sources) in source_configurations
         t = KM3io.OfflineEventTape(sources)
         @test length(collect(t)) == n_expected
+        @test length(collect(t)) == n_expected  # test twice because of caching
     end
 
     sources = [
@@ -110,10 +111,14 @@ end
         datapath("online", "km3net_online.root"),
         datapath("offline", "muon_cc_events.root")
     ]
-    for (event_a, event_b) in zip(
-        vcat([collect(ROOTFile(source).offline) for source in sources]...),
-        OfflineEventTape(sources)
-    )
+    reference_events = vcat([collect(ROOTFile(source).offline) for source in sources]...)
+    tape = OfflineEventTape(sources)
+    tape_events = collect(tape)
+    for (event_a, event_b) in zip(reference_events, tape_events)
+        @test event_a == event_b
+    end
+    tape_events = collect(tape)  # test twice because of caching
+    for (event_a, event_b) in zip(reference_events, tape_events)
         @test event_a == event_b
     end
 end
