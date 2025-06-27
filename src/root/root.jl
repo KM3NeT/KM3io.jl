@@ -70,8 +70,9 @@ mutable struct OfflineEventTape
     end
 end
 Base.eltype(::OfflineEventTape) = Evt
+Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 function Base.iterate(t::OfflineEventTape, state=(1, 1))
-    if state > (length(t.sources), last(t.event_counts))
+    if state[1] >= length(t.sources) && state > (length(t.sources), last(t.event_counts))
         # reset and end iteration
         t.current_file = ROOTFile(t.sources |> first)
         t.current_sidx = 1
@@ -82,7 +83,7 @@ function Base.iterate(t::OfflineEventTape, state=(1, 1))
         event_idx = 1
         source_idx += 1
         if length(t.event_counts) < source_idx
-            push!(t.event_counts, length(ROOTFile(t.sources[source_idx])))
+            push!(t.event_counts, length(ROOTFile(t.sources[source_idx]).offline))
         end
         for event_count in t.event_counts[source_idx:end]
             if event_count == 0
@@ -98,5 +99,5 @@ function Base.iterate(t::OfflineEventTape, state=(1, 1))
     (t.current_file.offline[event_idx], (source_idx, event_idx+1))
 end
 function Base.show(io::IO, t::OfflineEventTape)
-    print(io, "OfflineEventTape($(length(t.sources)) sources, $(t.n_events) events)")
+    print(io, "OfflineEventTape($(length(t.sources)) sources)")
 end
