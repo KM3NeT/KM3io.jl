@@ -61,19 +61,17 @@ mutable struct OfflineEventTape
     sources::Vector{String}
     event_counts::Vector{Int}
     current_file::ROOTFile
-    current_sidx::Int
 
     function OfflineEventTape(sources::Vector{String})
         f = ROOTFile(sources |> first)
         event_counts = Int[length(f.offline)]
-        new(sources, event_counts, f, 1)
+        new(sources, event_counts, f)
     end
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 function rewind!(t::OfflineEventTape)
     t.current_file = ROOTFile(t.sources |> first)
-    t.current_sidx = 1
     t.event_counts = Int[length(t.current_file.offline)]
     return t
 end
@@ -116,7 +114,6 @@ function Base.iterate(t::OfflineEventTape, state=(1, 1))
             return nothing # no more files with events left
         end
         t.current_file = ROOTFile(t.sources[source_idx])
-        t.current_sidx = source_idx
     end
     (t.current_file.offline[event_idx], (source_idx, event_idx+1))
 end
