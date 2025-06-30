@@ -59,63 +59,36 @@ end
 """
 mutable struct OfflineEventTape
     sources::Vector{String}
-    event_counts::Vector{Int}
-    current_file::ROOTFile
-
-    function OfflineEventTape(sources::Vector{String})
-        f = ROOTFile(sources |> first)
-        event_counts = Int[length(f.offline)]
-        new(sources, event_counts, f)
-    end
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
-function rewind!(t::OfflineEventTape)
-    t.current_file = ROOTFile(t.sources |> first)
-    t.event_counts = Int[length(t.current_file.offline)]
-    return t
+function Base.iterate(t::OfflineEventTape)
+    source_idx = 1
+    event_idx = 1
+
+    while source_idx <= length(t.sources)
+        f = ROOTFile(t.sources[source_idx])
+        if isnothing(f.offline) || length(f.offline) == 0
+            close(f)
+            source_idx += 1
+            continue
+        end
+        return (f.offline[1], (source_idx, event_idx+1, f))
+    end
+
+    nothing
 end
-function Base.iterate(t::OfflineEventTape, state=(1, 1))
-    if state[1] > length(t.sources) || (length(t.sources) == length(t.event_counts) && state[2] > t.event_counts[state[1]])
-        # reset and end iteration
-        rewind!(t)
-        return nothing
-    end
-    source_idx, event_idx = state
-    if event_idx > t.event_counts[source_idx]
-        event_idx = 1
+function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile})
+    source_idx, event_idx, _f = state
+    source_idx > length(t.sources) && return nothing
+
+    if event_idx > length(_f.offline)
         source_idx += 1
-	t.current_file = ROOTFile(t.sources[source_idx])
-        if length(t.event_counts) < source_idx
-	    if isnothing(t.current_file.offline)
-                push!(t.event_counts, 0)
-            else
-                push!(t.event_counts, length(t.current_file.offline))
-            end
-        end
-        for _sidx in source_idx:length(t.sources)
-            if _sidx > length(t.event_counts)
-                t.current_file = ROOTFile(t.sources[source_idx])
-                if isnothing(t.current_file.offline)
-                    push!(t.event_counts, 0)
-                else
-                    push!(t.event_counts, length(t.current_file.offline))
-                end
-            end
-            event_count = t.event_counts[_sidx]
-            if event_count == 0
-                source_idx += 1
-            else
-                break
-            end
-        end
-        if source_idx > length(t.sources)
-            rewind!(t)
-            return nothing # no more files with events left
-        end
-        t.current_file = ROOTFile(t.sources[source_idx])
+        source_idx > length(t.sources) && return nothing
+        return iterate(t, (source_idx, 1, ROOTFile(t.sources[source_idx])))
     end
-    (t.current_file.offline[event_idx], (source_idx, event_idx+1))
+
+    (_f.offline[event_idx], (source_idx, event_idx+1, _f))
 end
 function Base.show(io::IO, t::OfflineEventTape)
     print(io, "OfflineEventTape($(length(t.sources)) sources)")
