@@ -127,13 +127,6 @@ The [`OfflineEventTape`](@ref) offers an easy way to iterate over many sources
 (can be a mix of filepaths and XRootD URLs). During the iteration, files with an
 empty offline tree are automatically skipped.
 
-!!! note
-
-    The initialisation of the `OfflineEventTape` will quickly
-    iterate through all sources and open them just to count the number
-    of offline events, which might take a few seconds. During
-    the actual iteration, only one file is kept open at a time.
-
 The following example takes two files from the [KM3NeT
 TestData](https://git.km3net.de/common/km3net-testdata) samples and iterate
 through both of them in a simple loop.
