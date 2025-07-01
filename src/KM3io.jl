@@ -9,6 +9,7 @@ using Sockets
 using UUIDs
 using TOML
 using JSON
+using ProgressMeter
 
 if !isdefined(Base, :get_extension)
     using Requires

@@ -47,6 +47,9 @@ A helper container which makes it easy to iterate over the offline
 tree of many offline files. It automatically skips files which have
 no offline events (due to an empty offline tree).
 
+An optional progressbar can be shown during iteration by passing
+`show_progress=true` to the constructor.
+
 # Examples
 ```
 t = OfflineEventTape(["somefile.root", "anotherfile.root"])
@@ -56,39 +59,64 @@ for event in t
 end
 ```
 
+Using a progress bar:
+
+```
+t = OfflineEventTape(["somefile.root", "anotherfile.root"]; show_progress=true)
+
+for event in t
+    # process the offline event
+end
+```
+
 """
 mutable struct OfflineEventTape
     sources::Vector{String}
+    show_progress::Bool
+
+    function OfflineEventTape(sources::Vector{String}; show_progress=false)
+        return new(sources, show_progress)
+    end
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 function Base.iterate(t::OfflineEventTape)
     source_idx = 1
     event_idx = 1
+    n_sources = length(t.sources)
 
-    while source_idx <= length(t.sources)
-        f = ROOTFile(t.sources[source_idx])
+    p = Progress(n_sources; enabled=t.show_progress, showspeed=true)
+
+    while source_idx <= n_sources
+        fname = t.sources[source_idx]
+        f = ROOTFile(fname)
         if isnothing(f.offline) || length(f.offline) == 0
             close(f)
             source_idx += 1
+            next!(p; showvalues=[("file", fname)])
             continue
         end
-        return (f.offline[1], (source_idx, event_idx+1, f))
+        return (f.offline[1], (source_idx, event_idx+1, f, p))
     end
 
     nothing
 end
-function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile})
-    source_idx, event_idx, _f = state
+function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile, Progress})
+    source_idx, event_idx, _f, p = state
     source_idx > length(t.sources) && return nothing
 
     if event_idx > length(_f.offline)
         source_idx += 1
-        source_idx > length(t.sources) && return nothing
-        return iterate(t, (source_idx, 1, ROOTFile(t.sources[source_idx])))
+        if source_idx > length(t.sources)
+            next!(p)
+            return nothing
+        end
+        fname = t.sources[source_idx]
+        next!(p; showvalues=[("file", fname)])
+        return iterate(t, (source_idx, 1, ROOTFile(fname), p))
     end
 
-    (_f.offline[event_idx], (source_idx, event_idx+1, _f))
+    (_f.offline[event_idx], (source_idx, event_idx+1, _f, p))
 end
 function Base.show(io::IO, t::OfflineEventTape)
     print(io, "OfflineEventTape($(length(t.sources)) sources)")

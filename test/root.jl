@@ -72,6 +72,16 @@ end
     # Testing some edge cases where first/last/middle files have
     # no offline events
     source_configurations = [
+        (0, [
+            datapath("online", "km3net_online.root"),
+            datapath("online", "km3net_online.root"),
+            datapath("online", "km3net_online.root")
+        ]),
+        (30, [
+            datapath("offline", "km3net_offline.root"),
+            datapath("offline", "km3net_offline.root"),
+            datapath("offline", "km3net_offline.root")
+        ]),
         (10, [
             datapath("offline", "km3net_offline.root"),
             datapath("online", "km3net_online.root"),
@@ -102,7 +112,8 @@ end
     for (n_expected, sources) in source_configurations
         t = KM3io.OfflineEventTape(sources)
         @test length(collect(t)) == n_expected
-        @test length(collect(t)) == n_expected  # test twice because of caching
+        t.show_progress = true
+        @test length(collect(t)) == n_expected
     end
 
     sources = [
