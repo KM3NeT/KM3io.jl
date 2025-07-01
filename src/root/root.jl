@@ -47,9 +47,22 @@ A helper container which makes it easy to iterate over the offline
 tree of many offline files. It automatically skips files which have
 no offline events (due to an empty offline tree).
 
+An optional progressbar can be shown during iteration by passing
+`show_progress=true` to the constructor.
+
 # Examples
 ```
 t = OfflineEventTape(["somefile.root", "anotherfile.root"])
+
+for event in t
+    # process the offline event
+end
+```
+
+Using a progress bar:
+
+```
+t = OfflineEventTape(["somefile.root", "anotherfile.root"]; show_progress=true)
 
 for event in t
     # process the offline event
