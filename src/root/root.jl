@@ -59,36 +59,46 @@ end
 """
 mutable struct OfflineEventTape
     sources::Vector{String}
+    show_progress::Bool
+
+    function OfflineEventTape(sources::Vector{String}; show_progress=false)
+        return new(sources, show_progress)
+    end
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 function Base.iterate(t::OfflineEventTape)
     source_idx = 1
     event_idx = 1
+    n_sources = length(t.sources)
 
-    while source_idx <= length(t.sources)
+    p = Progress(n_sources; enabled=t.show_progress, showspeed=true)
+
+    while source_idx <= n_sources
         f = ROOTFile(t.sources[source_idx])
         if isnothing(f.offline) || length(f.offline) == 0
             close(f)
             source_idx += 1
+            next!(p; showvalues=[("file", t.sources[source_idx])])
             continue
         end
-        return (f.offline[1], (source_idx, event_idx+1, f))
+        return (f.offline[1], (source_idx, event_idx+1, f, p))
     end
 
     nothing
 end
-function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile})
-    source_idx, event_idx, _f = state
+function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile, Progress})
+    source_idx, event_idx, _f, p = state
     source_idx > length(t.sources) && return nothing
 
     if event_idx > length(_f.offline)
         source_idx += 1
+        next!(p; showvalues=[("filename", t.sources[source_idx])])
         source_idx > length(t.sources) && return nothing
-        return iterate(t, (source_idx, 1, ROOTFile(t.sources[source_idx])))
+        return iterate(t, (source_idx, 1, ROOTFile(t.sources[source_idx]), p))
     end
 
-    (_f.offline[event_idx], (source_idx, event_idx+1, _f))
+    (_f.offline[event_idx], (source_idx, event_idx+1, _f, p))
 end
 function Base.show(io::IO, t::OfflineEventTape)
     print(io, "OfflineEventTape($(length(t.sources)) sources)")
