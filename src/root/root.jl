@@ -88,11 +88,12 @@ function Base.iterate(t::OfflineEventTape)
     p = Progress(n_sources; enabled=t.show_progress, showspeed=true)
 
     while source_idx <= n_sources
-        f = ROOTFile(t.sources[source_idx])
+        fname = t.sources[source_idx]
+        f = ROOTFile(fname)
         if isnothing(f.offline) || length(f.offline) == 0
             close(f)
             source_idx += 1
-            next!(p; showvalues=[("file", t.sources[source_idx])])
+            next!(p; showvalues=[("file", fname)])
             continue
         end
         return (f.offline[1], (source_idx, event_idx+1, f, p))
@@ -106,9 +107,13 @@ function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile, Prog
 
     if event_idx > length(_f.offline)
         source_idx += 1
-        next!(p; showvalues=[("filename", t.sources[source_idx])])
-        source_idx > length(t.sources) && return nothing
-        return iterate(t, (source_idx, 1, ROOTFile(t.sources[source_idx]), p))
+        if source_idx > length(t.sources)
+            next!(p)
+            return nothing
+        end
+        fname = t.sources[source_idx]
+        next!(p; showvalues=[("file", fname)])
+        return iterate(t, (source_idx, 1, ROOTFile(fname), p))
     end
 
     (_f.offline[event_idx], (source_idx, event_idx+1, _f, p))
