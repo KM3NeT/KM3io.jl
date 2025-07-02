@@ -73,27 +73,61 @@ end
 mutable struct OfflineEventTape
     sources::Vector{String}
     show_progress::Bool
+    start_at::Tuple{Int, Int}
 
     function OfflineEventTape(sources::Vector{String}; show_progress=false)
-        return new(sources, show_progress)
+        return new(sources, show_progress, (1, 1))
     end
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
+"""
+Seek to a given event position.
+"""
+function Base.seek(t::OfflineEventTape, n::Integer)
+    n_events = 0
+    for (source_idx, source) in enumerate(t.sources)
+        f = ROOTFile(source)
+        isnothing(f.offline) || length(f.offline) == 0 && continue
+        n_events += length(f.offline)
+        n > n_events && continue
+        t.start_at = (source_idx, n - (n_events - length(f.offline)))
+        return t
+    end
+    @warn "No event at position $n on this offline tape"
+    t.start_at = (length(t.sources), length(ROOTFile(t.sources[end]).offline) + 1)
+    t
+end
+"""
+Seek to the first event which happened after the given datetime.
+
+The strategy: check sources one-by-one and skip if the last event
+is still earlier than the target event. Perform a binary search
+on the first file which is not skipped.
+"""
+function Base.seek(t::OfflineEventTape, d::DateTime)
+    for (source_idx, source) in enumerate(t.sources)
+        f = ROOTFile(source)
+        isnothing(f.offline) || length(f.offline) == 0 && continue
+        last_event_datetime = DateTime(f.offline |> last)
+        last_event_datetime < d && continue
+
+        # f.offline["t/t.fSec", :] .+ f.offline["t/t.fNanoSec", :]./1e9
+    end
+end
 function Base.iterate(t::OfflineEventTape)
-    source_idx = 1
-    event_idx = 1
+    source_idx, event_idx = t.start_at
     n_sources = length(t.sources)
 
-    p = Progress(n_sources; enabled=t.show_progress, showspeed=true)
+    p = Progress(n_sources - source_idx + 1; enabled=t.show_progress, showspeed=true, dt=0.5)
 
     while source_idx <= n_sources
         fname = t.sources[source_idx]
         f = ROOTFile(fname)
+        next!(p; showvalues=[("file", fname)])
         if isnothing(f.offline) || length(f.offline) == 0
             close(f)
             source_idx += 1
-            next!(p; showvalues=[("file", fname)])
             continue
         end
         return (f.offline[1], (source_idx, event_idx+1, f, p))
