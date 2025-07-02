@@ -109,3 +109,10 @@ function tonumifpossible(v::AbstractString)
     end
     v
 end
+
+
+"""
+Convert UTCTime to DateTime
+"""
+Dates.DateTime(t::UTCTime) = unix2datetime(t.s + t.ns/1e9)
+Dates.DateTime(e::Evt) = DateTime(e.t)
