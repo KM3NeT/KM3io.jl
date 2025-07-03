@@ -48,9 +48,16 @@ hasofflineevents(f::ROOTFile) = !isnothing(f.offline) && length(f.offline) > 0
 
 """
 
+    OfflineEventTape(sources::Vector{String}; show_progress=false)
+    OfflineEventTape(filename_or_path::AbstractString; show_progress=false)
+
 A helper container which makes it easy to iterate over the offline
 tree of many offline files. It automatically skips files which have
 no offline events (due to an empty offline tree).
+
+If a `filename_or_path` is pointing to an existing file, a single file will be
+used. If it's a valid path, the directory will be scanned for ROOT files
+and they will be sorted by filename.
 
 An optional progressbar can be shown during iteration by passing
 `show_progress=true` to the constructor.
@@ -58,6 +65,16 @@ An optional progressbar can be shown during iteration by passing
 # Examples
 ```
 t = OfflineEventTape(["somefile.root", "anotherfile.root"])
+
+for event in t
+    # process the offline event
+end
+```
+
+Using a directory containing ROOT files:
+
+```
+t = OfflineEventTape("/mnt/data/KM3NeT_00000100/v9.2/dst")
 
 for event in t
     # process the offline event

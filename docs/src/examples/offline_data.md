@@ -135,3 +135,69 @@ f.offline[1].usr
 ```@example 1
 close(f)
 ```
+
+## [Offline Event Tape](@id offline_event_tape)
+
+A convenient way of processing many files (or XRootD sources) event-by-event is
+provided by the [`OfflineEventTape`](@ref). It can be instantiated with a list
+of files/sources, a single file or a folder. The latter will be scanned upon
+initialisation and the files will be sorted by their filename before added to
+the list of sources.
+
+The [`OfflineEventTape`](@ref) is a lazy data structure and only loads data
+from disk when necessary, e.g. during the event loop iteration or when
+seeking.
+
+The following examples creates a on offline event tape with two files:
+
+```@example 1
+tape = OfflineEventTape(
+    [
+        datapath("offline", "numucc.root"),
+        datapath("offline", "km3net_offline.root")
+    ]
+)
+```
+
+the tape implements the iterator and yields an [`Evt`](@ref) instance
+in each iteration:
+
+```@example 1
+for event in tape
+    @show event
+end
+```
+
+The `seek` function can be used to set the start of iterations to a specific
+position.
+
+If an integer is passed, the tape will jump to the event #13 and potentially
+skim over files/sources:
+
+```@example 1
+seek(tape, 13)
+
+for event in tape
+    @show event
+end
+```
+
+Sometimes, when processing many files, it can be useful to jump to the
+event which happened right after a specific date:
+
+```@example 1
+using Dates
+
+seek(tape, DateTime("2019-08-29T00:00:22.200"))
+
+for event in tape
+    @show event
+end
+```
+
+!!! note
+
+    Events are not guaranteed to be sorted by time. When using `seek` with a date,
+    the [`OfflineEventTape`] will set its position to the very first event which is
+    after the specified date. It might happen however, that some of the following
+    events are earlier in time.

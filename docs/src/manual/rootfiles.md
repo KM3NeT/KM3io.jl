@@ -144,6 +144,8 @@ for event in tape
 end
 ```
 
+More examples can be found here: [Offline Event Tape Examples](@ref offline_event_tape)
+
 ## [Online Dataformat](@id online_dataformat)
 
 The [online
