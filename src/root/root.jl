@@ -148,6 +148,20 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
             tape.start_at = (i, event_idx)
             return tape
         elseif t₀ < t_min
+            # we need to check if the date is between two runs
+            _i = i - 1
+            while _i > 0
+                f = ROOTFile(tape.sources[_i])
+                if hasofflineevents(f)
+                    if t₀ > maximum(f.offline["t/t.fSec", :])
+                        tape.start_at = (_i + 1, 1)
+                        return tape
+                    else
+                        break
+                    end
+                end
+                _i -= 1
+            end
             high = i - 1
         else
             low = i + 1
