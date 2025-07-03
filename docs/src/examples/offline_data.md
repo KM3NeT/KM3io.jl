@@ -203,9 +203,8 @@ end
     events are earlier in time.
 
 
-The following example shows a tape instantiated with a folder containing 415
-ROOT files with a total size of 149 GB. The search for the first event after a
-given date takes only a few seconds and the iteration will start right there:
+The following example uses a tape instantiated with a folder containing 415 ROOT
+files with a total size of 149 GB.
 
 ```@julia-repl
 julia> using KM3io, Dates
