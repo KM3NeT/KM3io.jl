@@ -86,6 +86,7 @@ mutable struct OfflineEventTape
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
+Base.position(t::OfflineEventTape) = t.start_at
 """
 Seek to a given event position.
 """
