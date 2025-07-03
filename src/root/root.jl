@@ -188,7 +188,7 @@ function Base.iterate(t::OfflineEventTape)
             source_idx += 1
             continue
         end
-        return (f.offline[1], (source_idx, event_idx+1, f, p))
+        return (f.offline[event_idx], (source_idx, event_idx+1, f, p))
     end
 
     nothing
