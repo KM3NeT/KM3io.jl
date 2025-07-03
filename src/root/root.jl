@@ -151,11 +151,13 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
         # we need to do some "masking" since the offline tree might be missing
         # or can contain no events
         while i >=low && !hasofflineevents(ROOTFile(tape.sources[i]))
+            GC.gc()
             i -= 1
         end
         if i < low
             i = mid + 1
             while i <= high && !hasofflineevents(ROOTFile(tape.sources[i]))
+                GC.gc()
                 i += 1
             end
         end
