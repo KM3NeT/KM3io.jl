@@ -167,6 +167,8 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
 
         f = ROOTFile(tape.sources[i])
         timestamps = f.offline["t/t.fSec", :] + f.offline["t/t.fNanoSec", :]*1e-9
+        close(f)
+        GC.gc()
         # events are not guaranteed to be sorted in time
         t_min, t_max = extrema(timestamps)
         if t_min <= t₀ <= t_max
@@ -180,9 +182,10 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
             _i = i - 1
             while _i > 0
                 f = ROOTFile(tape.sources[_i])
-                GC.gc()  # to avoid memory issues due to lazy GC
                 if hasofflineevents(f)
                     if t₀ > maximum(f.offline["t/t.fSec", :])
+                        close(f)
+                        GC.gc()  # to avoid memory issues due to lazy GC
                         tape.start_at = (_i + 1, 1)
                         return tape
                     else
@@ -195,7 +198,6 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
         else
             low = i + 1
         end
-        GC.gc()  # to avoid memory issues due to lazy GC
     end
 
     # nothing found, setting the index to the very end
