@@ -1,6 +1,7 @@
 using KM3io
 import UnROOT
 using KM3NeTTestData
+using Dates
 using Test
 
 
@@ -132,6 +133,60 @@ end
     for (event_a, event_b) in zip(reference_events, tape_events)
         @test event_a == event_b
     end
+
+    # start_at
+    tape = OfflineEventTape([datapath("offline", "numucc.root"), datapath("offline", "km3net_offline.root")])
+    tape.start_at = (2, 5)
+    events = collect(tape)
+    @test 6 == length(events)
+    @test length(ROOTFile(tape.sources[2]).offline[5].hits) == length(events[1].hits)
+
+    sources = [
+        datapath("offline", "km3net_offline.root"),
+        datapath("offline", "numucc.root"),
+        datapath("online", "km3net_online.root"),
+        datapath("offline", "muon_cc_events.root")
+    ]
+    tape = OfflineEventTape(sources)
+    tape.start_at = (3, 1)  # will be the online file with no offline tree and events
+    events = collect(tape)
+    # it should jump to the next file when iterating
+    f = ROOTFile(sources[4])
+    @test length(f.offline) == length(events)
+    @test events[1] == f.offline[1]
+
+    tape.start_at = (9999, 9999)
+    @test 0 == length(collect(tape))
+
+    seek(tape, 4)
+    @test (1, 4) == position(tape)
+    seek(tape, 13)
+    @test (2, 3) == position(tape)
+    seek(tape, 24)
+    @test (4, 4) == position(tape)
+
+    # seek by date
+    tape = OfflineEventTape([datapath("offline", "numucc.root"), datapath("offline", "km3net_offline.root")])
+    date = DateTime("2019-08-29T00:00:20.100")
+    seek(tape, date)
+    @test (2, 3) == position(tape)
+    @test DateTime(ROOTFile(tape.sources[2]).offline[2]) <= date <= DateTime(ROOTFile(tape.sources[2]).offline[3])
+    events = collect(tape)
+    @test 8 == length(events)
+    @test date <= DateTime(events[1])
+
+    date = DateTime("1985-06-29T07:20:00.000")
+    seek(tape, date)
+    @test (2, 1) == position(tape)
+    @test DateTime(ROOTFile(tape.sources[1]).offline[end]) <= date <= DateTime(ROOTFile(tape.sources[2]).offline[1])
+    events = collect(tape)
+    @test 10 == length(events)
+    @test date <= DateTime(events[1])
+
+    date = DateTime("2025-06-29T07:20:00.000")
+    seek(tape, date)
+    @test (length(tape.sources)+1, 1) == position(tape)
+    @test 0 == length(collect(tape))
 end
 
 @testset "Usr fields" begin
