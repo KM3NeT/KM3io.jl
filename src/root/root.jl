@@ -100,7 +100,8 @@ function Base.seek(t::OfflineEventTape, n::Integer)
         return t
     end
     @warn "No event at position $n on this offline tape"
-    t.start_at = (length(t.sources), length(ROOTFile(t.sources[end]).offline) + 1)
+    # Setting the index to the very end
+    t.start_at = (length(t.sources)+1, 1)
     t
 end
 """
