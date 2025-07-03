@@ -84,6 +84,16 @@ mutable struct OfflineEventTape
         return new(sources, show_progress, (1, 1))
     end
 end
+function OfflineEventTape(filename_or_path::AbstractString; show_progress=false)
+    if isdir(filename_or_path)
+        sources = filter(p->endswith(p, ".root"), readdir(filename_or_path; join=true)) |> sort
+    elseif isfile(filename_or_path)
+        sources = [filename_or_path]
+    else
+        throw(SystemError("opening file \"$filename_or_path\""))
+    end
+    OfflineEventTape(sources; show_progress=show_progress)
+end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 Base.position(t::OfflineEventTape) = t.start_at
