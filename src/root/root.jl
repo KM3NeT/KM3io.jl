@@ -107,20 +107,59 @@ end
 """
 Seek to the first event which happened after the given datetime.
 
-The strategy: check sources one-by-one and skip if the last event
-is still earlier than the target event. Perform a binary search
-on the first file which is not skipped.
+The strategy: binary search for the source using first and last event
+datetime, then check matching file's events with `findfirst` search.
+If nothing is found, the pointer is set right after the last source
+resulting in an empty iterator.
 """
-function Base.seek(t::OfflineEventTape, d::DateTime)
-    for (source_idx, source) in enumerate(t.sources)
-        f = ROOTFile(source)
-        isnothing(f.offline) || length(f.offline) == 0 && continue
-        last_event_datetime = DateTime(f.offline |> last)
-        last_event_datetime < d && continue
+function Base.seek(tape::OfflineEventTape, d::DateTime)
+    low = 1
+    high = length(tape.sources)
+    t₀ = datetime2unix(d)
 
-        # f.offline["t/t.fSec", :] .+ f.offline["t/t.fNanoSec", :]./1e9
+    while low <= high
+        println()
+        mid = low + (high - low)÷2
+        i = mid
+        # we need to do some "masking" since the offline tree might be missing
+        # or can contain no events
+        while i >=low && !hasofflineevents(ROOTFile(tape.sources[i]))
+            i -= 1
+        end
+        if i < low
+            i = mid + 1
+            while i <= high && !hasofflineevents(ROOTFile(tape.sources[i]))
+                i += 1
+            end
+        end
+        if i < low || i > high
+            # nothing found, setting the index to the very end
+            tape.start_at = (length(tape.sources)+1, 1)
+            return tape
+        end
+
+        f = ROOTFile(tape.sources[i])
+        timestamps = f.offline["t/t.fSec", :] + f.offline["t/t.fNanoSec", :]*1e-9
+        # events are not guaranteed to be sorted in time
+        t_min, t_max = extrema(timestamps)
+        if t_min <= t₀ <= t_max
+            # got it, let's find the event
+            # we do a simple `findfirst` here, since events are not time-sorted
+            event_idx = findfirst(t -> t >= t₀, timestamps)
+            tape.start_at = (i, event_idx)
+            return tape
+        elseif t₀ < t_min
+            high = i - 1
+        else
+            low = i + 1
+        end
     end
+
+    # nothing found, setting the index to the very end
+    tape.start_at = (length(tape.sources)+1, 1)
+    tape
 end
+
 function Base.iterate(t::OfflineEventTape)
     source_idx, event_idx = t.start_at
     n_sources = length(t.sources)
