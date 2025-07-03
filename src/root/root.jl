@@ -146,21 +146,16 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
     t₀ = datetime2unix(d)
 
     while low <= high
-        GC.gc()
         mid = low + (high - low)÷2
         i = mid
         # we need to do some "masking" since the offline tree might be missing
         # or can contain no events
         while i >=low && !hasofflineevents(ROOTFile(tape.sources[i]))
-            println("inside first loop")
-            GC.gc()
             i -= 1
         end
         if i < low
             i = mid + 1
             while i <= high && !hasofflineevents(ROOTFile(tape.sources[i]))
-                println("inside second loop")
-                GC.gc()
                 i += 1
             end
         end
@@ -170,11 +165,8 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
             return tape
         end
 
-        println("open file")
         f = ROOTFile(tape.sources[i])
         timestamps = f.offline["t/t.fSec", :] + f.offline["t/t.fNanoSec", :]*1e-9
-        close(f)
-        GC.gc()
         # events are not guaranteed to be sorted in time
         t_min, t_max = extrema(timestamps)
         if t_min <= t₀ <= t_max
@@ -187,20 +179,15 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
             # we need to check if the date is between two runs
             _i = i - 1
             while _i > 0
-                println("third loop")
                 f = ROOTFile(tape.sources[_i])
                 if hasofflineevents(f)
                     if t₀ > maximum(f.offline["t/t.fSec", :])
-                        close(f)
-                        GC.gc()  # to avoid memory issues due to lazy GC
                         tape.start_at = (_i + 1, 1)
                         return tape
                     else
                         break
                     end
                 end
-                close(f)
-                GC.gc()  # to avoid memory issues due to lazy GC
                 _i -= 1
             end
             high = i - 1
