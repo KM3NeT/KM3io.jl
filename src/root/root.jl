@@ -180,6 +180,7 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
             _i = i - 1
             while _i > 0
                 f = ROOTFile(tape.sources[_i])
+                GC.gc()  # to avoid memory issues due to lazy GC
                 if hasofflineevents(f)
                     if t₀ > maximum(f.offline["t/t.fSec", :])
                         tape.start_at = (_i + 1, 1)
