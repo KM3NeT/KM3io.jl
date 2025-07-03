@@ -40,6 +40,11 @@ function Base.show(io::IO, f::ROOTFile)
     print(io, "ROOTFile{$info}")
 end
 
+"""
+Returns true if the file contains offline events.
+"""
+hasofflineevents(f::ROOTFile) = !isnothing(f.offline) && length(f.offline) > 0
+
 
 """
 
