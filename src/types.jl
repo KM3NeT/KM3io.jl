@@ -157,8 +157,8 @@ Base.show(io::IO, t::UTCTime) = print(io, "$(typeof(t))($(t.s), $(t.ns))")
 
 """
 
-An extended time structure which contains the White Rabbit time synchronisation
-status. `wr_status == 0` means that the synchronisation is OK.
+An extended time structure used in the DAQ. It contains the White Rabbit time
+synchronisation status. `wr_status == 0` means that the synchronisation is OK.
 
 """
 struct UTCExtended
