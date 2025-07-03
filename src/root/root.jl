@@ -146,6 +146,7 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
     t₀ = datetime2unix(d)
 
     while low <= high
+        GC.gc()
         mid = low + (high - low)÷2
         i = mid
         # we need to do some "masking" since the offline tree might be missing
