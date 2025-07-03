@@ -224,3 +224,22 @@ julia> for event in tape
        end
 event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)
 ```
+
+The seek algorithm is implemented as a binary search to minimise the number of
+ROOT files to be opened. In case of the dataset used in the example above, the
+operation takes less than a second with a small footprint of about 230 MB, which
+is dominated by caching:
+
+```julia-repl
+julia> @benchmark seek(tape, DateTime("2022-01-02T10:23:45"))
+BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
+ Range (min … max):  881.339 ms … 897.701 ms  ┊ GC (min … max): 1.22% … 2.23%
+ Time  (median):     886.306 ms               ┊ GC (median):    2.09%
+ Time  (mean ± σ):   888.006 ms ±   6.992 ms  ┊ GC (mean ± σ):  2.03% ± 0.44%
+
+  █ █  █                         █                █           █
+  █▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  881 ms           Histogram: frequency by time          898 ms <
+
+ Memory estimate: 231.59 MiB, allocs estimate: 1612771.
+```
