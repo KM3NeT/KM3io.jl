@@ -194,6 +194,7 @@ function Base.seek(tape::OfflineEventTape, d::DateTime)
         else
             low = i + 1
         end
+        GC.gc()  # to avoid memory issues due to lazy GC
     end
 
     # nothing found, setting the index to the very end
