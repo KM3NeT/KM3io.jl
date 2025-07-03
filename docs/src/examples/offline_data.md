@@ -201,3 +201,27 @@ end
     the [`OfflineEventTape`] will set its position to the very first event which is
     after the specified date. It might happen however, that some of the following
     events are earlier in time.
+
+
+The following example shows a tape instantiated with a folder containing 415
+ROOT files with a total size of 149 GB. The search for the first event after a
+given date takes only a few seconds and the iteration will start right there:
+
+```@julia-repl
+julia> using KM3io, Dates
+
+julia> tape = OfflineEventTape("/Volumes/ECAP Data/data/KM3NeT_00000100/v9.2/dst")
+OfflineEventTape(415 sources)
+
+julia> seek(tape, DateTime("2022-01-02T10:23:45"))
+OfflineEventTape(415 sources)
+
+julia> position(tape)  # file #213, event at index 58136
+(231, 58136)
+
+julia> for event in tape
+           @show event
+           break
+       end
+event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)
+```
