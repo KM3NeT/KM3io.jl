@@ -281,7 +281,50 @@ end
 function Base.show(io::IO, f::OfflineTree)
     print(io, "OfflineTree ($(length(f)) events)")
 end
+"""
+    function Base.getindex(f::OfflineTree, b::AbstractString, ::Colon)
 
+Shortcut to access only a specific branch of the ROOT tree.
+Requires knowledge of the ROOT branch structure.
+
+# Example
+```
+julia> f = ROOTFile(datapath("offline", "numucc.root"))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
+
+julia> f.offline["t/t.fSec", :]
+10-element Vector{Int32}:
+  3
+  7
+  8
+ 10
+ 13
+ 26
+ 27
+ 43
+ 51
+ 52
+
+julia> f.offline["hits/hits.id", :]
+10-element ArraysOfArrays.VectorOfVectors{Int32, Vector{Int32}, Vector{Int32}, Vector{Tuple{}}}:
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ Int32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+```
+
+"""
+function Base.getindex(f::OfflineTree, b::AbstractString, ::Colon)
+    tpath = ROOT.TTREE_OFFLINE_EVENT
+    bpath = ROOT.TBRANCH_OFFLINE_EVENT
+    UnROOT.array(f._fobj, tpath * "/" * bpath * "/$(b)")
+end
 Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.getindex(f::OfflineTree, idx::Integer)::Evt

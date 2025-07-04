@@ -150,15 +150,15 @@ from the start of the epoch, just like the UNIX time.
 
 """
 struct UTCTime
-    s::UInt64
-    ns::UInt64
+    s::Int64
+    ns::Int64
 end
-Base.show(io::IO, t::UTCTime) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)))")
+Base.show(io::IO, t::UTCTime) = print(io, "$(typeof(t))($(t.s), $(t.ns))")
 
 """
 
-An extended time structure which contains the White Rabbit time synchronisation
-status. `wr_status == 0` means that the synchronisation is OK.
+An extended time structure used in the DAQ. It contains the White Rabbit time
+synchronisation status. `wr_status == 0` means that the synchronisation is OK.
 
 """
 struct UTCExtended

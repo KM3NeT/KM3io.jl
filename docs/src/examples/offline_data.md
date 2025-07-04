@@ -135,3 +135,111 @@ f.offline[1].usr
 ```@example 1
 close(f)
 ```
+
+## [Offline Event Tape](@id offline_event_tape)
+
+A convenient way of processing many files (or XRootD sources) event-by-event is
+provided by the [`OfflineEventTape`](@ref). It can be instantiated with a list
+of files/sources, a single file or a folder. The latter will be scanned upon
+initialisation and the files will be sorted by their filename before added to
+the list of sources.
+
+The [`OfflineEventTape`](@ref) is a lazy data structure and only loads data
+from disk when necessary, e.g. during the event loop iteration or when
+seeking.
+
+The following examples creates a on offline event tape with two files:
+
+```@example 1
+tape = OfflineEventTape(
+    [
+        datapath("offline", "numucc.root"),
+        datapath("offline", "km3net_offline.root")
+    ]
+)
+```
+
+the tape implements the iterator and yields an [`Evt`](@ref) instance
+in each iteration:
+
+```@example 1
+for event in tape
+    @show event
+end
+```
+
+The `seek` function can be used to set the start of iterations to a specific
+position.
+
+If an integer is passed, the tape will jump to the event #13 and potentially
+skim over files/sources:
+
+```@example 1
+seek(tape, 13)
+
+for event in tape
+    @show event
+end
+```
+
+Sometimes, when processing many files, it can be useful to jump to the
+event which happened right after a specific date:
+
+```@example 1
+using Dates
+
+seek(tape, DateTime("2019-08-29T00:00:22.200"))
+
+for event in tape
+    @show event
+end
+```
+
+!!! note
+
+    Events are not guaranteed to be sorted by time. When using `seek` with a date,
+    the [`OfflineEventTape`] will set its position to the very first event which is
+    after the specified date. It might happen however, that some of the following
+    events are earlier in time.
+
+
+The following example uses a tape instantiated with a folder containing 415 ROOT
+files with a total size of 149 GB.
+
+```@julia-repl
+julia> using KM3io, Dates
+
+julia> tape = OfflineEventTape("/Volumes/ECAP Data/data/KM3NeT_00000100/v9.2/dst")
+OfflineEventTape(415 sources)
+
+julia> seek(tape, DateTime("2022-01-02T10:23:45"))
+OfflineEventTape(415 sources)
+
+julia> position(tape)  # file #213, event at index 58136
+(231, 58136)
+
+julia> for event in tape
+           @show event
+           break
+       end
+event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)
+```
+
+The seek algorithm is implemented as a binary search to minimise the number of
+ROOT files to be opened. In case of the dataset used in the example above, the
+operation takes less than a second with a small footprint of about 230 MB, which
+is dominated by caching:
+
+```julia-repl
+julia> @benchmark seek(tape, DateTime("2022-01-02T10:23:45"))
+BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
+ Range (min … max):  881.339 ms … 897.701 ms  ┊ GC (min … max): 1.22% … 2.23%
+ Time  (median):     886.306 ms               ┊ GC (median):    2.09%
+ Time  (mean ± σ):   888.006 ms ±   6.992 ms  ┊ GC (mean ± σ):  2.03% ± 0.44%
+
+  █ █  █                         █                █           █
+  █▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  881 ms           Histogram: frequency by time          898 ms <
+
+ Memory estimate: 231.59 MiB, allocs estimate: 1612771.
+```

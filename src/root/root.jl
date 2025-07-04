@@ -40,12 +40,24 @@ function Base.show(io::IO, f::ROOTFile)
     print(io, "ROOTFile{$info}")
 end
 
+"""
+Returns true if the file contains offline events.
+"""
+hasofflineevents(f::ROOTFile) = !isnothing(f.offline) && length(f.offline) > 0
+
 
 """
+
+    OfflineEventTape(sources::Vector{String}; show_progress=false)
+    OfflineEventTape(filename_or_path::AbstractString; show_progress=false)
 
 A helper container which makes it easy to iterate over the offline
 tree of many offline files. It automatically skips files which have
 no offline events (due to an empty offline tree).
+
+If a `filename_or_path` is pointing to an existing file, a single file will be
+used. If it's a valid path, the directory will be scanned for ROOT files
+and they will be sorted by filename.
 
 An optional progressbar can be shown during iteration by passing
 `show_progress=true` to the constructor.
@@ -53,6 +65,16 @@ An optional progressbar can be shown during iteration by passing
 # Examples
 ```
 t = OfflineEventTape(["somefile.root", "anotherfile.root"])
+
+for event in t
+    # process the offline event
+end
+```
+
+Using a directory containing ROOT files:
+
+```
+t = OfflineEventTape("/mnt/data/KM3NeT_00000100/v9.2/dst")
 
 for event in t
     # process the offline event
@@ -73,30 +95,128 @@ end
 mutable struct OfflineEventTape
     sources::Vector{String}
     show_progress::Bool
+    start_at::Tuple{Int, Int}
 
     function OfflineEventTape(sources::Vector{String}; show_progress=false)
-        return new(sources, show_progress)
+        return new(sources, show_progress, (1, 1))
     end
+end
+function OfflineEventTape(filename_or_path::AbstractString; show_progress=false)
+    if isdir(filename_or_path)
+        sources = filter(p->endswith(p, ".root"), readdir(filename_or_path; join=true)) |> sort
+    elseif isfile(filename_or_path)
+        sources = [filename_or_path]
+    else
+        throw(SystemError("opening file \"$filename_or_path\""))
+    end
+    OfflineEventTape(sources; show_progress=show_progress)
 end
 Base.eltype(::OfflineEventTape) = Evt
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
+Base.position(t::OfflineEventTape) = t.start_at
+"""
+Seek to a given event position.
+"""
+function Base.seek(t::OfflineEventTape, n::Integer)
+    n_events = 0
+    for (source_idx, source) in enumerate(t.sources)
+        f = ROOTFile(source)
+        isnothing(f.offline) || length(f.offline) == 0 && continue
+        n_events += length(f.offline)
+        n > n_events && continue
+        t.start_at = (source_idx, n - (n_events - length(f.offline)))
+        return t
+    end
+    @warn "No event at position $n on this offline tape"
+    # Setting the index to the very end
+    t.start_at = (length(t.sources)+1, 1)
+    t
+end
+"""
+Seek to the first event which happened after the given datetime.
+
+The strategy: binary search for the source using first and last event
+datetime, then check matching file's events with `findfirst` search.
+If nothing is found, the pointer is set right after the last source
+resulting in an empty iterator.
+"""
+function Base.seek(tape::OfflineEventTape, d::DateTime)
+    low = 1
+    high = length(tape.sources)
+    t₀ = datetime2unix(d)
+
+    while low <= high
+        mid = low + (high - low)÷2
+        i = mid
+        # we need to do some "masking" since the offline tree might be missing
+        # or can contain no events
+        while i >=low && !hasofflineevents(ROOTFile(tape.sources[i]))
+            i -= 1
+        end
+        if i < low
+            i = mid + 1
+            while i <= high && !hasofflineevents(ROOTFile(tape.sources[i]))
+                i += 1
+            end
+        end
+        if i < low || i > high
+            # nothing found, setting the index to the very end
+            tape.start_at = (length(tape.sources)+1, 1)
+            return tape
+        end
+
+        f = ROOTFile(tape.sources[i])
+        timestamps = f.offline["t/t.fSec", :] + f.offline["t/t.fNanoSec", :]*1e-9
+        # events are not guaranteed to be sorted in time
+        t_min, t_max = extrema(timestamps)
+        if t_min <= t₀ <= t_max
+            # got it, let's find the event
+            # we do a simple `findfirst` here, since events are not time-sorted
+            event_idx = findfirst(t -> t >= t₀, timestamps)
+            tape.start_at = (i, event_idx)
+            return tape
+        elseif t₀ < t_min
+            # we need to check if the date is between two runs
+            _i = i - 1
+            while _i > 0
+                f = ROOTFile(tape.sources[_i])
+                if hasofflineevents(f)
+                    if t₀ > maximum(f.offline["t/t.fSec", :])
+                        tape.start_at = (_i + 1, 1)
+                        return tape
+                    else
+                        break
+                    end
+                end
+                _i -= 1
+            end
+            high = i - 1
+        else
+            low = i + 1
+        end
+    end
+
+    # nothing found, setting the index to the very end
+    tape.start_at = (length(tape.sources)+1, 1)
+    tape
+end
+
 function Base.iterate(t::OfflineEventTape)
-    source_idx = 1
-    event_idx = 1
+    source_idx, event_idx = t.start_at
     n_sources = length(t.sources)
 
-    p = Progress(n_sources; enabled=t.show_progress, showspeed=true)
+    p = Progress(n_sources - source_idx + 1; enabled=t.show_progress, showspeed=true, dt=0.5)
 
     while source_idx <= n_sources
         fname = t.sources[source_idx]
         f = ROOTFile(fname)
+        next!(p; showvalues=[("file", fname)])
         if isnothing(f.offline) || length(f.offline) == 0
             close(f)
             source_idx += 1
-            next!(p; showvalues=[("file", fname)])
             continue
         end
-        return (f.offline[1], (source_idx, event_idx+1, f, p))
+        return (f.offline[event_idx], (source_idx, event_idx+1, f, p))
     end
 
     nothing

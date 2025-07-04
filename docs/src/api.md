@@ -27,6 +27,7 @@ XCalibratedHit
 Trk
 MCTrk
 FitInformation
+hasofflineevents
 ```
 
 ## Online Format
