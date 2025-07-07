@@ -206,4 +206,5 @@ LonLat
 LonLatExtended
 lonlat
 isnorthern
+haversine
 ```

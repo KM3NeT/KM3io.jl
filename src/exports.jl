@@ -137,6 +137,7 @@ LonLat,  # TODO: move this to types?
 LonLatExtended,  # TODO: move this to types?
 lonlat,
 isnorthern,
+haversine,
 
 # Utils
 categorize,

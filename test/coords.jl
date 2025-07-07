@@ -4,7 +4,7 @@ using DelimitedFiles
 using Test
 
 
-@testset "DATX" begin
+@testset "UTM" begin
     detector = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
     data, header = readdlm(datapath("astro", "local2eq_aanet_2.7.0.csv"), ','; header=true)
 
@@ -25,4 +25,20 @@ using Test
         @test isapprox(ll.meridian_convergence, row[idx_meridian_convergence], atol=1e-5)
     end
 
+end
+
+@testset "haversine" begin
+    arca = LonLatExtended(0.2788259891652955, 0.6334183919376817, 1.3971407689009945, 0.010078736515781934)
+    orca = LonLatExtended(0.10510862459055528, 0.7470155743891863, 1.4135447624739128, -0.03532879792661984)
+    @test isapprox(1.1175809517026003e6, haversine(orca, arca))
+    arca = LonLat(0.2788259891652955, 0.6334183919376817)
+    orca = LonLatExtended(0.10510862459055528, 0.7470155743891863, 1.4135447624739128, -0.03532879792661984)
+    @test isapprox(1.1175809517026003e6, haversine(orca, arca))
+    @test isapprox(1.1175809517026003e6, haversine(arca, orca))
+
+    @test isapprox(1.1175809517026003e3, haversine(arca, orca; R=6371))
+
+    arca = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
+    orca = Detector(datapath("detx", "D_ORCA006_t.A02181836.p.A02181837.r.A02182001.detx"))
+    @test isapprox(1.1175809517026003e6, haversine(arca, orca))
 end

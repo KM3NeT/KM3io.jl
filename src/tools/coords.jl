@@ -1,7 +1,9 @@
+abstract type AbstractLonLat end
+
 """
 A position in longitude and latitude.
 """
-struct LonLat
+struct LonLat <: AbstractLonLat
     lon::Float64
     lat::Float64
 end
@@ -10,7 +12,7 @@ end
 A position in longitude and latitude including the point scale factor and the meridian
 convergence angle.
 """
-struct LonLatExtended
+struct LonLatExtended <: AbstractLonLat
     lon::Float64
     lat::Float64
     point_scale_factor::Float64
@@ -138,3 +140,25 @@ function lonlat_aanet(utm::UTMPosition)::LonLat
     return LonLat(longitude * π / 180, latitude * π / 180)
 end
 lonlat_aanet(d::Detector; kwargs...) = lonlat_aanet(d.pos; kwargs...)
+
+"""
+
+Calculates the Haversine distance between two locations for a given
+radius. The distance has the same unit as the radius `R`.
+
+The implementation is taken from
+[Distance.jl](https://github.com/JuliaStats/Distances.jl).
+
+"""
+function haversine(x::AbstractLonLat, y::AbstractLonLat; R=6_371_000)
+    λ₁, φ₁ = rad2deg(x.lon), rad2deg(x.lat)
+    λ₂, φ₂ = rad2deg(y.lon), rad2deg(y.lat)
+
+    Δλ = λ₂ - λ₁  # longitudes
+    Δφ = φ₂ - φ₁  # latitudes
+
+	a = sind(Δφ/2)^2 + cosd(φ₁)*cosd(φ₂)*sind(Δλ/2)^2
+
+    2 * (R * asin( min(√a, one(a)) ))
+end
+haversine(d₁::Detector, d₂::Detector) = haversine(lonlat(d₁), lonlat(d₂))
