@@ -147,7 +147,7 @@ Calculates the Haversine distance between two locations for a given
 radius. The distance has the same unit as the radius `R`.
 
 The implementation is taken from
-[Distance.jl](https://github.com/JuliaStats/Distances.jl).
+[Distances.jl](https://github.com/JuliaStats/Distances.jl).
 
 """
 function haversine(x::AbstractLonLat, y::AbstractLonLat; R=6_371_000)
