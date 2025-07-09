@@ -21,7 +21,7 @@ The implementation is taken from
 and specialised to [`Direction`](@ref) to avoid type piracy.
 
 """
-function angle(dir1::D, dir2::D) where {D<:Direction{T}} where {T}
+function Base.angle(dir1::D, dir2::D) where {D<:Direction{T}} where {T}
     unitdir1 = unitize(dir1)
     unitdir2 = unitize(dir2)
 
