@@ -1,10 +1,41 @@
+@inline norm2(d::Direction) = sqrt(foldl(+, abs2.(d)))
+@inline unitize(d::Direction) = d ./ norm2(d)
+
 """
-Calculate the angle between two vectors.
+    angle(dir1::T, dir2::T) where {T<:Direction}
+
+Accurately ascertains the undirected angle (0 <= radians < pi)
+between two points given in N-dimensional Cartesian coordinates.
+
+Prefer this to `acos` alternatives
+- more reliably accurate
+- more consistently stable
+
+Suggested when any |coordinate| of either point may be outside 2^±20 or [1/1_000_000, 1_000_000].
+Strongly recommended when any |coordinate| is outside 2^±24 or [1/16_000_000, 16_000_000].
+
+If one of the points is at the origin, the result is zero.
+
+The implementation is taken from
+[`AngleBetweenVectors.jl`](https://github.com/JeffreySarnoff/AngleBetweenVectors.jl)
+and specialised to [`Direction`](@ref) to avoid type piracy.
+
 """
-Base.angle(d1::Direction, d2::Direction) = acos(min(dot(normalize(d1), normalize(d2)), 1))
-Base.angle(a::T, b::T) where {T<:Union{KM3io.AbstractCalibratedHit, KM3io.PMT}} = Base.angle(a.dir, b.dir)
-Base.angle(a, b::Union{KM3io.AbstractCalibratedHit, KM3io.PMT}) = Base.angle(a, b.dir)
-Base.angle(a::Union{KM3io.AbstractCalibratedHit, KM3io.PMT}, b) = Base.angle(a.dir, b)
+function Base.angle(dir1::D, dir2::D) where {D<:Direction{T}} where {T}
+    unitdir1 = unitize(dir1)
+    unitdir2 = unitize(dir2)
+
+    y = unitdir1 .- unitdir2
+    x = unitdir1 .+ unitdir2
+
+    a = 2 * atan(norm2(y), norm2(x))
+
+    !(signbit(a) || signbit(float(T)(pi) - a)) ? a : (signbit(a) ? zero(T) : float(T)(pi))
+end
+Base.angle(t1::Trk, t2::Trk) = angle(t1.dir, t2.dir)
+Base.angle(a::T, b::T) where {T<:Union{KM3io.AbstractCalibratedHit, KM3io.PMT}} = angle(a.dir, b.dir)
+Base.angle(a, b::Union{KM3io.AbstractCalibratedHit, KM3io.PMT}) = angle(a, b.dir)
+Base.angle(a::Union{KM3io.AbstractCalibratedHit, KM3io.PMT}, b) = angle(a.dir, b)
 
 """
 
