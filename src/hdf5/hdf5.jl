@@ -116,3 +116,12 @@ function addmeta(dset::Union{HDF5.Dataset, HDF5.File, HDF5.Group, HDF5.Datatype}
 end
 addmeta(cdset::H5CompoundDataset, object) = addmeta(cdset.dset, object)
 addmeta(f::H5File, object) = addmeta(f._h5f, object)
+
+
+struct H5uDST
+    _h5f::H5File
+
+    function H5uDST(filename::AbstractString; mode::AbstractString="r")
+        return new(H5File(filename; mode=mode))
+    end
+end
