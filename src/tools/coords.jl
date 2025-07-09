@@ -162,3 +162,32 @@ function haversine(x::AbstractLonLat, y::AbstractLonLat; R=6_371_000)
     2 * (R * asin( min(√a, one(a)) ))
 end
 haversine(d₁::Detector, d₂::Detector) = haversine(lonlat(d₁), lonlat(d₂))
+
+
+"""
+Generate a rotation matrix to convert local ENU (East x, North y, Up z)
+coordinates to ECEF (Earth-Centered, Earth-Fixed) coordinates.
+"""
+function enu2ecef_matrix(lon, lat)
+    ϕ = lat
+    λ = lon
+    east = [-sin(λ), cos(λ), 0.0]
+    north = [-sin(ϕ)*cos(λ), -sin(ϕ)*sin(λ), cos(ϕ)]
+    up = [cos(ϕ)*cos(λ), cos(ϕ)*sin(λ), sin(ϕ)]
+    return hcat(east, north, up)
+end
+enu2ecef_matrix(l::AbstractLonLat) = enu2ecef_matrix(l.lon, l.lat)
+
+"""
+
+Generate a rotation matrix to transfrom local ENU (East x, North y, Up z)
+coordinates from one detector to another detector's local ENU coordinate
+system.
+
+"""
+rotmatrix(from::Detector, to::Detector) = rotmatrix(lonlat(from), lonlat(to))
+function rotmatrix(l1::AbstractLonLat, l2::AbstractLonLat)
+    R1 = enu2ecef_matrix(l1)
+    R2 = enu2ecef_matrix(l2)
+    R2'*R1
+end
