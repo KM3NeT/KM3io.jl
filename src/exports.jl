@@ -138,6 +138,7 @@ LonLatExtended,  # TODO: move this to types?
 lonlat,
 isnorthern,
 haversine,
+rotmatrix,
 
 # Utils
 categorize,

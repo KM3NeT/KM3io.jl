@@ -207,4 +207,5 @@ LonLatExtended
 lonlat
 isnorthern
 haversine
+rotmatrix
 ```
