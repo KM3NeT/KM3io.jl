@@ -55,14 +55,16 @@ end
     Rback = rotmatrix(l2, l1)
     @test I(3) == Rback*R
 
-    l1 = LonLat(0.0, -deg2rad(45.0))
-    l2 = LonLat(0.0, deg2rad(45.0))
-    R = rotmatrix(l1, l2)
-    @test isapprox([1, 0, 0], R*Direction(1.0, 0.0, 0.0))
-    @test isapprox([0, 0, 1], R*Direction(0.0, 1.0, 0.0))
-    @test isapprox([0, -1, 0], R*Direction(0.0, 0.0, 1.0))
-    Rback = rotmatrix(l2, l1)
-    @test I(3) == Rback*R
+    for some_lon in [0.0, 1.2, -1.2]
+        l1 = LonLat(some_lon, -deg2rad(45.0))
+        l2 = LonLat(some_lon, deg2rad(45.0))
+        R = rotmatrix(l1, l2)
+        @test isapprox([1, 0, 0], R*Direction(1.0, 0.0, 0.0))
+        @test isapprox([0, 0, 1], R*Direction(0.0, 1.0, 0.0))
+        @test isapprox([0, -1, 0], R*Direction(0.0, 0.0, 1.0))
+        Rback = rotmatrix(l2, l1)
+        @test isapprox(I(3), Rback*R)
+    end
 
     arca = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
     orca = Detector(datapath("detx", "D_ORCA006_t.A02181836.p.A02181837.r.A02182001.detx"))
