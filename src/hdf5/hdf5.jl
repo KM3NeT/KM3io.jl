@@ -16,6 +16,7 @@ struct H5CompoundDataset{T}
     _lock::ReentrantLock
 end
 Base.length(c::H5CompoundDatasetCache) = length(c.buffer)
+Base.size(c::H5CompoundDatasetCache) = (length(c),)
 isfull(c::H5CompoundDatasetCache) = length(c) >= c.size
 HDF5.read_attribute(cdset::H5CompoundDataset, name::AbstractString) = HDF5.read_attribute(cdset.dset, name)
 

@@ -82,6 +82,7 @@ end
 ==(a::T, b::T) where T<:FitInformation = a.values == b.values
 Base.getindex(fitinf::FitInformation, idx) = fitinf.values[idx + 1]
 Base.length(fitinf::FitInformation) = length(fitinf.values)
+Base.size(fitinf::FitInformation) = (length(fitinf),)
 Base.firstindex(::FitInformation) = 0
 Base.lastindex(fitinf::FitInformation) = length(fitinf) - 1
 Base.eltype(::FitInformation) = Float64
@@ -272,6 +273,7 @@ OfflineTree(filename::AbstractString) = OfflineTree(UnROOT.ROOTFile(filename))
 
 Base.close(f::OfflineTree) = close(f._fobj)
 Base.length(f::OfflineTree) = length(f._t.Evt_id)
+Base.size(f::OfflineTree) = (length(f),)
 Base.firstindex(f::OfflineTree) = 1
 Base.lastindex(f::OfflineTree) = length(f)
 Base.eltype(::OfflineTree) = Evt

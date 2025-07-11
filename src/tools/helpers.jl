@@ -7,6 +7,7 @@ struct MCEventMatcher
     f::ROOTFile
 end
 Base.length(itr::MCEventMatcher) = length(itr.f.online.events)
+Base.size(itr::MCEventMatcher) = (length(itr),)
 Base.lastindex(itr::MCEventMatcher) = length(itr)
 function Base.getindex(itr::MCEventMatcher, idx::Integer)
     event = itr.f.online.events[idx]
@@ -135,6 +136,7 @@ function Base.show(io::IO, sii::SummarysliceIntervalIterator)
 end
 Base.eltype(::Type{SummarysliceIntervalIterator}) = Vector{KM3io.Summaryslice}
 Base.length(sii::SummarysliceIntervalIterator) = sii.n_chunks
+Base.size(sii::SummarysliceIntervalIterator) = (length(sii),)
 function Base.iterate(sii::SummarysliceIntervalIterator, state=(chunk_idx=1, s_idx=1))
   state.chunk_idx > sii.n_chunks && return nothing
 

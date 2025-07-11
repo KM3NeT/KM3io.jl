@@ -221,6 +221,7 @@ OscOpenDataTree(filename::AbstractString, tpath::String) = OscOpenDataTree(UnROO
 
 Base.close(f::OscOpenDataTree) = close(f._fobj)
 Base.length(f::OscOpenDataTree) = length(f._t)
+Base.size(f::OscOpenDataTree) = (length(f),)
 Base.firstindex(f::OscOpenDataTree) = 1
 Base.lastindex(f::OscOpenDataTree) = length(f)
 Base.eltype(::OscOpenDataTree) = ResponseMatrixBin
