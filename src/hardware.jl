@@ -81,7 +81,7 @@ on floor 1 and higher.
 """
 struct Location
     string::Int32
-    floor::Int8
+    floor::Int32
 end
 Base.isless(lhs::Location, rhs::Location) = lhs.string == rhs.string ? lhs.floor < rhs.floor : lhs.string < rhs.string
 
@@ -551,7 +551,7 @@ function read_detx(io::IO)
 
     modules = Dict{Int32, DetectorModule}()
     locations = Dict{Tuple{Int, Int}, DetectorModule}()
-    strings = Int8[]
+    strings = Int32[]
     _pmt_id_module_map = Dict{Int, DetectorModule}()
 
     # a counter to work around the floor == -1 bug in some older DETX files
