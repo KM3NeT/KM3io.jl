@@ -208,7 +208,7 @@ function read(filename::AbstractString, T::Type{Hydrophone})
             continue
         end
         string, floor, x, y, z = split(line)
-        location = Location(parse(Int32, string), parse(Int8, floor))
+        location = Location(parse(Int32, string), parse(Int32, floor))
         pos = Position(parse.(Float64, [x, y, z])...)
         push!(hydrophones, T(location, pos))
     end
