@@ -68,7 +68,6 @@ const _PMTAddressMap = SVector(
 """
 Get the physical address of a PMT.
 """
-getaddress(pmt::PMT) = _PMTAddressMap[pmt.id + 1]  # Julia has 1-based indexing, DAQ channels start at 0
 getaddress(channel_id::Integer) = _PMTAddressMap[channel_id + 1]
 
 

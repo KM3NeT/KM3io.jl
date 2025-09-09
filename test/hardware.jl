@@ -263,5 +263,4 @@ end
 
 @testset "getaddress" begin
     @test getaddress(4) == KM3io.PMTPhysicalAddress('F', 3)
-    @test getaddress(PMT(0, Position(0, 0, 0), Direction(1.0, 0.0, 0.0), 0, 0)) == KM3io.PMTPhysicalAddress('F', 4)
 end
