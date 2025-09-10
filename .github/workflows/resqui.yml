@@ -15,3 +15,5 @@ jobs:
         uses: EVERSE-ResearchSoftware/QualityPipelines@rest-api
         with:
           config: ".resqui.json"
+        env:
+          RESQUI_GITHUB_TOKEN: ${{ secrets.RESQUI_GITHUB_TOKEN }}
