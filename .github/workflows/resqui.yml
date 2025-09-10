@@ -16,4 +16,4 @@ jobs:
         with:
           config: ".resqui.json"
           github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
-          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
+#          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
