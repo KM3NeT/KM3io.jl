@@ -6,6 +6,7 @@ on:
 jobs:
   run-resqui:
     runs-on: ubuntu-latest
+    environment: resqui
 
     steps:
       - name: Debug secrets
