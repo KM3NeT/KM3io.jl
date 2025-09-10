@@ -30,6 +30,5 @@ jobs:
       - name: Run resqui action
         uses: EVERSE-ResearchSoftware/QualityPipelines@rest-api
         with:
-          config: ".resqui.json"
           github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
           dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
