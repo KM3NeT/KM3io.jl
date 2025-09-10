@@ -12,7 +12,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run resqui action
-        uses: ./
+        uses: EVERSE-ResearchSoftware/QualityPipelines@rest-api
         with:
-          url: "https://github.com/EVERSE-ResearchSoftware/QualityPipelines"
           config: ".resqui.json"
