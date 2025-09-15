@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run resqui action
-        uses: EVERSE-ResearchSoftware/QualityPipelines@rest-api
+        uses: EVERSE-ResearchSoftware/QualityPipelines
         with:
           github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
           dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
