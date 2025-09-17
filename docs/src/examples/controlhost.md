@@ -70,7 +70,7 @@ Client[4].read(0,1,1716)
 
 ## Retrieving Events
 
-Now open a thrid terminal and fire up the Julia REPL. With a few lines, we will
+Now open a third terminal and fire up the Julia REPL. With a few lines, we will
 able to connect to the ligier and receive DAQ events interactively.
 
 ```julia-repl
