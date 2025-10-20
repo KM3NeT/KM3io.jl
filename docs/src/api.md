@@ -134,6 +134,7 @@ slerp
 ```@docs
 azimuth
 zenith
+true_azimuth
 phi
 theta
 cherenkov
