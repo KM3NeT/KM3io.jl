@@ -67,18 +67,31 @@ coordinate systems like [Geographic Coordinate System (GCS)](https://en.wikipedi
 ### KM3NeT/ANTARES Azimuth
 
 ```@example 1
-@show azimuth(Direction(1.0, 0.0, 0.0))
-@show azimuth(Direction(0.0, 1.0, 0.0))
-@show azimuth(Direction(0.0, -1.0, 0.0))
+azimuth(Direction(1.0, 0.0, 0.0))
+```
+
+```@example 1
+azimuth(Direction(0.0, 1.0, 0.0))
+```
+
+```@example 1
+azimuth(Direction(0.0, -1.0, 0.0))
 ```
 
 ### "True" Azimuth
 
 The "true" azimuth (as typically used in astronomy libraries like SLALIB and AstroPy)
-can be obtained using [`true_azimuth`](@ref):
+can be obtained using [`true_azimuth`](@ref).
+Azimuth is returned in the range 0−2π; north is zero, and east is +π/2.
 
 ```@example 1
-@show true_azimuth(Direction(1.0, 0.0, 0.0))
-@show true_azimuth(Direction(0.0, 1.0, 0.0))
-@show true_azimuth(Direction(0.0, -1.0, 0.0))
+true_azimuth(Direction(1.0, 0.0, 0.0))
+```
+
+```@example 1
+true_azimuth(Direction(0.0, 1.0, 0.0))
+```
+
+```@example 1
+true_azimuth(Direction(0.0, -1.0, 0.0))
 ```
