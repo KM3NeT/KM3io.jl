@@ -27,6 +27,7 @@ makedocs(;
             "examples/online_data.md",
             "examples/offline_data.md",
             "examples/cherenkov_times.md",
+            "examples/footprint.md",
             "examples/orientations.md",
             "examples/controlhost.md",
             "examples/hdf5.md",
