@@ -27,11 +27,13 @@ Now selecting only the base modules:
 bases = filter(isbasemodule, detector)
 ```
 
-Finally create an array of x and y coordinates and plot the footprint:
+Finally create an array of x and y coordinates and plot the footprint
+including the string identifiers:
 
 ```@example 1
 xy = [(b.pos.x, b.pos.y) for b in bases]
 scatter!(ax, xy)
+annotation!(ax, xy, text=["$(b.location.string)" for b in bases])
 
 fig
 ```
