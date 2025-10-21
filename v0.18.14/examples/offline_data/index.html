@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Offline data · KM3io.jl</title><meta name="title" content="Offline data · KM3io.jl"/><meta property="og:title" content="Offline data · KM3io.jl"/><meta property="twitter:title" content="Offline data · KM3io.jl"/><meta name="description" content="Documentation for KM3io.jl."/><meta property="og:description" content="Documentation for KM3io.jl."/><meta property="twitter:description" content="Documentation for KM3io.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="KM3io.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../manual/rootfiles/">ROOT Files</a></li><li><a class="tocitem" href="../../manual/multi-threading/">Multi-Threading</a></li><li><a class="tocitem" href="../../manual/detector/">Detector and its Components</a></li><li><a class="tocitem" href="../../manual/calibration/">Calibration</a></li><li><a class="tocitem" href="../../manual/coordinates/">Coordinates</a></li><li><a class="tocitem" href="../../manual/auxfiles/">Auxiliary Files</a></li><li><a class="tocitem" href="../../manual/tools/">Tools</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../online_data/">Online data</a></li><li class="is-active"><a class="tocitem" href>Offline data</a><ul class="internal"><li><a class="tocitem" href="#Events"><span>Events</span></a></li><li><a class="tocitem" href="#offline_event_tape"><span>Offline Event Tape</span></a></li></ul></li><li><a class="tocitem" href="../cherenkov_times/">Cherenkov times</a></li><li><a class="tocitem" href="../footprint/">Detector Footprint</a></li><li><a class="tocitem" href="../orientations/">Orientations</a></li><li><a class="tocitem" href="../controlhost/">Accessing Live Data</a></li><li><a class="tocitem" href="../hdf5/">HDF5</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Offline data</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Offline data</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl" title="View the repository"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">Repository</span></a><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl/blob/main/docs/src/examples/offline_data.md#L" title="Edit source"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Offline-data"><a class="docs-heading-anchor" href="#Offline-data">Offline data</a><a id="Offline-data-1"></a><a class="docs-heading-anchor-permalink" href="#Offline-data" title="Permalink"></a></h1><p>Let&#39;s use the <code>KM3NeTTestData</code> Julia package which contains all kinds of KM3NeT related sample files. The <code>datapath()</code> function can be used to get a path to such a file. In the following, we will discover the <code>numucc.root</code> file which contains 10 muon neutrino charged current interaction events.</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath(&quot;offline&quot;, &quot;numucc.root&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}</code></pre><p>The <code>ROOTFile</code> is the container object which gives access to both the online and offline tree. In this case, the online tree is empty</p><pre><code class="language-julia hljs">f.online</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OnlineTree (0 events, 0 summaryslices)</code></pre><p>and the offline tree holds our 10 MC events:</p><pre><code class="language-julia hljs">f.offline</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OfflineTree (10 events)</code></pre><h2 id="Events"><a class="docs-heading-anchor" href="#Events">Events</a><a id="Events-1"></a><a class="docs-heading-anchor-permalink" href="#Events" title="Permalink"></a></h2><p>To access a single event, you can use the usual indexing syntax:</p><pre><code class="language-julia hljs">some_event = f.offline[5]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (4105 hits, 78 MC hits, 0 reco tracks, 10 MC tracks)
+  ID: 5
+  Detector ID: 20
+  MC ID: 497
+  MC event time: UTCTime(0, 0)
+  Primary MC particle: MCTrk(0, Position{Float64}(59.008, 86.346, 387.320), Direction{Float64}(-0.649, -0.483, 0.588), 0.0, 132.718, 0.0, 14, 0, 0, 0)
+</code></pre><p>or ranges of events:</p><pre><code class="language-julia hljs">events = f.offline[6:9]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4-element Vector{Evt}:
+ Evt (4301 hits, 50 MC hits, 60 tracks, 13 MC tracks)
+ Evt (3949 hits, 58 MC hits, 59 tracks, 11 MC tracks)
+ Evt (4180 hits, 49 MC hits, 66 tracks, 10 MC tracks)
+ Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks)</code></pre><p>Another way to access events is given by getter function <code>getevent()</code> (which also works for online trees). If a single number if passed, it will be treated as a regular index, just like above:</p><pre><code class="language-julia hljs">event = getevent(f.offline, 3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
+  ID: 3
+  Detector ID: 20
+  MC ID: 301
+  MC event time: UTCTime(0, 0)
+  Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
+</code></pre><p>when two numbers are passed, the first one is interpreted as <code>frame_index</code> and the second one as <code>trigger_counter</code>:</p><pre><code class="language-julia hljs">event = getevent(f.offline, 87, 2)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
+  ID: 3
+  Detector ID: 20
+  MC ID: 301
+  MC event time: UTCTime(0, 0)
+  Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
+</code></pre><h3 id="Hits"><a class="docs-heading-anchor" href="#Hits">Hits</a><a id="Hits-1"></a><a class="docs-heading-anchor-permalink" href="#Hits" title="Permalink"></a></h3><p>Each event consists of a vector of hits, MC hits, tracks and MC tracks. Depending on the file, they may be empty. They are accessible via the fields <code>.hit</code>, <code>.mc_hits</code>, <code>.trks</code> and <code>.mc_trks</code>.</p><p>Let&#39;s grab an event:</p><pre><code class="language-julia hljs">evt = f.offline[3]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
+  ID: 3
+  Detector ID: 20
+  MC ID: 301
+  MC event time: UTCTime(0, 0)
+  Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
+</code></pre><p>and have a look at its contents:</p><pre><code class="language-julia hljs">evt.hits</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3680-element Vector{CalibratedHit}:
+ CalibratedHit(101, 0x00000014, 0x00000000, 0x0000001c, 0x0000000000000000, 4.1278339e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(101, 0x00000013, 0x00000000, 0x0000001a, 0x0000000000000000, 4.1283561e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(102, 0x00000012, 0x00000000, 0x00000019, 0x0000000000000000, 4.1282618e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(103, 0x00000002, 0x00000000, 0x0000001b, 0x0000000000000000, 4.1278687e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(103, 0x00000012, 0x00000000, 0x00000018, 0x0000000000000000, 4.1285088e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(104, 0x0000000c, 0x00000000, 0x00000015, 0x0000000000000000, 4.1280852e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(105, 0x00000013, 0x00000000, 0x0000001a, 0x0000000000000000, 4.1279503e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(105, 0x00000003, 0x00000000, 0x0000001b, 0x0000000000000000, 4.12895e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(106, 0x00000005, 0x00000000, 0x0000001c, 0x0000000000000000, 4.1280505e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(106, 0x0000001a, 0x00000000, 0x00000015, 0x0000000000000000, 4.1285236e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ ⋮
+ CalibratedHit(11513, 0x00000016, 0x00000000, 0x0000000a, 0x0000000000000000, 4.1283562e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11514, 0x00000003, 0x00000000, 0x00000012, 0x0000000000000000, 4.1278657e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11514, 0x00000012, 0x00000000, 0x00000019, 0x0000000000000000, 4.1286932e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11515, 0x00000003, 0x00000000, 0x00000013, 0x0000000000000000, 4.1278167e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11516, 0x00000015, 0x00000000, 0x0000001b, 0x0000000000000000, 4.1288682e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11517, 0x00000001, 0x00000000, 0x00000015, 0x0000000000000000, 4.1282884e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11518, 0x00000013, 0x00000000, 0x00000015, 0x0000000000000000, 4.1281458e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11518, 0x00000002, 0x00000000, 0x0000001d, 0x0000000000000000, 4.1281468e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))
+ CalibratedHit(11518, 0x00000013, 0x00000000, 0x00000019, 0x0000000000000000, 4.1284348e7, Position{Float64}(0.000, 0.000, 0.000), Direction{Float64}(0.000, 0.000, 0.000))</code></pre><p>Let&#39;s close this file properly:</p><pre><code class="language-julia hljs">close(f)</code></pre><h3 id="Reconstructions"><a class="docs-heading-anchor" href="#Reconstructions">Reconstructions</a><a id="Reconstructions-1"></a><a class="docs-heading-anchor-permalink" href="#Reconstructions" title="Permalink"></a></h3><p>We pick the best reconstructed muon from the Jpp reconstruction chain using <a href="../../api/#KM3io.bestjppmuon"><code>bestjppmuon</code></a>:</p><pre><code class="language-julia hljs">reco = bestjppmuon(f.offline[1])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Trk (Reconstructed track)
+  id: 1
+  pos: Position{Float64}(-647.396, -138.621, 319.288)
+  dir: Direction{Float64}(0.939, 0.269, 0.213)
+  t: 8.849343007963674e7
+  E: 117.28604237509933
+  len: 0.0
+  lik: 92.7921433955364
+  rec_type: 4000
+  rec_stages: Int32[1, 2, 3, 4, 5]
+  fitinf: FitInformation([0.0020367251782607574, 0.0014177681261476852, -92.7921433955364, 107.0, 1141.8713789917795, 264.38698486751207, 0.3629813537326686, 11.0, 5.265362302261376, 13.45233763002935, 671.9039327646219, 0.0, 0.0, 2543.769772201125, -312.0874580760447, 31061.0, 107.0])</code></pre><p>All the attributes listed in the output above are accessible directly from the returned <a href="../../api/#KM3io.Trk"><code>Trk</code></a> object.</p><p>Using the <a href="https://docs.julialang.org/en/v1/manual/functions/#man-vectorized">Dot Syntax feature of Julia</a> to vectorise the <code>bestjppmuon</code> function in order to call it on each event, we get a <code>Vector{Union{Missing, Trk}}</code> with 10 elements, the same number as events.</p><pre><code class="language-julia hljs">recos = bestjppmuon.(f.offline)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10-element Vector{Union{Missing, Trk}}:
+ Trk(1, Position{Float64}(-647.396, -138.621, 319.288), Direction{Float64}(0.939, 0.269, 0.213), 8.849343007963674e7, 117.28604237509933, 0.0, 92.7921433955364, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.0020367251782607574, 0.0014177681261476852, -92.7921433955364, 107.0, 1141.8713789917795, 264.38698486751207, 0.3629813537326686, 11.0, 5.265362302261376, 13.45233763002935, 671.9039327646219, 0.0, 0.0, 2543.769772201125, -312.0874580760447, 31061.0, 107.0]))
+ Trk(1, Position{Float64}(448.985, 77.589, 514.499), Direction{Float64}(-0.733, 0.676, -0.081), 5.373024087958329e7, 4404.5483978014345, 0.0, 78.6644081591586, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.003306725805622178, 0.002094094517471032, -78.6644081591586, 94.0, 4708.163785752027, 216.62130875898578, 16.10344549704008, 19.0, 1.4697876790656463, 2.30609168258663, 550.546007964009, 0.0, 0.0, 5511.886182012078, -Inf, 18413.0, 100.0]))
+ Trk(1, Position{Float64}(451.123, 251.088, 661.826), Direction{Float64}(-0.188, 0.013, -0.982), 4.128332208432634e7, 8.370062693049057, 0.0, 60.6596644718277, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.0057877124222254885, 0.003923368624980349, -60.6596644718277, 43.0, 499.72430050336106, 83.38095320764664, 0.44364387678437267, 9.0, 4.360114284655301, 22.285260195443527, 164.07852977335324, 0.0, 0.0, 1395.415421753966, -126.44893320133944, 11035.0, 44.0]))
+ Trk(1, Position{Float64}(174.237, -114.606, 228.994), Direction{Float64}(-0.113, 0.936, 0.333), 4.495879182058443e7, 0.07330127409305437, 0.0, 24.707034349799443, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.015581698352185896, 0.009491461076780453, -24.707034349799443, 86.0, 103.54680875177948, 241.4350600810178, 3.266832183594016, 12.0, 0.45162569000225233, 0.45162569000225233, 87.33025897135943, 0.0, 0.0, 350.9576229641073, -248.2136281614012, 27341.0, 84.0]))
+ missing
+ Trk(1, Position{Float64}(207.242, 143.619, 82.590), Direction{Float64}(-0.876, -0.368, 0.311), 2.3455022487720076e7, 0.6036026973685176, 0.0, 58.70292050419075, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.005511614669452927, 0.00325807584389504, -58.70292050419075, 86.0, 208.61039120183392, 215.8892791712461, 19.681988940826766, 17.0, 10.049137840625324, 15.862244522613985, 638.673694728405, 0.0, 0.0, 667.5246931688921, -246.429763577056, 25698.0, 84.0]))
+ Trk(1, Position{Float64}(-460.758, 86.850, 224.393), Direction{Float64}(-0.294, -0.212, 0.932), 7.143245883701208e7, 214.70262170620663, 0.0, 99.2362241012801, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.004248848088187865, 0.0027546709485314074, -99.2362241012801, 75.0, 1336.5233866589012, 152.22581865603968, 0.040331261525852063, 10.0, 7.010120467449694, 12.77144841888497, 426.91635316214877, 0.0, 0.0, 2816.4173012653227, -Inf, 13949.0, 75.0]))
+ Trk(1, Position{Float64}(-522.582, -263.150, 434.833), Direction{Float64}(0.964, 0.090, 0.251), 7.477929535375737e7, 70.06192503795313, 0.0, 68.14060250066119, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.004101151563891158, 0.002092684350285085, -68.14060250066119, 89.0, 998.8763226712673, 211.00948573840338, 0.06024793388429752, 6.0, 15.113848244977945, 16.492757130258603, 400.40395747240143, 0.0, 0.0, 2325.3160124087863, -Inf, 22071.0, 89.0]))
+ Trk(1, Position{Float64}(324.162, -203.143, 500.185), Direction{Float64}(-0.836, 0.546, -0.041), 5.409091484199188e7, 145.21733666145144, 0.0, 24.97545371522731, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.006811020599115176, 0.0042244227209283225, -24.97545371522731, 109.0, 1206.5434567400432, 297.66724828750915, 35.93515401953418, 11.0, 1.5677362278913236, 1.8863758539060305, 425.69335951076613, 0.0, 0.0, 2637.296203348022, -Inf, 29511.0, 110.0]))
+ Trk(1, Position{Float64}(-436.232, 467.751, 477.869), Direction{Float64}(0.918, -0.377, -0.124), 3.1358173560490765e7, 0.00028016335410339786, 0.0, 1.8892925851353164, 4000, Int32[1, 2, 3, 4, 5], FitInformation([0.03551752160687541, 0.024596855145628996, -1.8892925851353164, 64.0, 16.28973662033325, 203.84773622910956, 118.57991684184053, 21.0, 0.43480442245182477, 0.453521290130835, 911.3305317553036, 0.0, 0.0, 58.17541786686647, -206.52204035464808, 27279.0, 68.0]))</code></pre><div class="admonition is-info" id="Note-2a0f7b077a345706"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-2a0f7b077a345706" title="Permalink"></a></header><div class="admonition-body"><p>Notice that <a href="../../api/#KM3io.bestjppmuon"><code>bestjppmuon</code></a> and other similar functions (<a href="../../api/#KM3io.bestaashower"><code>bestaashower</code></a>, <a href="../../api/#KM3io.bestjppshower"><code>bestjppshower</code></a>...) can return <code>missing</code> when there is no matching reconstructed track in an event.</p></div></div><h3 id="Fit-Parameters"><a class="docs-heading-anchor" href="#Fit-Parameters">Fit Parameters</a><a id="Fit-Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Fit-Parameters" title="Permalink"></a></h3><p>The fit parameters need a bit of special care. Since the KM3NeT offline dataformat only stores a plain array of values due to historical reasons, we need to know the index of a specific parameter beforehand. You should avoid using hard-coded numbers to access the elements. Accessing <code>.fitinf</code> on any reconstructed track will return an object of type <a href="../../api/#KM3io.FitInformation"><code>FitInformation</code></a>, which behaves like an array but takes care of the 1-based indexing nature of Julia since the index definitions defined in the <a href="https://git.km3net.de/common/km3net-dataformat">KM3NeT Dataformat</a> are 0-based. These index definitions are accessible under the <code>KM3io.FITPARAMETERS</code> namespace. If you are for example interested in the <code>JGandalf Chi2</code> parameter, you can access its value like this:</p><pre><code class="language-julia hljs">reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_CHI2]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">-92.7921433955364</code></pre><h3 id="Usr-data"><a class="docs-heading-anchor" href="#Usr-data">Usr data</a><a id="Usr-data-1"></a><a class="docs-heading-anchor-permalink" href="#Usr-data" title="Permalink"></a></h3><p>You can also access &quot;usr&quot;-data, which is a dynamic placeholder (<code>Dict{String, Float64}</code>) to store arbitrary data. Some software store values here which are only losely defined. Ideally, if these fields are used regulary by a software, a proper definition in the KM3NeT dataformat should be created and added to the according <code>Struct</code> as a field.</p><p>Here is an example how to access the &quot;usr&quot;-data of a single event:</p><pre><code class="language-julia hljs">f = ROOTFile(datapath(&quot;offline&quot;, &quot;usr-sample.root&quot;))
+
+f.offline[1].usr</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Float64} with 17 entries:
+  &quot;NTrigDOMs&quot;          =&gt; 7.0
+  &quot;NTrigLines&quot;         =&gt; 6.0
+  &quot;ChargeBelow&quot;        =&gt; 649.0
+  &quot;ClassficationScore&quot; =&gt; 0.168634
+  &quot;NTrigHits&quot;          =&gt; 30.0
+  &quot;NGeometryVetoHits&quot;  =&gt; 0.0
+  &quot;ChargeRatio&quot;        =&gt; 0.213333
+  &quot;ToT&quot;                =&gt; 825.0
+  &quot;DeltaPosZ&quot;          =&gt; 37.5197
+  &quot;RecoQuality&quot;        =&gt; 85.4596
+  &quot;LastPartPosZ&quot;       =&gt; 97.7753
+  &quot;NSnapHits&quot;          =&gt; 51.0
+  &quot;NSpeedVetoHits&quot;     =&gt; 0.0
+  &quot;RecoNDF&quot;            =&gt; 37.0
+  &quot;FirstPartPosZ&quot;      =&gt; 135.295
+  &quot;CoC&quot;                =&gt; 118.63
+  &quot;ChargeAbove&quot;        =&gt; 176.0</code></pre><pre><code class="language-julia hljs">close(f)</code></pre><h2 id="offline_event_tape"><a class="docs-heading-anchor" href="#offline_event_tape">Offline Event Tape</a><a id="offline_event_tape-1"></a><a class="docs-heading-anchor-permalink" href="#offline_event_tape" title="Permalink"></a></h2><p>A convenient way of processing many files (or XRootD sources) event-by-event is provided by the <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a>. It can be instantiated with a list of files/sources, a single file or a folder. The latter will be scanned upon initialisation and the files will be sorted by their filename before added to the list of sources.</p><p>The <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a> is a lazy data structure and only loads data from disk when necessary, e.g. during the event loop iteration or when seeking.</p><p>The following examples creates a on offline event tape with two files:</p><pre><code class="language-julia hljs">tape = OfflineEventTape(
+    [
+        datapath(&quot;offline&quot;, &quot;numucc.root&quot;),
+        datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;)
+    ]
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OfflineEventTape(2 sources)</code></pre><p>the tape implements the iterator and yields an <a href="../../api/#KM3io.Evt"><code>Evt</code></a> instance in each iteration:</p><pre><code class="language-julia hljs">for event in tape
+    @show event
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (4271 hits, 58 MC hits, 68 tracks, 11 MC tracks)
+event = Evt (4145 hits, 145 MC hits, 38 tracks, 25 MC tracks)
+event = Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks)
+event = Evt (3967 hits, 19 MC hits, 18 tracks, 10 MC tracks)
+event = Evt (4105 hits, 78 MC hits, 0 tracks, 10 MC tracks)
+event = Evt (4301 hits, 50 MC hits, 60 tracks, 13 MC tracks)
+event = Evt (3949 hits, 58 MC hits, 59 tracks, 11 MC tracks)
+event = Evt (4180 hits, 49 MC hits, 66 tracks, 10 MC tracks)
+event = Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks)
+event = Evt (4024 hits, 48 MC hits, 22 tracks, 16 MC tracks)
+event = Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><p>The <code>seek</code> function can be used to set the start of iterations to a specific position.</p><p>If an integer is passed, the tape will jump to the event #13 and potentially skim over files/sources:</p><pre><code class="language-julia hljs">seek(tape, 13)
+
+for event in tape
+    @show event
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><p>Sometimes, when processing many files, it can be useful to jump to the event which happened right after a specific date:</p><pre><code class="language-julia hljs">using Dates
+
+seek(tape, DateTime(&quot;2019-08-29T00:00:22.200&quot;))
+
+for event in tape
+    @show event
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><div class="admonition is-info" id="Note-34bfee51c5698ad9"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-34bfee51c5698ad9" title="Permalink"></a></header><div class="admonition-body"><p>Events are not guaranteed to be sorted by time. When using <code>seek</code> with a date, the [<code>OfflineEventTape</code>] will set its position to the very first event which is after the specified date. It might happen however, that some of the following events are earlier in time.</p></div></div><p>The following example uses a tape instantiated with a folder containing 415 ROOT files with a total size of 149 GB.</p><pre><code class="language- hljs">julia&gt; using KM3io, Dates
+
+julia&gt; tape = OfflineEventTape(&quot;/Volumes/ECAP Data/data/KM3NeT_00000100/v9.2/dst&quot;)
+OfflineEventTape(415 sources)
+
+julia&gt; seek(tape, DateTime(&quot;2022-01-02T10:23:45&quot;))
+OfflineEventTape(415 sources)
+
+julia&gt; position(tape)  # file #213, event at index 58136
+(231, 58136)
+
+julia&gt; for event in tape
+           @show event
+           break
+       end
+event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)</code></pre><p>The seek algorithm is implemented as a binary search to minimise the number of ROOT files to be opened. In case of the dataset used in the example above, the operation takes less than a second with a small footprint of about 230 MB, which is dominated by caching:</p><pre><code class="language-julia-repl hljs">julia&gt; @benchmark seek(tape, DateTime(&quot;2022-01-02T10:23:45&quot;))
+BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
+ Range (min … max):  881.339 ms … 897.701 ms  ┊ GC (min … max): 1.22% … 2.23%
+ Time  (median):     886.306 ms               ┊ GC (median):    2.09%
+ Time  (mean ± σ):   888.006 ms ±   6.992 ms  ┊ GC (mean ± σ):  2.03% ± 0.44%
+
+  █ █  █                         █                █           █
+  █▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  881 ms           Histogram: frequency by time          898 ms &lt;
+
+ Memory estimate: 231.59 MiB, allocs estimate: 1612771.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../online_data/">« Online data</a><a class="docs-footer-nextpage" href="../cherenkov_times/">Cherenkov times »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 21 October 2025 07:39">Tuesday 21 October 2025</span>. Using Julia version 1.11.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
