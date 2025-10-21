@@ -9,8 +9,21 @@ supports many of them by defining a container type and extending the
 f = read("path/to/the.file", FileContainerType)
 ```
 
+## Interoperability with `KM3Aux.jl`
 
-## PMT File
+The [`KM3Aux.jl`](https://git.km3net.de/common/KM3Aux.jl) package provides
+easy access to the auxiliary [KM3NeT Auxiliary Files Archive](https://git.km3net.de/auxiliary_data/calibration).
+In addition to that, once `KM3Aux` is loaded together with `KM3io`,
+additional methods will become available using the extension feature of Julia.
+
+- [`getpmts(det_id, run)`](@ref)
+- [`gettripods(det_id, run)`](@ref)
+- [`gethydrophones(det_id, run)`](@ref)
+- [`getwaveforms(det_id, run)`](@ref)
+
+## File types
+
+### PMT File
 
 The container type [`PMTFile`](@ref) is used to load PMT files which are produced
 by the K40 calibration procedure in Jpp.
