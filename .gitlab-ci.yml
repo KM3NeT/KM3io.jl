@@ -28,7 +28,7 @@ before_script:
         Pkg.resolve()
         Pkg.build()
         Pkg.test(coverage=true)'
-      git clone git@git.km3net.de:auxiliary_data/calibration
+        git clone https//gitlab-token:${CI_JOB_TOKEN}@git.km3net.de/auxiliary_data/calibration
 
 .coverage:
   coverage: /Test coverage (\d+\.\d+%)/
