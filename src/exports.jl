@@ -153,6 +153,7 @@ triggered,
 # Physics and math helpers
 CherenkovPhoton,
 azimuth,
+true_azimuth,
 cherenkov,
 distance,
 phi,

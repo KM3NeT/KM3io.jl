@@ -62,6 +62,13 @@ end
     @test π ≈ azimuth(Direction(-1.0, 0.0, 0.0))
 end
 
+@testset "true_azimuth()" begin
+    @test 0 ≈ true_azimuth(Direction(0.0, 1.0, 0.0))
+    @test π/2 == true_azimuth(Direction(1.0, 0.0, 0.0))
+    @test π ≈ true_azimuth(Direction(0.0, -1.0, 0.0))
+    @test π*3/2 ≈ true_azimuth(Direction(-1.23, 0.0, 0.0))
+end
+
 @testset "zenith()" begin
     @test 0.0 == zenith(Direction(0.0, 0.0, -1.0))
     @test π/2 == zenith(Direction(0.0, 1.0, 0.0))

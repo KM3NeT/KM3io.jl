@@ -60,6 +60,19 @@ azimuth(d::Direction) = atan(d.y, d.x)
 
 """
 
+Calculates the true azimuth from a given [`Direction`](@ref) in the KM3NeT detector
+coordinate system (ENU) and calculates the true azimuth according to the usual SLALIB,
+astropy etc. conventions.
+Azimuth is returned in the range 0−2π; north is zero, and east is +π/2.
+
+"""
+function true_azimuth(d::Direction)
+    az = atan(d.x, d.y)
+    az < 0 ? az + 2π : az
+end
+
+"""
+
 Calculates the zenith from a given [`Direction`](@ref) according to KM3NeT conventions.
 
 """

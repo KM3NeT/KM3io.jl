@@ -55,3 +55,43 @@ Earth's shape is not a perfect sphere.
 !!! note
 
     Although `KM3io.jl` defines a simple [`LonLat`](@ref) type, it's currently not being used and acts as a placeholder.
+
+## Azimuth
+
+KM3NeT uses the ANTARES azimuth definition which is different to what is used in e.g. SLALIB
+or AstroPy. The [`azimuth`](@ref) function can be used to determine the azimuth according
+to the KM3NeT definition from a given [`Direction`](@ref) in a detector coordinate system
+where `x` points to East and `y` to North. This is a convention often used in geographic
+coordinate systems like [Geographic Coordinate System (GCS)](https://en.wikipedia.org/wiki/Geographic_coordinate_system). 
+
+### KM3NeT/ANTARES Azimuth
+
+```@example 1
+azimuth(Direction(1.0, 0.0, 0.0))
+```
+
+```@example 1
+azimuth(Direction(0.0, 1.0, 0.0))
+```
+
+```@example 1
+azimuth(Direction(0.0, -1.0, 0.0))
+```
+
+### "True" Azimuth
+
+The "true" azimuth (as typically used in astronomy libraries like SLALIB and AstroPy)
+can be obtained using [`true_azimuth`](@ref).
+Azimuth is returned in the range 0−2π; north is zero, and east is +π/2.
+
+```@example 1
+true_azimuth(Direction(1.0, 0.0, 0.0))
+```
+
+```@example 1
+true_azimuth(Direction(0.0, 1.0, 0.0))
+```
+
+```@example 1
+true_azimuth(Direction(0.0, -1.0, 0.0))
+```
