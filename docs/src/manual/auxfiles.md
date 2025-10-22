@@ -16,10 +16,10 @@ easy access to the auxiliary [KM3NeT Auxiliary Files Archive](https://git.km3net
 In addition to that, once `KM3Aux` is loaded together with `KM3io`,
 additional methods will become available using the extension feature of Julia.
 
-- [`getpmts(det_id, run)`](@ref)
-- [`gettripods(det_id, run)`](@ref)
-- [`gethydrophones(det_id, run)`](@ref)
-- [`getwaveforms(det_id, run)`](@ref)
+- [`getpmtfile`](@ref)
+- [`gettripods`](@ref)
+- [`gethydrophones`](@ref)
+- [`getwaveforms`](@ref)
 
 ## File types
 
