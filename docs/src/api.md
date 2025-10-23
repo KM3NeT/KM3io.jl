@@ -165,6 +165,7 @@ CHClient
 ### General tools
 ```@docs
 SummarysliceIntervalIterator
+FullFledgeEventIterator
 getevent
 categorize
 nthbitset

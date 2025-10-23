@@ -384,3 +384,13 @@ end
 
     close(f)
 end
+
+@testset "FullFledgeEventIterator" begin
+    f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_JDAQEvent_JDAQSummaryslice.root"))
+    ffi = FullFledgeEventIterator(f)
+    matches = [event.header.frame_index == summaryslice.header.frame_index for (event, summaryslice) in ffi]
+    @test 13 == length(matches)
+    @test all(matches)
+    @test 2088 == ffi[1].event.header.frame_index
+    @test 2099 == ffi[end].summaryslice.header.frame_index
+end

@@ -159,3 +159,41 @@ function Base.iterate(sii::SummarysliceIntervalIterator, state=(chunk_idx=1, s_i
 
   return (out, (chunk_idx=state.chunk_idx+1, s_idx=s_idx))
 end
+
+
+"""
+
+    FullFledgeEventIterator(f::ROOTFile)
+
+A power iterator which returns the online event and the matching
+summary slice in each iteration.
+"""
+struct FullFledgeEventIterator
+    f::ROOTFile
+    _summaryslice_lookup_map::Dict{Int, Int}  # frame_index -> branch index
+    # TODO: introduce a buffer to reduce I/O if needed
+    # _summaryslice_buffer::Dict{Int, Summaryslice}
+    function FullFledgeEventIterator(f::ROOTFile)
+        # TODO: make this less hardcoded and use branch definitions from km3net dataformat ;)
+        summaryslice_headers = UnROOT.array(f._fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/KM3NETDAQ::JDAQSummarysliceHeader"; raw=false)
+        summaryslice_lookup_map = Dict{Int, Int}()
+        for (idx, header) in enumerate(summaryslice_headers)
+            summaryslice_lookup_map[header.frame_index] = idx
+        end
+        new(f, summaryslice_lookup_map)
+    end
+end
+Base.length(itr::FullFledgeEventIterator) = length(itr.f.online.events)
+Base.size(itr::FullFledgeEventIterator) = (length(itr),)
+Base.lastindex(itr::FullFledgeEventIterator) = length(itr)
+Base.eltype(::Type{FullFledgeEventIterator}) = @NamedTuple{event::DAQEvent, summaryslice::Summaryslice}
+function Base.getindex(itr::FullFledgeEventIterator, idx::Integer)
+    event = itr.f.online.events[idx]
+    frame_index = event.header.frame_index
+    ss_idx = itr._summaryslice_lookup_map[frame_index]
+    (event = event, summaryslice = itr.f.online.summaryslices[ss_idx])
+end
+function Base.iterate(itr::FullFledgeEventIterator, state=1)
+    state > length(itr) && return nothing
+    (itr[state], state + 1)
+end
