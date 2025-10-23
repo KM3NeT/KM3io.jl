@@ -25,7 +25,7 @@ identifiers, which are stored in these two fields.
 !!! note
     Both tracks and showers are stored as `Trk`. This comes from the fact
     that the original KM3NeT dataformat defintion for offline files uses the
-    same C++ class (named `Trk`).
+    same C++ class (named `Trk`) for both.
 
 The helper functions in `KM3io.jl` to pick the best track/shower always start
 with the prefix `best`, followed by the common name of the reconstruction

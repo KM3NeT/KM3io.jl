@@ -77,6 +77,7 @@ PMT
 DetectorModule
 Detector
 PMTFile
+getpmtfile
 PMTData
 PMTPhysicalAddress
 modules
@@ -91,9 +92,11 @@ write(::AbstractString, ::Detector)
 write(::IO, ::Detector)
 Hydrophone
 read(::AbstractString, ::Type{Hydrophone})
+gethydrophones
 Tripod
 read(::AbstractString, ::Type{Tripod})
 write(::AbstractString, ::Vector{Tripod})
+gettripods
 piezoenabled
 hydrophoneenabled
 center
@@ -112,6 +115,7 @@ read(::AbstractString, ::Type{StringMechanics})
 ```@docs
 Waveform
 read(filename::AbstractString, T::Type{Waveform})
+getwaveforms
 AcousticSignal
 AcousticsTriggerParameter
 read(filename::AbstractString, T::Type{AcousticsTriggerParameter})
