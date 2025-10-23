@@ -138,6 +138,7 @@ hasshowerprefit,
 # Tools
 MCEventMatcher,
 SummarysliceIntervalIterator,
+FullFledgeEventIterator,
 getevent,
 LonLat,            # reexport from KM3Base
 LonLatExtended,    # reexport from KM3Base
