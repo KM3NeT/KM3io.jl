@@ -1,0 +1,22 @@
+name: Run Resqui CI
+
+on:
+  push:
+
+jobs:
+  run-resqui:
+    runs-on: ubuntu-latest
+    environment: resqui
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run resqui action
+        uses: EVERSE-ResearchSoftware/QualityPipelines@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
