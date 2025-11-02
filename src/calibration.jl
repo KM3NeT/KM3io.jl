@@ -167,8 +167,9 @@ struct DynamicCalibrationHeader
     npar::Int
     nhit::Int
     chi2::Float64
-    # TODO: OID missing, UnROOT needs a fix to parse the std::string correctly
-    # TODO: nfit missing, no idea why
+    numberOfIterations::Int
+    nfit::Int
+    # TODO: OID missing maybe? UnROOT needs a fix to parse the std::string correctly i think
 end
 """
 A container type to store and access dynamic calibration results conveniently.
@@ -199,7 +200,7 @@ function DynamicCalibrationSet(filename::AbstractString)
         "ACOUSTICS_FIT", [
             Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStart") => s"timestart",
             Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStop") => s"timestop",
-            Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(ndf|npar|nhit|chi2)") => s"\1",
+            Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(ndf|npar|nhit|chi2|numberOfIterations|nfit)") => s"\1",
             Regex("ACOUSTICS_FIT/vector<JACOUSTICS::JFit>/vector<JACOUSTICS::JFit>.((id)|(vs)|(t[xy]))") => s"\1"
         ]
     )
@@ -215,7 +216,10 @@ function DynamicCalibrationSet(filename::AbstractString)
                 entry.ndf,
                 entry.npar,
                 entry.nhit,
-                entry.chi2
+                entry.chi2,
+                entry.numberOfIterations,
+                entry.nfit,
+                # entry.OID ? is this even a thing?
             ),
             fits
         )
