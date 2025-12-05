@@ -38,7 +38,7 @@ KM3Aux = "0.1.1"
 KM3NeTTestData = "^0.4.24"
 ProgressMeter = "1.8.0"
 StaticArrays = "1"
-UnROOT = "^0.10.26"
+UnROOT = "^0.10.26, ^0.11.0"
 julia = "1"
 
 [extras]
