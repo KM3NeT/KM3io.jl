@@ -351,3 +351,30 @@ end
 
     close(f)
 end
+
+@testset "Acoustics Event File" begin
+    f = AcousticsEventFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
+    @test 9 == f[1].id
+    @test 267 == f[1].det_id
+    @test 3 == f[1].overlays
+    @test 0 == f[1].counter
+    @test 23 == f[end].id
+    @test 1427 == f[end].counter
+    @test 518 == length(f)
+    @test 403 == length(f[1])
+    @test 403 == length(f[1].transmissions)
+    @test 401 == length(f[end])
+    @test 5 == length(f[5:9])
+    @test 808957378 == f[1].transmissions[1].id
+    @test 24724 == f[1].transmissions[1].run
+    @test 4707.0 == f[1].transmissions[1].q
+    @test 0.0 == f[1].transmissions[1].w
+    @test isapprox(1.7559723249875731e9, f[1].transmissions[1].toa)
+    @test isapprox(1.755972324518772e9, f[1].transmissions[1].toe)
+
+    n = 0
+    for event in f
+        n += length(event)
+    end
+    @test 208111 == n
+end

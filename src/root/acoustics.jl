@@ -42,7 +42,7 @@ end
 
 struct AcousticsEvent
     id::Int32
-    detid::Int32
+    det_id::Int32
     overlays::Int32
     counter::Int32
     transmissions::Vector{Transmission}
