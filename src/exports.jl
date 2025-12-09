@@ -50,6 +50,7 @@ piezoenabled,
 
 # ROOT
 ROOTFile,
+AcousticsEventFile,
 
 # Online dataformat
 DAQEvent,
