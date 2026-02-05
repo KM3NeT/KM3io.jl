@@ -7,7 +7,7 @@ using Test
 
 @testset "UTM" begin
     detector = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
-    data, header = readdlm(datapath("astro", "local2eq_aanet_2.7.0.csv"), ','; header=true)
+    data, header = readdlm(datapath("astro", "local2eq_aanet_2.7.1.csv"), ','; header=true)
 
     headeridx(column_name) = findfirst(isequal(column_name), header).I |> last
 
