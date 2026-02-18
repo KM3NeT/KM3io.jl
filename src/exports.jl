@@ -7,12 +7,12 @@ addmeta,
 create_dataset,
 
 # Basic types
-Direction,
+Direction,     # reexport from KM3Base
 Location,
-Position,
+Position,      # reexport from KM3Base
 Quaternion,
-Track,
-UTMPosition,
+Track,         # reexport from KM3Base
+UTMPosition,   # reexport from KM3Base
 
 # Hardware
 Detector,
@@ -137,12 +137,12 @@ hasshowerprefit,
 MCEventMatcher,
 SummarysliceIntervalIterator,
 getevent,
-LonLat,  # TODO: move this to types?
-LonLatExtended,  # TODO: move this to types?
-lonlat,
-isnorthern,
-haversine,
-rotmatrix,
+LonLat,            # reexport from KM3Base
+LonLatExtended,    # reexport from KM3Base
+lonlat,            # reexport from KM3Base
+isnorthern,        # reexport from KM3Base
+haversine,         # reexport from KM3Base
+rotmatrix,         # reexport from KM3Base
 
 # Utils
 categorize,
@@ -156,13 +156,13 @@ triggered,
 
 # Physics and math helpers
 CherenkovPhoton,
-azimuth,
-true_azimuth,
+azimuth,          # reexport from KM3Base
+true_azimuth,     # reexport from KM3Base
 cherenkov,
-distance,
-phi,
-theta,
-zenith,
+distance,         # reexport from KM3Base
+phi,              # reexport from KM3Base
+theta,            # reexport from KM3Base
+zenith,           # reexport from KM3Base
 slerp,
 
 # Real-time

@@ -7,8 +7,6 @@
 ## Basic Data Structures
 
 ```@docs
-Position
-Direction
 Location
 ```
 
@@ -136,11 +134,6 @@ slerp
 
 ## Physics
 ```@docs
-azimuth
-zenith
-true_azimuth
-phi
-theta
 cherenkov
 CherenkovPhoton
 K40Rates
@@ -196,21 +189,4 @@ bestjppshower
 bestaashower
 RecStageRange
 hashistory
-```
-
-### Math
-```@docs
-angle
-distance
-```
-
-### Coordinate Systems
-```@docs
-UTMPosition
-LonLat
-LonLatExtended
-lonlat
-isnorthern
-haversine
-rotmatrix
 ```

@@ -1,84 +1,4 @@
-abstract type AbstractLonLat end
-
-"""
-A position in longitude and latitude.
-"""
-struct LonLat <: AbstractLonLat
-    lon::Float64
-    lat::Float64
-end
-
-"""
-A position in longitude and latitude including the point scale factor and the meridian
-convergence angle.
-"""
-struct LonLatExtended <: AbstractLonLat
-    lon::Float64
-    lat::Float64
-    point_scale_factor::Float64
-    meridian_convergence::Float64
-end
-
-"""
-Calculate the longitude and latitude for a given [`UTMPosition`](@ref).
-Distances are in km and angles in radians.
-
-These formulae are truncated version of Transverse Mercator: flattening series,
-which were originally derived by Johann Heinrich Louis Krüger in 1912.
-(https://apps.dtic.mil/sti/tr/pdf/ADA266497.pdf). They are accurate to around a
-millimeter within 3000 km of the central meridian.
-"""
-function lonlat end
-function lonlat(utm::UTMPosition)::LonLatExtended
-    N = utm.northing / 1000
-    E = utm.easting / 1000
-    hemi = isnorthern(utm) ? +1 : -1
-    N₀ = isnorthern(utm) ? 0 : 10000  # [km]
-    a = 6378.137  # [km]
-    f = 1/298.257223563  # flattening
-    E₀ = 500  # [km]
-    k₀ = 0.9996
-
-    n = f/(2-f)
-    A = a/(1+n) * (1 + n^2/4 + n^4/64)  # + ...?
-
-    # used in backwards conversion, leaving it here for later ;)
-    # α = SVector(
-    #     (1/2)n - (2/3)n^2 + (5/16)n^3,
-    #     (13/48)n^2 - (3/5)n^3,
-    #     (61/240)n^3
-    # )
-
-    β = SVector(
-        (1/2)n - (2/3)n^2 + (37/96)n^3,
-        (1/48)n^2 + (1/15)n^3,
-        (17/480)n^3
-    )
-
-    δ = SVector(
-        2n - (2/3)n^2 - 2n^3,
-        (7/3)n^2 - (8/5)n^3,
-        (56/15)n^3
-    )
-
-    ξ = (N - N₀)/(k₀ * A)
-    η = (E - E₀)/(k₀ * A)
-    ξ′ = ξ - sum(β[j] * sin(2j*ξ) * cosh(2j*η) for j ∈ 1:3)
-    η′ = η - sum(β[j] * cos(2j*ξ) * sinh(2j*η) for j ∈ 1:3)
-    σ′ = 1 - sum(2j*β[j] * cos(2j*ξ) * cosh(2j*η) for j ∈ 1:3)
-    τ′ = sum(2j*β[j] * sin(2j*ξ) * sinh(2j*η) for j ∈ 1:3)
-    χ = asin(sin(ξ′)/cosh(η′))
-
-    ϕ = χ + sum(δ[j] * sin(2j*χ) for j ∈ 1:3)  # latitude [rad]
-    λ₀ = deg2rad(utm.zone_number * 6 - 183)
-    λ = λ₀ + atan(sinh(η′)/cos(ξ′))  # longitude [rad]
-    # point scale factor
-    k = k₀*A/a * √( (1 + ((1 - n)/(1 + n))*tan(ϕ))^2 * (cos(ξ′)^2 + sinh(η′)^2)/(σ′^2 + τ′^2) )
-    # meridian convergence
-    γ = hemi * atan( (τ′ + σ′*tan(ξ′)*tanh(η′)) / (σ′ + τ′*tan(ξ′)*tanh(η′)) )
-    return LonLatExtended(λ, ϕ, k, γ)
-end
-lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)
+KM3Base.lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)
 
 
 """
@@ -143,40 +63,13 @@ lonlat_aanet(d::Detector; kwargs...) = lonlat_aanet(d.pos; kwargs...)
 
 """
 
-Calculates the Haversine distance between two locations for a given
-radius. The distance has the same unit as the radius `R`.
+Calculates the Haversine distance (in m) between two detector locations.
 
 The implementation is taken from
 [Distances.jl](https://github.com/JuliaStats/Distances.jl).
 
 """
-function haversine(x::AbstractLonLat, y::AbstractLonLat; R=6_371_000)
-    λ₁, φ₁ = rad2deg(x.lon), rad2deg(x.lat)
-    λ₂, φ₂ = rad2deg(y.lon), rad2deg(y.lat)
-
-    Δλ = λ₂ - λ₁  # longitudes
-    Δφ = φ₂ - φ₁  # latitudes
-
-	a = sind(Δφ/2)^2 + cosd(φ₁)*cosd(φ₂)*sind(Δλ/2)^2
-
-    2 * (R * asin( min(√a, one(a)) ))
-end
-haversine(d₁::Detector, d₂::Detector) = haversine(lonlat(d₁), lonlat(d₂))
-
-
-"""
-Generate a rotation matrix to convert local ENU (East x, North y, Up z)
-coordinates to ECEF (Earth-Centered, Earth-Fixed) coordinates.
-"""
-function enu2ecef_matrix(lon, lat)
-    ϕ = lat
-    λ = lon
-    east = [-sin(λ), cos(λ), 0.0]
-    north = [-sin(ϕ)*cos(λ), -sin(ϕ)*sin(λ), cos(ϕ)]
-    up = [cos(ϕ)*cos(λ), cos(ϕ)*sin(λ), sin(ϕ)]
-    return hcat(east, north, up)
-end
-enu2ecef_matrix(l::AbstractLonLat) = enu2ecef_matrix(l.lon, l.lat)
+KM3Base.haversine(d₁::Detector, d₂::Detector) = haversine(lonlat(d₁), lonlat(d₂))
 
 """
 
@@ -185,9 +78,4 @@ coordinates from one detector to another detector's local ENU coordinate
 system.
 
 """
-rotmatrix(from::Detector, to::Detector) = rotmatrix(lonlat(from), lonlat(to))
-function rotmatrix(l1::AbstractLonLat, l2::AbstractLonLat)
-    R1 = enu2ecef_matrix(l1)
-    R2 = enu2ecef_matrix(l2)
-    R2'*R1
-end
+KM3Base.rotmatrix(from::Detector, to::Detector) = rotmatrix(lonlat(from), lonlat(to))

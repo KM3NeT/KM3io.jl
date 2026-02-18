@@ -10,7 +10,7 @@ data is available in the DETX format starting from version 2 and in the DATX
 format, which was officially introduced in parallel to DETX v5.
 
 The position information is stored in the `.pos` field of the [`Detector`](@ref)
-and has the type [`UTMPosition`](@ref). Below is the position of an ARCA
+and has the type [`KM3Base.UTMPosition`](@extref). Below is the position of an ARCA
 detector with the detector ID 133.
 
 ```@example 1
@@ -32,14 +32,17 @@ of the local coordinate system is at the detector's UTM position.
 
 ## Earth Coordinates
 
-A commonly used coordinate system to describe positions directly on Earth as latitude and longitude is the [Geographic Coordinate System (GCS)](https://en.wikipedia.org/wiki/Geographic_coordinate_system). `KM3io.jl` provides a function called [`lonlat`](@ref) to transform UTM coordinates represented as [`UTMPosition`](@ref) to GCS.
+A commonly used coordinate system to describe positions directly on Earth as
+latitude and longitude is the
+[Geographic Coordinate System (GCS)](https://en.wikipedia.org/wiki/Geographic_coordinate_system).
+`KM3Base.jl` provides a function called [`KM3Base.lonlat`](@extref) to transform
+UTM coordinates represented as [`KM3Base.UTMPosition`](@extref) to GCS.
 
 ```@example 1
 lonlat(det.pos)
 ```
 
-The [`lonlat`](@ref) function also has a method which accepts a [`Detector`](@ref) as input and will use its UTM coordinate behind the scenes:
-
+`KM3io.jl` extends this with a method that accepts a [`Detector`](@ref) directly.
 
 ```@example 1
 lonlat(det)
@@ -54,13 +57,13 @@ Earth's shape is not a perfect sphere.
 
 !!! note
 
-    Although `KM3io.jl` defines a simple [`LonLat`](@ref) type, it's currently not being used and acts as a placeholder.
+    Although `KM3io.jl` defines a simple [`KM3Base.LonLat`](@extref) type, it's currently not being used and acts as a placeholder.
 
 ## Azimuth
 
 KM3NeT uses the ANTARES azimuth definition which is different to what is used in e.g. SLALIB
-or AstroPy. The [`azimuth`](@ref) function can be used to determine the azimuth according
-to the KM3NeT definition from a given [`Direction`](@ref) in a detector coordinate system
+or AstroPy. The [`KM3Base.azimuth`](@extref) function can be used to determine the azimuth according
+to the KM3NeT definition from a given [`KM3Base.Direction`](@extref) in a detector coordinate system
 where `x` points to East and `y` to North. This is a convention often used in geographic
 coordinate systems like [Geographic Coordinate System (GCS)](https://en.wikipedia.org/wiki/Geographic_coordinate_system). 
 
@@ -81,7 +84,7 @@ azimuth(Direction(0.0, -1.0, 0.0))
 ### "True" Azimuth
 
 The "true" azimuth (as typically used in astronomy libraries like SLALIB and AstroPy)
-can be obtained using [`true_azimuth`](@ref).
+can be obtained using [`KM3Base.true_azimuth`](@extref).
 Azimuth is returned in the range 0−2π; north is zero, and east is +π/2.
 
 ```@example 1
