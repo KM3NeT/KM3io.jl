@@ -19,11 +19,14 @@ using Test
     idx_det_longitude = headeridx("det_longitude")
     idx_meridian_convergence = headeridx("meridian_convergence")
 
+    angular_tolerance_lonlat = deg2rad(0.001)
+    angular_tolerance_meridian_convergence = deg2rad(0.0005)
+
     for row in eachrow(data)
         ll = lonlat(UTMPosition(row[idx_utm_easting], row[idx_utm_northing], row[idx_utm_zone], 'N', row[idx_utm_z]))
-        @test isapprox(ll.lat, row[idx_det_latitude], atol=1e-4)
-        @test isapprox(ll.lon, row[idx_det_longitude], atol=1e-4)
-        @test isapprox(ll.meridian_convergence, row[idx_meridian_convergence], atol=1e-5)
+        @test isapprox(ll.lat, row[idx_det_latitude], atol=angular_tolerance_lonlat)
+        @test isapprox(ll.lon, row[idx_det_longitude], atol=angular_tolerance_lonlat)
+        @test isapprox(ll.meridian_convergence, row[idx_meridian_convergence], atol=angular_tolerance_meridian_convergence)
     end
 
 end
