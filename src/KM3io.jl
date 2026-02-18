@@ -2,6 +2,7 @@ module KM3io
 
 import Base: read, write, ==
 import Statistics: mean
+using KM3Base
 using Dates
 using LinearAlgebra
 using Printf: @printf

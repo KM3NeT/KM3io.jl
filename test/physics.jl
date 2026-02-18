@@ -53,39 +53,3 @@ using Test
     end
 
 end
-
-
-@testset "azimuth()" begin
-    @test π/2 == azimuth(Direction(0.0, 1.0, 0.0))
-    @test 0 ≈ azimuth(Direction(1.0, 0.0, 0.0))
-    @test -π/2 ≈ azimuth(Direction(0.0, -1.0, 0.0))
-    @test π ≈ azimuth(Direction(-1.0, 0.0, 0.0))
-end
-
-@testset "true_azimuth()" begin
-    @test 0 ≈ true_azimuth(Direction(0.0, 1.0, 0.0))
-    @test π/2 == true_azimuth(Direction(1.0, 0.0, 0.0))
-    @test π ≈ true_azimuth(Direction(0.0, -1.0, 0.0))
-    @test π*3/2 ≈ true_azimuth(Direction(-1.23, 0.0, 0.0))
-end
-
-@testset "zenith()" begin
-    @test 0.0 == zenith(Direction(0.0, 0.0, -1.0))
-    @test π/2 == zenith(Direction(0.0, 1.0, 0.0))
-    @test π/2 == zenith(Direction(1.0, 1.0, 0.0))
-    @test π ≈ zenith(Direction(0.0, 0.0, 1.0))
-end
-
-@testset "phi()" begin
-    @test π/2 == phi(Direction(0.0, 1.0, 0.0))
-    @test 0 ≈ phi(Direction(1.0, 0.0, 0.0))
-    @test -π/2 ≈ phi(Direction(0.0, -1.0, 0.0))
-    @test π ≈ phi(Direction(-1.0, 0.0, 0.0))
-end
-
-@testset "theta()" begin
-    @test π ≈ theta(Direction(0.0, 0.0, -1.0))
-    @test π/2 == theta(Direction(0.0, 1.0, 0.0))
-    @test π/2 == theta(Direction(1.0, 1.0, 0.0))
-    @test 0.0 == theta(Direction(0.0, 0.0, 1.0))
-end
