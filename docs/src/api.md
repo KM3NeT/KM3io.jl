@@ -190,8 +190,3 @@ bestaashower
 RecStageRange
 hashistory
 ```
-
-### Math
-```@docs
-angle
-```

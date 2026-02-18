@@ -1,4 +1,12 @@
-using Documenter, KM3io
+using Documenter
+using DocumenterInterLinks
+using KM3io
+
+links = InterLinks(
+    "KM3Base" => "https://common.pages.km3net.de/KM3Base.jl/dev/"
+)
+
+@show links["KM3Base"]
 
 makedocs(;
     modules = [KM3io],
@@ -38,10 +46,11 @@ makedocs(;
         "https://git.km3net.de/common/KM3io.jl/blob/{commit}{path}#L{line}",
         "https://git.km3net.de/common/KM3io.jl"
     ),
+    plugins=[links,]
 )
 
 deploydocs(;
   repo = "git.km3net.de/common/KM3io.jl",
   devbranch = "main",
-  push_preview=true
+  push_preview=true,
 )
