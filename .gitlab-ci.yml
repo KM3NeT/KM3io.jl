@@ -119,11 +119,8 @@ docs:
       julia --project=docs -e '
         using Pkg
         Pkg.update()
-        Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         Pkg.resolve()
-        # See https://github.com/JuliaDocs/Documenter.jl/issues/2698
-        Pkg.add(name="OpenSSL_jll", version="3.0")
         using Documenter: doctest
         using KM3io
         doctest(KM3io)
