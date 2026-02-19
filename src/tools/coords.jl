@@ -1,6 +1,3 @@
-KM3Base.lonlat(d::Detector; kwargs...) = lonlat(d.pos; kwargs...)
-
-
 """
 Calculate the longitude and latitude for a given [`UTMPosition`](@ref).
 

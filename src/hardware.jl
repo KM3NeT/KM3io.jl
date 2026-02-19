@@ -321,6 +321,7 @@ struct Detector
     id::Int32
     validity::DateRange
     pos::UTMPosition
+    lonlat::LonLatExtended
     utm_ref_grid::String
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
@@ -354,6 +355,10 @@ function Base.getindex(d::Detector, string::Integer, floor::Integer)
     !(hasstring(d, string)) && error("String $(string) not found. Available strings: $(available_strings).")
     error("String $(string) has no module at floor $(floor).")
 end
+"""
+    lonlat(detector::Detector) -> LonLatExtended
+"""
+@inline KM3Base.lonlat(detector::Detector) = detector.lonlat
 """
 Return the detector module for a given module ID.
 """
@@ -509,7 +514,7 @@ function read_datx(io::IO)
         modules[module_id] = m
         locations[(location.string, location.floor)] = m
     end
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
+    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -634,7 +639,7 @@ function read_detx(io::IO)
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
+    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
 end
 
 
