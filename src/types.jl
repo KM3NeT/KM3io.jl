@@ -124,6 +124,8 @@ struct UTCExtended
 end
 Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
 
+Base.convert(::Type{DateTime}, utc::Union{UTCTime, UTCExtended}) = unix2datetime(utc.s + utc.ns * 1e-9)
+
 """
 
 A `SummaryFrame` contains reduced timeslice data from an optical module.
