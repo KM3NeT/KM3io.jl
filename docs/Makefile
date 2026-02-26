@@ -1,9 +1,9 @@
 all:
-	julia --project=. -e 'import Pkg; Pkg.develop(path=".."); Pkg.instantiate()'
+	julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve()'
 	julia --project=. make.jl
 
 debug:
-	julia --project=. -e 'import Pkg; Pkg.develop(path=".."); Pkg.instantiate()'
+	julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve()'
 	JULIA_DEBUG=Documenter julia --project=. make.jl
 
 clean:
