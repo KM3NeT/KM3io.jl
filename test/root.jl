@@ -53,6 +53,15 @@ const USRFILE = datapath("offline", "usr-sample.root")
     end
     @test 407 == n_total_tracks[]
 
+    # TODO: this needs a better test, with a file where status is not always 0
+    n_status_sum = 0
+    for event in f.offline
+        for track in event.trks
+            n_status_sum += track.status
+        end
+    end
+    @test 0 == n_status_sum
+
 
     close(f)
 end

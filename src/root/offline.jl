@@ -104,6 +104,7 @@ struct Trk
     rec_type::Int32
     rec_stages::Vector{Int32}
     fitinf::FitInformation
+    status::Int32  # see KM3io.TRKMEMBERS
 end
 function ==(a::T, b::T) where T<:Trk
     typeof(a) === typeof(b) || return false
@@ -240,7 +241,7 @@ struct OfflineTree{T}
             # bpath * "/header_uuid",
             Regex(bpath * "/hits/hits.(id|dom_id|channel_id|tdc|tot|trig|t)\$") => s"hits_\1",
             Regex(bpath * "/hits/hits.(pos|dir).([xyz])\$") => s"hits_\1_\2",
-            Regex(bpath * "/trks/trks.(id|t|E|len|lik|rec_type|rec_stages|fitinf)\$") => s"trks_\1",
+            Regex(bpath * "/trks/trks.(id|t|E|len|lik|rec_type|rec_stages|fitinf|status)\$") => s"trks_\1",
             Regex(bpath * "/trks/trks.(pos|dir).([xyz])\$") => s"trks_\1_\2",
             bpath * "/w",
             bpath * "/w2list",
@@ -400,6 +401,8 @@ function Base.getindex(f::OfflineTree, idx::Integer)::Evt
 
     n = length(e.trks_id)
     trks = sizehint!(Vector{Trk}(), n)
+    # legacy format support
+    skip_trks_status = !hasproperty(e, :trks_status)
     for i ∈ 1:n
         push!(trks,
             Trk(
@@ -413,6 +416,7 @@ function Base.getindex(f::OfflineTree, idx::Integer)::Evt
                 e.trks_rec_type[i],
                 e.trks_rec_stages[i],
                 FitInformation(e.trks_fitinf[i]),
+                skip_trks_status ? 0 : e.trks_status[i],
             )
         )
     end
