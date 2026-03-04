@@ -139,8 +139,8 @@ tape = KM3io.OfflineEventTape([
     datapath("offline", "km3net_offline.root")
 ])
 
-for event in tape
-    @show event
+for entry in tape
+    @show entry
 end
 ```
 

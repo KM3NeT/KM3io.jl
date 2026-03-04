@@ -148,6 +148,10 @@ The [`OfflineEventTape`](@ref) is a lazy data structure and only loads data
 from disk when necessary, e.g. during the event loop iteration or when
 seeking.
 
+In each iteration, a `NamedTuple{event::Evt, header::Union{MCHeader, Missing}}`
+is returned. Notice that the header might be "missing" if you are dealing with
+legacy data.
+
 The following examples creates a on offline event tape with two files:
 
 ```@example 1
@@ -163,8 +167,8 @@ the tape implements the iterator and yields an [`Evt`](@ref) instance
 in each iteration:
 
 ```@example 1
-for event in tape
-    @show event
+for entry in tape
+    @show entry.event
 end
 ```
 
@@ -177,8 +181,8 @@ skim over files/sources:
 ```@example 1
 seek(tape, 13)
 
-for event in tape
-    @show event
+for entry in tape
+    @show entry
 end
 ```
 
@@ -190,8 +194,8 @@ using Dates
 
 seek(tape, DateTime("2019-08-29T00:00:22.200"))
 
-for event in tape
-    @show event
+for entry in tape
+    @show entry
 end
 ```
 
@@ -218,11 +222,11 @@ OfflineEventTape(415 sources)
 julia> position(tape)  # file #213, event at index 58136
 (231, 58136)
 
-julia> for event in tape
-           @show event
+julia> for entry in tape
+           @show entry.event
            break
        end
-event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)
+entry.event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)
 ```
 
 The seek algorithm is implemented as a binary search to minimise the number of
