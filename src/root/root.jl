@@ -111,7 +111,7 @@ function OfflineEventTape(filename_or_path::AbstractString; show_progress=false)
     end
     OfflineEventTape(sources; show_progress=show_progress)
 end
-Base.eltype(::OfflineEventTape) = Evt
+Base.eltype(::OfflineEventTape) = @NamedTuple{event::Evt, header::Union{MCHeader, Missing}}
 Base.IteratorSize(::OfflineEventTape) = Base.SizeUnknown()
 Base.position(t::OfflineEventTape) = t.start_at
 """
@@ -216,7 +216,7 @@ function Base.iterate(t::OfflineEventTape)
             source_idx += 1
             continue
         end
-        return (f.offline[event_idx], (source_idx, event_idx+1, f, p))
+        return ((;event=f.offline[event_idx], header=f.offline.header), (source_idx, event_idx+1, f, p))
     end
 
     nothing
@@ -236,7 +236,7 @@ function Base.iterate(t::OfflineEventTape, state::Tuple{Int, Int, ROOTFile, Prog
         return iterate(t, (source_idx, 1, ROOTFile(fname), p))
     end
 
-    (_f.offline[event_idx], (source_idx, event_idx+1, _f, p))
+    ((;event=_f.offline[event_idx], header=_f.offline.header), (source_idx, event_idx+1, _f, p))
 end
 function Base.show(io::IO, t::OfflineEventTape)
     print(io, "OfflineEventTape($(length(t.sources)) sources)")

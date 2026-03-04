@@ -137,20 +137,20 @@ end
     reference_events = vcat([collect(ROOTFile(source).offline) for source in sources]...)
     tape = OfflineEventTape(sources)
     tape_events = collect(tape)
-    for (event_a, event_b) in zip(reference_events, tape_events)
+    for (event_a, (event_b, header_b)) in zip(reference_events, tape_events)
         @test event_a == event_b
     end
     tape_events = collect(tape)  # test twice because of caching
-    for (event_a, event_b) in zip(reference_events, tape_events)
+    for (event_a, (event_b, header_b)) in zip(reference_events, tape_events)
         @test event_a == event_b
     end
 
     # start_at
     tape = OfflineEventTape([datapath("offline", "numucc.root"), datapath("offline", "km3net_offline.root")])
     tape.start_at = (2, 5)
-    events = collect(tape)
-    @test 6 == length(events)
-    @test length(ROOTFile(tape.sources[2]).offline[5].hits) == length(events[1].hits)
+    entries = collect(tape)
+    @test 6 == length(entries)
+    @test length(ROOTFile(tape.sources[2]).offline[5].hits) == length(entries[1].event.hits)
 
     sources = [
         datapath("offline", "km3net_offline.root"),
@@ -160,11 +160,11 @@ end
     ]
     tape = OfflineEventTape(sources)
     tape.start_at = (3, 1)  # will be the online file with no offline tree and events
-    events = collect(tape)
+    entries = collect(tape)
     # it should jump to the next file when iterating
     f = ROOTFile(sources[4])
-    @test length(f.offline) == length(events)
-    @test events[1] == f.offline[1]
+    @test length(f.offline) == length(entries)
+    @test entries[1].event == f.offline[1]
 
     tape.start_at = (9999, 9999)
     @test 0 == length(collect(tape))
@@ -182,17 +182,17 @@ end
     seek(tape, date)
     @test (2, 3) == position(tape)
     @test DateTime(ROOTFile(tape.sources[2]).offline[2]) <= date <= DateTime(ROOTFile(tape.sources[2]).offline[3])
-    events = collect(tape)
-    @test 8 == length(events)
-    @test date <= DateTime(events[1])
+    entries = collect(tape)
+    @test 8 == length(entries)
+    @test date <= DateTime(entries[1].event)
 
     date = DateTime("1985-06-29T07:20:00.000")
     seek(tape, date)
     @test (2, 1) == position(tape)
     @test DateTime(ROOTFile(tape.sources[1]).offline[end]) <= date <= DateTime(ROOTFile(tape.sources[2]).offline[1])
-    events = collect(tape)
-    @test 10 == length(events)
-    @test date <= DateTime(events[1])
+    entries = collect(tape)
+    @test 10 == length(entries)
+    @test date <= DateTime(entries[1].event)
 
     date = DateTime("2025-06-29T07:20:00.000")
     seek(tape, date)
