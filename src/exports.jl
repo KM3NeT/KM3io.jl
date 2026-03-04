@@ -86,6 +86,7 @@ TriggeredHit,
 Trk,
 XCalibratedHit,
 FitInformation,
+WeightList,
 hasofflineevents,
 
 # Oscillations open data
