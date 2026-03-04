@@ -25,6 +25,7 @@ XCalibratedHit
 Trk
 MCTrk
 FitInformation
+WeightList
 hasofflineevents
 ```
 

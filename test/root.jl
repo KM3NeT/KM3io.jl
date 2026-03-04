@@ -23,6 +23,8 @@ const USRFILE = datapath("offline", "usr-sample.root")
     close(f)
 
     f = ROOTFile(datapath("offline", "numucc.root"))
+    @test 9.427e37 == f.offline[2].w2list[0]
+    @test 9.427e37 == f.offline[2].w2list[KM3io.W2LIST_GENHEN.W2LIST_GENHEN_GLOBAL_GEN_WEIGHT]
     h = f.offline.header
     @test 34 == length(propertynames(h))
     @test "NOT" == h.detector

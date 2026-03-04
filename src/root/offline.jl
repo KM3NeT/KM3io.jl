@@ -38,17 +38,32 @@ struct CalibratedMCHit <: AbstractCalibratedMCHit
 end
 
 """
+A zero-based abstract array type, e.g. for fit information or weightlists.
+"""
+abstract type ZeroBasedAbstractArray end
+==(a::T, b::T) where T<:ZeroBasedAbstractArray = a.values == b.values
+Base.getindex(arr::ZeroBasedAbstractArray, idx) = arr.values[idx + 1]
+Base.length(arr::ZeroBasedAbstractArray) = length(arr.values)
+Base.size(arr::ZeroBasedAbstractArray) = (length(arr),)
+Base.firstindex(::ZeroBasedAbstractArray) = 0
+Base.lastindex(arr::ZeroBasedAbstractArray) = length(arr) - 1
+Base.eltype(::ZeroBasedAbstractArray) = Float64
+function Base.iterate(arr::ZeroBasedAbstractArray, state=0)
+    state > length(arr)-1 ? nothing : (arr[state], state+1)
+end
+
+"""
 
 A container object to store fit information which uses 0-based indexing. It
 implements the array interface. The entries is this vector are float values and
 their position encodes the meaning of their meaning which is defined in the
-[KM3NeT DataFormat](https://git.km3net.de/common/km3net-dataformat)
+[KM3NeT DataFormat (Fit Parameters)](https://git.km3net.de/common/km3net-dataformat/-/blob/master/definitions/fitparameters.csv)
 
 !!! note
     The elements of this object should always be accessed using constants
     defined in `KM3io.FITPARAMETERS`. The use of magic numbers should be
     avoided to ensure that future changes in the [KM3NeT
-    DataFormat](https://git.km3net.de/common/km3net-dataformat) do not break
+    DataFormat (Fit Parameters)](https://git.km3net.de/common/km3net-dataformat/-/blob/master/definitions/fitparameters.csv) do not break
     existing code.
 
 # Example
@@ -76,18 +91,43 @@ julia> reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_CHI2]
 -92.7921433955364
 ```
 """
-struct FitInformation
+struct FitInformation <: ZeroBasedAbstractArray
     values::Vector{Float64}
 end
-==(a::T, b::T) where T<:FitInformation = a.values == b.values
-Base.getindex(fitinf::FitInformation, idx) = fitinf.values[idx + 1]
-Base.length(fitinf::FitInformation) = length(fitinf.values)
-Base.size(fitinf::FitInformation) = (length(fitinf),)
-Base.firstindex(::FitInformation) = 0
-Base.lastindex(fitinf::FitInformation) = length(fitinf) - 1
-Base.eltype(::FitInformation) = Float64
-function Base.iterate(fitinf::FitInformation, state=0)
-    state > length(fitinf)-1 ? nothing : (fitinf[state], state+1)
+
+"""
+
+A container object to store weight information which uses 0-based indexing. It
+implements the array interface. The entries is this vector are float values and
+their position encodes the meaning of their meaning which is defined in the
+[KM3NeT DataFormat (Weight List)](https://git.km3net.de/common/km3net-dataformat/-/blob/master/definitions/weightlist.csv).
+The `.w` corresponds to the indices defined in `KM3io.WEIGHTLIST`, the `.w2list`
+are defined in `KM3io.W2LIST_<GENERATOR_NAME>` (where `<GENERATOR_NAME>` is one of
+the event generators, like `MUPAGE` or `GENHEHN`) and there is also `.w3list`
+which is not clearly documented (as far as we can tell).
+
+!!! note
+    The elements of this object should always be accessed using constants
+    defined in `KM3io.WEIGHTLIST` or generator specific `KM3io.W2*` lists
+    (e.g. `KM3io.W2LIST_GEHNEN`).
+    The use of magic numbers should be avoided to ensure that future changes
+    in the [KM3NeT DataFormat (Weight List)](https://git.km3net.de/common/km3net-dataformat/-/blob/master/definitions/weightlist.csv)
+    do not break existing code.
+
+# Example
+
+```
+julia> using KM3io, KM3NeTTestData
+
+julia> f = ROOTFile(datapath("offline", "numucc.root"))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
+
+julia> f.offline[2].w2list[KM3io.W2LIST_GENHEN.W2LIST_GENHEN_GLOBAL_GEN_WEIGHT]
+9.427e37
+```
+"""
+struct WeightList <: ZeroBasedAbstractArray
+    values::Vector{Float64}
 end
 
 """
@@ -156,9 +196,9 @@ struct Evt
     trks::Vector{Trk}
 
     # MC related fields
-    w::Vector{Float64}
-    w2list::Vector{Float64}  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
-    w3list::Vector{Float64}  # atmospheric flux information
+    w::WeightList
+    w2list::WeightList  # (see e.g. <a href="https://simulation.pages.km3net.de/taglist/taglist.pdf">Tag list</a> or km3net-dataformat/definitions)
+    w3list::WeightList  # atmospheric flux information
 
     mc_event_time::UTCTime
     mc_t::Float64
@@ -434,9 +474,9 @@ function Base.getindex(f::OfflineTree, idx::Integer)::Evt
         UTCTime(e.t_Sec, e.t_NanoSec),
         hits,
         trks,
-        e.Evt_w,
-        e.Evt_w2list,
-        e.Evt_w3list,
+        WeightList(e.Evt_w),
+        WeightList(e.Evt_w2list),
+        WeightList(e.Evt_w3list),
         skip_mc_event_time ? UTCTime(0.0, 0.0) : UTCTime(e.mc_event_time_Sec, e.mc_event_time_NanoSec),
         e.Evt_mc_t,
         mc_hits,
