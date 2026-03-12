@@ -93,13 +93,15 @@ struct XCalibratedHit <: AbstractCalibratedHit
     floor::UInt8
 end
 
+abstract type AbstractUTCTime end
+
 """
 
 A basic time structure with seconds and nanoseconds. The seconds are counting
 from the start of the epoch, just like the UNIX time.
 
 """
-struct UTCTime
+struct UTCTime <: AbstractUTCTime
     s::Int64
     ns::Int64
 end
@@ -111,7 +113,7 @@ An extended time structure used in the DAQ. It contains the White Rabbit time
 synchronisation status. `wr_status == 0` means that the synchronisation is OK.
 
 """
-struct UTCExtended
+struct UTCExtended <: AbstractUTCTime
     s::UInt32
     ns::UInt32
     wr_status::Int
@@ -124,18 +126,10 @@ struct UTCExtended
 end
 Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(signed(t.ns)), $(t.wr_status))")
 
-Base.convert(::Type{DateTime}, utc::Union{UTCTime, UTCExtended}) = unix2datetime(utc.s + utc.ns * 1e-9)
+Base.convert(::Type{DateTime}, utc::AbstractUTCTime) = unix2datetime(utc.s + utc.ns * 1e-9)
 
-Base.isless(a::UTCTime, b::UTCTime) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
-Base.:(==)(a::UTCTime, b::UTCTime) = a.s == b.s && a.ns == b.ns
-
-Base.isless(a::UTCExtended, b::UTCExtended) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
-Base.:(==)(a::UTCExtended, b::UTCExtended) = a.s == b.s && a.ns == b.ns
-
-Base.isless(a::UTCTime, b::UTCExtended) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
-Base.isless(a::UTCExtended, b::UTCTime) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
-Base.:(==)(a::UTCTime, b::UTCExtended) = a.s == b.s && a.ns == b.ns
-Base.:(==)(a::UTCExtended, b::UTCTime) = a.s == b.s && a.ns == b.ns
+Base.isless(a::AbstractUTCTime, b::AbstractUTCTime) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
+Base.:(==)(a::AbstractUTCTime, b::AbstractUTCTime) = a.s == b.s && a.ns == b.ns
 
 """
 
