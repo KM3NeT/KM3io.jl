@@ -126,6 +126,17 @@ Base.show(io::IO, t::UTCExtended) = print(io, "$(typeof(t))($(signed(t.s)), $(si
 
 Base.convert(::Type{DateTime}, utc::Union{UTCTime, UTCExtended}) = unix2datetime(utc.s + utc.ns * 1e-9)
 
+Base.isless(a::UTCTime, b::UTCTime) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
+Base.:(==)(a::UTCTime, b::UTCTime) = a.s == b.s && a.ns == b.ns
+
+Base.isless(a::UTCExtended, b::UTCExtended) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
+Base.:(==)(a::UTCExtended, b::UTCExtended) = a.s == b.s && a.ns == b.ns
+
+Base.isless(a::UTCTime, b::UTCExtended) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
+Base.isless(a::UTCExtended, b::UTCTime) = a.s < b.s || (a.s == b.s && a.ns < b.ns)
+Base.:(==)(a::UTCTime, b::UTCExtended) = a.s == b.s && a.ns == b.ns
+Base.:(==)(a::UTCExtended, b::UTCTime) = a.s == b.s && a.ns == b.ns
+
 """
 
 A `SummaryFrame` contains reduced timeslice data from an optical module.
