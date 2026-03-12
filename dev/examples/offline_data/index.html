@@ -89,53 +89,53 @@ f.offline[1].usr</code></pre><pre class="documenter-example-output"><code class=
   &quot;RecoNDF&quot;            =&gt; 37.0
   &quot;FirstPartPosZ&quot;      =&gt; 135.295
   &quot;CoC&quot;                =&gt; 118.63
-  &quot;ChargeAbove&quot;        =&gt; 176.0</code></pre><pre><code class="language-julia hljs">close(f)</code></pre><h2 id="offline_event_tape"><a class="docs-heading-anchor" href="#offline_event_tape">Offline Event Tape</a><a id="offline_event_tape-1"></a><a class="docs-heading-anchor-permalink" href="#offline_event_tape" title="Permalink"></a></h2><p>A convenient way of processing many files (or XRootD sources) event-by-event is provided by the <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a>. It can be instantiated with a list of files/sources, a single file or a folder. The latter will be scanned upon initialisation and the files will be sorted by their filename before added to the list of sources.</p><p>The <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a> is a lazy data structure and only loads data from disk when necessary, e.g. during the event loop iteration or when seeking.</p><p>The following examples creates a on offline event tape with two files:</p><pre><code class="language-julia hljs">tape = OfflineEventTape(
+  &quot;ChargeAbove&quot;        =&gt; 176.0</code></pre><pre><code class="language-julia hljs">close(f)</code></pre><h2 id="offline_event_tape"><a class="docs-heading-anchor" href="#offline_event_tape">Offline Event Tape</a><a id="offline_event_tape-1"></a><a class="docs-heading-anchor-permalink" href="#offline_event_tape" title="Permalink"></a></h2><p>A convenient way of processing many files (or XRootD sources) event-by-event is provided by the <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a>. It can be instantiated with a list of files/sources, a single file or a folder. The latter will be scanned upon initialisation and the files will be sorted by their filename before added to the list of sources.</p><p>The <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a> is a lazy data structure and only loads data from disk when necessary, e.g. during the event loop iteration or when seeking.</p><p>In each iteration, a <code>NamedTuple{event::Evt, header::Union{MCHeader, Missing}}</code> is returned. Notice that the header might be &quot;missing&quot; if you are dealing with legacy data.</p><p>The following examples creates a on offline event tape with two files:</p><pre><code class="language-julia hljs">tape = OfflineEventTape(
     [
         datapath(&quot;offline&quot;, &quot;numucc.root&quot;),
         datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;)
     ]
-)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OfflineEventTape(2 sources)</code></pre><p>the tape implements the iterator and yields an <a href="../../api/#KM3io.Evt"><code>Evt</code></a> instance in each iteration:</p><pre><code class="language-julia hljs">for event in tape
-    @show event
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (4271 hits, 58 MC hits, 68 tracks, 11 MC tracks)
-event = Evt (4145 hits, 145 MC hits, 38 tracks, 25 MC tracks)
-event = Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks)
-event = Evt (3967 hits, 19 MC hits, 18 tracks, 10 MC tracks)
-event = Evt (4105 hits, 78 MC hits, 0 tracks, 10 MC tracks)
-event = Evt (4301 hits, 50 MC hits, 60 tracks, 13 MC tracks)
-event = Evt (3949 hits, 58 MC hits, 59 tracks, 11 MC tracks)
-event = Evt (4180 hits, 49 MC hits, 66 tracks, 10 MC tracks)
-event = Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks)
-event = Evt (4024 hits, 48 MC hits, 22 tracks, 16 MC tracks)
-event = Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
-event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
-event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><p>The <code>seek</code> function can be used to set the start of iterations to a specific position.</p><p>If an integer is passed, the tape will jump to the event #13 and potentially skim over files/sources:</p><pre><code class="language-julia hljs">seek(tape, 13)
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OfflineEventTape(2 sources)</code></pre><p>the tape implements the iterator and yields an <a href="../../api/#KM3io.Evt"><code>Evt</code></a> instance in each iteration:</p><pre><code class="language-julia hljs">for entry in tape
+    @show entry.event
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">entry.event = Evt (4271 hits, 58 MC hits, 68 tracks, 11 MC tracks)
+entry.event = Evt (4145 hits, 145 MC hits, 38 tracks, 25 MC tracks)
+entry.event = Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks)
+entry.event = Evt (3967 hits, 19 MC hits, 18 tracks, 10 MC tracks)
+entry.event = Evt (4105 hits, 78 MC hits, 0 tracks, 10 MC tracks)
+entry.event = Evt (4301 hits, 50 MC hits, 60 tracks, 13 MC tracks)
+entry.event = Evt (3949 hits, 58 MC hits, 59 tracks, 11 MC tracks)
+entry.event = Evt (4180 hits, 49 MC hits, 66 tracks, 10 MC tracks)
+entry.event = Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks)
+entry.event = Evt (4024 hits, 48 MC hits, 22 tracks, 16 MC tracks)
+entry.event = Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+entry.event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+entry.event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+entry.event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><p>The <code>seek</code> function can be used to set the start of iterations to a specific position.</p><p>If an integer is passed, the tape will jump to the event #13 and potentially skim over files/sources:</p><pre><code class="language-julia hljs">seek(tape, 13)
 
-for event in tape
-    @show event
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
-event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><p>Sometimes, when processing many files, it can be useful to jump to the event which happened right after a specific date:</p><pre><code class="language-julia hljs">using Dates
+for entry in tape
+    @show entry
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">entry = (event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)</code></pre><p>Sometimes, when processing many files, it can be useful to jump to the event which happened right after a specific date:</p><pre><code class="language-julia hljs">using Dates
 
 seek(tape, DateTime(&quot;2019-08-29T00:00:22.200&quot;))
 
-for event in tape
-    @show event
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
-event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
-event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><div class="admonition is-info" id="Note-9195982d8ba9c2d2"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-9195982d8ba9c2d2" title="Permalink"></a></header><div class="admonition-body"><p>Events are not guaranteed to be sorted by time. When using <code>seek</code> with a date, the [<code>OfflineEventTape</code>] will set its position to the very first event which is after the specified date. It might happen however, that some of the following events are earlier in time.</p></div></div><p>The following example uses a tape instantiated with a folder containing 415 ROOT files with a total size of 149 GB.</p><pre><code class="language- hljs">julia&gt; using KM3io, Dates
+for entry in tape
+    @show entry
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">entry = (event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)</code></pre><div class="admonition is-info" id="Note-9195982d8ba9c2d2"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-9195982d8ba9c2d2" title="Permalink"></a></header><div class="admonition-body"><p>Events are not guaranteed to be sorted by time. When using <code>seek</code> with a date, the [<code>OfflineEventTape</code>] will set its position to the very first event which is after the specified date. It might happen however, that some of the following events are earlier in time.</p></div></div><p>The following example uses a tape instantiated with a folder containing 415 ROOT files with a total size of 149 GB.</p><pre><code class="language- hljs">julia&gt; using KM3io, Dates
 
 julia&gt; tape = OfflineEventTape(&quot;/Volumes/ECAP Data/data/KM3NeT_00000100/v9.2/dst&quot;)
 OfflineEventTape(415 sources)
@@ -146,11 +146,11 @@ OfflineEventTape(415 sources)
 julia&gt; position(tape)  # file #213, event at index 58136
 (231, 58136)
 
-julia&gt; for event in tape
-           @show event
+julia&gt; for entry in tape
+           @show entry.event
            break
        end
-event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)</code></pre><p>The seek algorithm is implemented as a binary search to minimise the number of ROOT files to be opened. In case of the dataset used in the example above, the operation takes less than a second with a small footprint of about 230 MB, which is dominated by caching:</p><pre><code class="language-julia-repl hljs">julia&gt; @benchmark seek(tape, DateTime(&quot;2022-01-02T10:23:45&quot;))
+entry.event = Evt (0 hits, 0 MC hits, 2 tracks, 0 MC tracks)</code></pre><p>The seek algorithm is implemented as a binary search to minimise the number of ROOT files to be opened. In case of the dataset used in the example above, the operation takes less than a second with a small footprint of about 230 MB, which is dominated by caching:</p><pre><code class="language-julia-repl hljs">julia&gt; @benchmark seek(tape, DateTime(&quot;2022-01-02T10:23:45&quot;))
 BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
  Range (min … max):  881.339 ms … 897.701 ms  ┊ GC (min … max): 1.22% … 2.23%
  Time  (median):     886.306 ms               ┊ GC (median):    2.09%
@@ -160,4 +160,4 @@ BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
   █▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█ ▁
   881 ms           Histogram: frequency by time          898 ms &lt;
 
- Memory estimate: 231.59 MiB, allocs estimate: 1612771.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../online_data/">« Online data</a><a class="docs-footer-nextpage" href="../cherenkov_times/">Cherenkov times »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 4 March 2026 16:02">Wednesday 4 March 2026</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ Memory estimate: 231.59 MiB, allocs estimate: 1612771.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../online_data/">« Online data</a><a class="docs-footer-nextpage" href="../cherenkov_times/">Cherenkov times »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 12 March 2026 10:59">Thursday 12 March 2026</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
