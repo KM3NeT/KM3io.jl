@@ -108,11 +108,11 @@ which behaves like an array but takes care of the 1-based indexing nature of
 Julia since the index definitions defined in the [KM3NeT
 Dataformat](https://git.km3net.de/common/km3net-dataformat) are 0-based. These
 index definitions are accessible under the `KM3io.FITPARAMETERS` namespace. If
-you are for example interested in the `JGandalf Chi2` parameter, you can access
+you are for example interested in the `JGandalf beta0` parameter, you can access
 its value like this:
 
 ```@example 1
-reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_CHI2]
+reco.fitinf[KM3io.FITPARAMETERS.JGANDALF_BETA0_RAD]
 ```
 
 
