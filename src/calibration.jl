@@ -142,3 +142,50 @@ Get the time of a hit with a rise time (slew) correction.
     correct_slew && return h.t - slew(h.tot)
     h.t
 end
+
+
+"""
+
+The acoustics fit results of the dynamic calibration. The parameters describe
+the shape of a string using the mechanical model.
+
+"""
+struct AcousticsFit
+    id::Int       #  string identifier
+    tx::Float64   #  slope dx/dz
+    ty::Float64   #  slope dy/dz
+    tx2::Float64  #  2nd order correction of slope dx/dz
+    ty2::Float64  #  2nd order correction of slope dy/dz
+    vs::Float64   #  stretching factor
+end
+
+struct DynamicCalibrationHeader
+    timestart::Float64
+    timestop::Float64
+    ndf::Float64
+    npar::Int
+    nhit::Int
+    chi2::Float64
+    numberOfIterations::Int
+    nfit::Int
+    # TODO: OID missing maybe? UnROOT needs a fix to parse the std::string correctly i think
+end
+
+
+"""
+A container type to store and access dynamic calibration results conveniently.
+"""
+struct DynamicCalibration
+    header::DynamicCalibrationHeader
+    fits::Vector{AcousticsFit}
+end
+
+struct DynamicCalibrationSet
+    calibrations::Vector{DynamicCalibration}
+end
+
+function Base.show(io::IO, s::DynamicCalibrationSet)
+    timestart = unix2datetime(minimum(s.header.timestart for s in s.calibrations))
+    timestop = unix2datetime(maximum(s.header.timestop for s in s.calibrations))
+    print(io, "DynamicCalibrationSet ($timestart - $timestop)")
+end
