@@ -37,6 +37,7 @@ const _ACOUSTICS_CUSTOMSTRUCTS = Dict(
 struct AcousticsEventFile
     _fobj::UnROOT.ROOTFile
     _transmissions::Union{Nothing, UnROOT.LazyTree}
+    _calibration_sets::Union{Nothing, DynamicCalibrationSet}
     _headers::Union{Nothing, UnROOT.LazyTree}
 
     function AcousticsEventFile(fname::AbstractString)
@@ -53,7 +54,41 @@ struct AcousticsEventFile
             transmissions = nothing
             headers = nothing
         end
-        new(fobj, transmissions, headers)
+
+        tname = "ACOUSTICS_FIT"
+        if haskey(fobj, tname)
+            tree = UnROOT.LazyTree(
+                fobj,
+                "ACOUSTICS_FIT", [
+                    Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStart") => s"timestart",
+                    Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStop") => s"timestop",
+                    Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(ndf|npar|nhit|chi2|numberOfIterations|nfit)") => s"\1",
+                    Regex("ACOUSTICS_FIT/vector<JACOUSTICS::JFit>/vector<JACOUSTICS::JFit>.((id)|(vs)|(t[xy]))") => s"\1"       ]
+            )
+            cals = map(tree) do entry
+                fits = map(1:length(entry.id)) do idx
+                    AcousticsFit(entry.id[idx], entry.tx[idx], entry.ty[idx], entry.tx2[idx], entry.ty[idx], entry.vs[idx])     end
+
+                DynamicCalibration(
+                    DynamicCalibrationHeader(
+                        entry.timestart,
+                        entry.timestop,
+                        entry.ndf,
+                        entry.npar,
+                        entry.nhit,
+                        entry.chi2,
+                        entry.numberOfIterations,
+                        entry.nfit,
+                        # entry.OID ? is this even a thing?
+                    ),
+                    fits
+                )
+            end
+            calibration_sets = DynamicCalibrationSet(cals)
+        else
+            calibration_sets = nothing
+        end
+        new(fobj, transmissions, calibration_sets, headers)
     end
 end
 

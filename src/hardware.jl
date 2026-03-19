@@ -769,8 +769,8 @@ model of the string.
 
 """
 struct StringMechanicsParameters
-    a::Float64
-    b::Float64
+    a::Float64  # logarithmic term
+    b::Float64  # linear term
 end
 
 """
