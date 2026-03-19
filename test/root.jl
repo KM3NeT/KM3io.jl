@@ -363,8 +363,8 @@ end
     close(f)
 end
 
-@testset "Acoustics Event File" begin
-    f = AcousticsEventFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
+@testset "Acoustics File" begin
+    f = AcousticsFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
     @test 9 == f[1].id
     @test 267 == f[1].det_id
     @test 3 == f[1].overlays
