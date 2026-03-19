@@ -264,3 +264,20 @@ end
 @testset "getaddress" begin
     @test getaddress(4) == KM3io.PMTPhysicalAddress('F', 3)
 end
+
+@testset "detoid2detid / detid2detoid" begin
+    @test detoid2detid("D_DU1CPPM") == 2
+    @test detoid2detid("A00350276") == 3
+    @test detoid2detid("D_ARCA001") == 7
+
+    @test detid2detoid(2) == "D_DU1CPPM"
+    @test detid2detoid(3) == "A00350276"
+    @test detid2detoid(7) == "D_ARCA001"
+
+    # round-trip
+    @test detid2detoid(detoid2detid("D_TESTDET")) == "D_TESTDET"
+    @test detoid2detid(detid2detoid(6)) == 6
+
+    @test_throws KeyError detoid2detid("UNKNOWN_OID")
+    @test_throws KeyError detid2detoid(-1)
+end

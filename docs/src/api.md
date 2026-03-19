@@ -75,6 +75,8 @@ tojson
 PMT
 DetectorModule
 Detector
+detoid2detid
+detid2detoid
 PMTFile
 getpmtfile
 PMTData

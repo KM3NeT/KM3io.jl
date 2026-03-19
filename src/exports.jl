@@ -17,6 +17,8 @@ UTMPosition,   # reexport from KM3Base
 # Hardware
 Detector,
 DetectorModule,
+detoid2detid,
+detid2detoid,
 Hydrophone,
 PMT,
 StringMechanics,
