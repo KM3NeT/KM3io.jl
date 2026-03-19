@@ -1,24 +1,65 @@
+# Marker type for ROOT customstructs parsing of JACOUSTICS::JDetectorMechanics_t,
+# which is a std::map<int, JMechanics> (key=-1 is the wildcard/default entry).
+# Returns Dict{Int32, StringMechanicsParameters} with all entries including the wildcard.
+struct _JDetectorMechanics_t_Reader end
+
+function UnROOT.readtype(io, ::Type{_JDetectorMechanics_t_Reader}; tkey, original_streamer)
+    # io is positioned right after the outer JDetectorMechanics_t preamble.
+    #
+    # JDetectorMechanics_t inherits map<int,JMechanics> FIRST, TObject SECOND.
+    # ROOT serialises the map base class before TObject, so the layout is:
+    #
+    #   6 bytes    – map preamble (kByteCountMask | bytecount, version)
+    #   6 bytes    – unknown (observed: 00 00 0b 5f b7 52)
+    #   Int32      – n  (number of map entries)
+    #   n × Int32  – all keys (std::map iterates in sorted key order)
+    #   n × ( 6-byte JMechanics preamble + Float64 a + Float64 b )
+    #   10 bytes   – TObject (version + fUniqueID + fBits, ignored here)
+    skip(io, 12)   # skip map preamble (6) + unknown (6)
+    n = UnROOT.readtype(io, Int32)
+    ks = [UnROOT.readtype(io, Int32) for _ in 1:n]
+    result = Dict{Int32, StringMechanicsParameters}()
+    for k in ks
+        preamble = UnROOT.Preamble(io, Missing)
+        a = UnROOT.readtype(io, Float64)
+        b = UnROOT.readtype(io, Float64)
+        UnROOT.endcheck(io, preamble)
+        result[k] = StringMechanicsParameters(a, b)
+    end
+    result
+end
+
+const _ACOUSTICS_CUSTOMSTRUCTS = Dict(
+    "JACOUSTICS::JDetectorMechanics_t" => _JDetectorMechanics_t_Reader
+)
+
+
 struct AcousticsEventFile
     _fobj::UnROOT.ROOTFile
-    _transmissions
-    _headers
+    _transmissions::Union{Nothing, UnROOT.LazyTree}
+    _headers::Union{Nothing, UnROOT.LazyTree}
 
     function AcousticsEventFile(fname::AbstractString)
-        fobj = UnROOT.ROOTFile(fname)
+        fobj = UnROOT.ROOTFile(fname; customstructs=_ACOUSTICS_CUSTOMSTRUCTS)
         tname = "ACOUSTICS"
-        bpath = "ACOUSTICS/vector<JACOUSTICS::JTransmission>/vector<JACOUSTICS::JTransmission>"
-        transmissions = UnROOT.LazyTree(fobj, tname, [Regex(bpath * ".(run|id|q|w|toe|toa)\$") => s"\1"])
-        headers = UnROOT.LazyTree(fobj, tname, [
-            Regex("ACOUSTICS/JACOUSTICS::JCounter.(counter)") => s"\1",
-            Regex("ACOUSTICS/(detid|overlays|id)") => s"\1",
-        ])
+        if haskey(fobj, tname)
+            bpath = "ACOUSTICS/vector<JACOUSTICS::JTransmission>/vector<JACOUSTICS::JTransmission>"
+            transmissions = UnROOT.LazyTree(fobj, tname, [Regex(bpath * ".(run|id|q|w|toe|toa)\$") => s"\1"])
+            headers = UnROOT.LazyTree(fobj, tname, [
+                Regex("ACOUSTICS/JACOUSTICS::JCounter.(counter)") => s"\1",
+                Regex("ACOUSTICS/(detid|overlays|id)") => s"\1",
+            ])
+        else
+            transmissions = nothing
+            headers = nothing
+        end
         new(fobj, transmissions, headers)
     end
 end
 
 
 Base.close(f::AcousticsEventFile) = close(f._fobj)
-Base.length(f::AcousticsEventFile) = length(f._headers)
+Base.length(f::AcousticsEventFile) = isnothing(f._headers) ? 0 : length(f._headers)
 Base.firstindex(f::AcousticsEventFile) = 1
 Base.lastindex(f::AcousticsEventFile) = length(f)
 function Base.iterate(f::AcousticsEventFile, state=1)
@@ -26,6 +67,22 @@ function Base.iterate(f::AcousticsEventFile, state=1)
 end
 function Base.show(io::IO, f::AcousticsEventFile)
     print(io, "AcousticsEventFile ($(length(f)) events)")
+end
+
+"""
+    detector_mechanics(f::AcousticsEventFile) -> StringMechanics
+
+Read the `JACOUSTICS::JDetectorMechanics_t` object from a Katoomba acoustics file
+and return it as a `StringMechanics`.  The wildcard entry (C++ map key -1) becomes
+the `default` field; all other keys populate `stringparams`.
+Use `f._fobj["JACOUSTICS::JDetectorMechanics_t"]` for the raw
+`Dict{Int32,StringMechanicsParameters}`.
+"""
+function detector_mechanics(f::AcousticsEventFile)
+    raw = f._fobj["JACOUSTICS::JDetectorMechanics_t"]
+    default = get(raw, Int32(-1), StringMechanicsParameters(0.0, 0.0))
+    stringparams = Dict{Int, StringMechanicsParameters}(k => v for (k, v) in raw if k != Int32(-1))
+    StringMechanics(default, stringparams)
 end
 
 struct Transmission
