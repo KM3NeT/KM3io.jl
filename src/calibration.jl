@@ -1,23 +1,94 @@
 """
+    reference_rotation(mod::DetectorModule) -> Quaternion
+
+Compute the rotation quaternion `Q0` that maps the canonical (factory reference)
+PMT directions ([`CANONICAL_PMT_DIRECTIONS`](@ref)) to the current static PMT
+directions stored in `mod`.
+
+This replicates Jpp's `getRotation(canonical_module, static_module)` using a
+modified Gram-Schmidt process on all 31 PMT direction pairs, keeping only the
+first three orthonormal basis vectors to build the rotation matrix, which is
+then converted to a quaternion.
+
+PMTs are paired by `pmt.id` (1–31), which corresponds to channel (TDC) order
+for Jpp-generated DETX/DATX files.
+"""
+function reference_rotation(mod::DetectorModule)
+    N = length(mod.pmts)
+    # Mutable copies: canonical and static direction vectors, paired by channel index.
+    # mod.pmts is in channel order (0..N-1) for Jpp-generated DETX/DATX files, and
+    # CANONICAL_PMT_DIRECTIONS is stored in the same channel order.
+    in_vecs  = [[CANONICAL_PMT_DIRECTIONS[i].x,
+                 CANONICAL_PMT_DIRECTIONS[i].y,
+                 CANONICAL_PMT_DIRECTIONS[i].z] for i in 1:N]
+    out_vecs = [[p.dir.x, p.dir.y, p.dir.z] for p in mod.pmts]
+
+    # Gram-Schmidt: orthonormalise the first 3 directions (Jpp convention)
+    for i in 1:3
+        # pick the remaining vector with the largest squared norm
+        pos = i
+        max_len2 = sum(x -> x^2, in_vecs[i])
+        for j in i+1:N
+            len2 = sum(x -> x^2, in_vecs[j])
+            if len2 > max_len2
+                max_len2 = len2
+                pos = j
+            end
+        end
+
+        u = sqrt(sum(x -> x^2, in_vecs[pos]))
+        in_vecs[pos]  ./= u
+        out_vecs[pos] ./= u
+
+        if pos != i
+            in_vecs[i],  in_vecs[pos]  = in_vecs[pos],  in_vecs[i]
+            out_vecs[i], out_vecs[pos] = out_vecs[pos], out_vecs[i]
+        end
+
+        # remove component along the new basis vector from all remaining vectors
+        for j in i+1:N
+            d = sum(in_vecs[i] .* in_vecs[j])
+            in_vecs[j]  .-= d .* in_vecs[i]
+            out_vecs[j] .-= d .* out_vecs[i]
+        end
+    end
+
+    # Build rotation matrix R = Σ_k out[k] ⊗ in[k]ᵀ  (R*in[k] = out[k])
+    R = zeros(3, 3)
+    for k in 1:3, a in 1:3, b in 1:3
+        R[a, b] += out_vecs[k][a] * in_vecs[k][b]
+    end
+
+    rotation_matrix_to_quaternion(R)
+end
+
+
+"""
     calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion) -> DetectorModule
 
-Apply dynamic orientation calibration to a module. Computes the delta rotation
-`Δ = Q_static ⊗ Q_dynamic ⊗ conj(Q_static)` and applies it to all PMT directions,
-where `Q_static = mod.q` is the static DETX quaternion and `Q_dynamic` is the
-compass reading at the time of interest (e.g. from [`orientation`](@ref)).
+Apply dynamic orientation calibration to a module following Jpp's `JDynamics`
+algorithm:
 
-Returns a new `DetectorModule` with updated PMT directions and updated quaternion
-`Q_effective = Q_static ⊗ Q_dynamic`.
+1. Compute `Q0 = reference_rotation(mod)` — the rotation from the canonical
+   (factory) frame to the current static geometry, derived from the actual PMT
+   direction vectors via Gram-Schmidt (matching Jpp's `getRotation`).
+2. Compute `Q1 = mod.q ⊗ Q_dynamic` — the combined static + compass rotation.
+3. Apply the delta `Δ = Q1 ⊗ conj(Q0)` to all PMT directions as a sandwich
+   product `Δ ⊗ d_pure ⊗ conj(Δ)`.
+
+`Q_dynamic` is the interpolated compass reading at the time of interest, e.g.
+from [`orientation`](@ref).  Returns a new `DetectorModule` with updated PMT
+directions and `q` field set to `Q1`.
 """
 function calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion)
-    Q_static = mod.q
-    Q_effective = Q_static ⊗ Q_dynamic
-    Δ = Q_effective ⊗ conj(Q_static)
+    Q0 = reference_rotation(mod)   # from PMT directions (Jpp: getRotation)
+    Q1 = mod.q ⊗ Q_dynamic         # Q_static * Q_dynamic
+    Δ  = Q1 ⊗ conj(Q0)
     rotated_pmts = map(mod.pmts) do p
         r = Δ ⊗ Quaternion(zero(Float64), p.dir.x, p.dir.y, p.dir.z) ⊗ conj(Δ)
         PMT(p.id, p.pos, Direction(r.qx, r.qy, r.qz), p.t₀, p.status)
     end
-    DetectorModule(mod.id, mod.pos, mod.location, mod.n_pmts, rotated_pmts, Q_effective, mod.status, mod.t₀)
+    DetectorModule(mod.id, mod.pos, mod.location, mod.n_pmts, rotated_pmts, Q1, mod.status, mod.t₀)
 end
 
 

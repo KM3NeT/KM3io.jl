@@ -813,6 +813,51 @@ function read(filename::AbstractString, T::Type{StringMechanics})
     T(StringMechanicsParameters(default_a, default_b), stringparams)
 end
 
+"""
+Canonical (factory reference) PMT directions for a KM3NeT optical module,
+ordered by DAQ channel (TDC) index 0–30. From `JDetectorSupportkit.hh` and
+the `JKM3NeT_t` address map in Jpp.
+
+The ordering follows the KM3NeT standard address map (`JDetectorBuilder_t<JKM3NeT_t>`)
+which maps PMT numbers 1–31 to TDC channels 0–30.  This is the order in which
+PMTs appear in DETX/DATX files produced by Jpp, and the order used by
+`reference_rotation` when computing the rotation from the canonical frame to
+the static detector geometry.
+"""
+const CANONICAL_PMT_DIRECTIONS = Direction{Float64}[
+    Direction(+0.000, -0.832, +0.555),  # ch  0  (PMT 29)
+    Direction(-0.955, +0.000, +0.295),  # ch  1  (PMT 24)
+    Direction(-0.478, -0.827, +0.295),  # ch  2  (PMT 23)
+    Direction(+0.478, -0.827, +0.295),  # ch  3  (PMT 22)
+    Direction(+0.720, -0.416, +0.555),  # ch  4  (PMT 28)
+    Direction(-0.720, -0.416, +0.555),  # ch  5  (PMT 30)
+    Direction(+0.955, +0.000, +0.295),  # ch  6  (PMT 21)
+    Direction(-0.720, +0.416, +0.555),  # ch  7  (PMT 31)
+    Direction(+0.720, +0.416, +0.555),  # ch  8  (PMT 27)
+    Direction(+0.000, +0.832, +0.555),  # ch  9  (PMT 26)
+    Direction(+0.478, +0.827, +0.295),  # ch 10  (PMT 20)
+    Direction(-0.478, +0.827, +0.295),  # ch 11  (PMT 25)
+    Direction(+0.000, +0.955, -0.295),  # ch 12  (PMT 14)
+    Direction(+0.416, +0.720, -0.555),  # ch 13  (PMT  8)
+    Direction(+0.000, +0.527, -0.850),  # ch 14  (PMT  2)
+    Direction(+0.827, +0.478, -0.295),  # ch 15  (PMT 15)
+    Direction(-0.827, +0.478, -0.295),  # ch 16  (PMT 19)
+    Direction(-0.416, +0.720, -0.555),  # ch 17  (PMT 13)
+    Direction(-0.456, +0.263, -0.850),  # ch 18  (PMT  7)
+    Direction(+0.456, +0.263, -0.850),  # ch 19  (PMT  3)
+    Direction(-0.832, +0.000, -0.555),  # ch 20  (PMT 12)
+    Direction(+0.832, +0.000, -0.555),  # ch 21  (PMT  9)
+    Direction(+0.000, +0.000, -1.000),  # ch 22  (PMT  1, bottom)
+    Direction(+0.827, -0.478, -0.295),  # ch 23  (PMT 16)
+    Direction(+0.000, -0.527, -0.850),  # ch 24  (PMT  5)
+    Direction(+0.456, -0.263, -0.850),  # ch 25  (PMT  4)
+    Direction(-0.456, -0.263, -0.850),  # ch 26  (PMT  6)
+    Direction(-0.827, -0.478, -0.295),  # ch 27  (PMT 18)
+    Direction(-0.416, -0.720, -0.555),  # ch 28  (PMT 11)
+    Direction(+0.416, -0.720, -0.555),  # ch 29  (PMT 10)
+    Direction(+0.000, -0.955, -0.295),  # ch 30  (PMT 17)
+]
+
 struct PMTParameters
     QE::Float64  # probability of underamplified hit
     PunderAmplified::Float64  # probability of underamplified hit

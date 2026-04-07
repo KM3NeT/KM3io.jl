@@ -236,24 +236,68 @@ end
     orientation(f::DynamicOrientationFile, module_id, t, ns=0) -> Quaternion
 
 Return the interpolated orientation quaternion for `module_id` at UNIX time `t`
-[s] with optional sub-second offset `ns` [nanoseconds]. Uses spherical linear
-interpolation (slerp) between the two nearest measurements. Returns the closest
-boundary quaternion when the requested time is outside the recorded range.
+[s] with optional sub-second offset `ns` [nanoseconds].
+
+Matches Jpp's `JPolfitFunction1D<20, 1>` interpolation: selects a window of up
+to 21 measurements centred roughly on the query time, fits a degree-1 Legendre
+polynomial to each quaternion component independently, evaluates at the query
+time, then normalises the result. Returns the closest boundary quaternion when
+the requested time is outside the recorded range.
 """
 function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns::Integer=0)
-    fits = f._lookup[Int32(module_id)]
+    fits    = f._lookup[Int32(module_id)]
+    N       = length(fits)
     target_t = t + ns * 1e-9
 
+    # Jpp: n = min(N+1, size) = min(21, N)
+    n = min(21, N)
+
+    # lower_bound: first 1-based index where fit.t >= target_t
     idx = searchsortedfirst(fits, target_t; lt = (fit, x) -> fit.t + fit.ns * 1e-9 < x)
 
-    # outside range: return nearest boundary
-    (idx == 1 || idx > length(fits)) && return fits[clamp(idx, 1, length(fits))].q
+    # outside range: return nearest boundary (Jpp throws; we fall back gracefully)
+    idx == 1 && fits[1].t + fits[1].ns * 1e-9 > target_t && return fits[1].q
+    idx > N  && return fits[N].q
 
-    before = fits[idx - 1]
-    after  = fits[idx]
-    t1 = before.t + before.ns * 1e-9
-    t2 = after.t  + after.ns  * 1e-9
-    Δt = t2 - t1
-    Δt == 0.0 && return before.q
-    slerp(before.q, after.q, (target_t - t1) / Δt)
+    # Replicate Jpp's window-centering logic (0-based j = idx - 1):
+    #   step 2: advance j by n÷2 (capped at N, the end sentinel)
+    #   step 3: go back n steps from there (capped at 0)
+    j = idx - 1                               # 0-based lower_bound position
+    step2 = min(j + n ÷ 2, N)                # 0-based, may equal N (end sentinel)
+    p0    = max(step2 - n, 0)                 # 0-based window start
+    p     = p0 + 1                            # 1-based
+    wend  = min(p + n - 1, N)
+    window = fits[p:wend]
+    nw    = length(window)
+
+    # x-axis: time elapsed from window start
+    t0 = window[1].t + window[1].ns * 1e-9
+    xs = [f.t + f.ns * 1e-9 - t0 for f in window]
+    xq = target_t - t0
+    xm = xs[end]
+
+    # Degenerate window (all at same time): return closest measurement
+    xm == 0.0 && return window[1].q
+
+    # Legendre normalised x ∈ [-1, 1]: z_i = 2*x_i/x_max - 1
+    zs = [2*x/xm - 1 for x in xs]
+    zq = 2*xq/xm - 1
+
+    # Degree-1 Legendre series fit (JLegendre<T, 1> algorithm):
+    #   c₀ = Σ P₀(zᵢ)⋅yᵢ / Σ P₀(zᵢ)²  =  mean(y)
+    #   c₁ = Σ P₁(zᵢ)⋅(yᵢ − c₀) / Σ P₁(zᵢ)²  (P₁(z) = z)
+    #   ŷ(x) = c₀⋅P₀(zq) + c₁⋅P₁(zq) = c₀ + c₁⋅zq
+    sum_z2 = sum(z^2 for z in zs)
+    function legfit(vals)
+        c0 = sum(vals) / nw
+        c1 = iszero(sum_z2) ? zero(c0) :
+             sum(zs[i] * (vals[i] - c0) for i in 1:nw) / sum_z2
+        c0 + c1 * zq
+    end
+
+    q = Quaternion(legfit([f.q.q0 for f in window]),
+                   legfit([f.q.qx for f in window]),
+                   legfit([f.q.qy for f in window]),
+                   legfit([f.q.qz for f in window]))
+    normalize(q)
 end
