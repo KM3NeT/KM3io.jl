@@ -1,4 +1,27 @@
 """
+    calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion) -> DetectorModule
+
+Apply dynamic orientation calibration to a module. Computes the delta rotation
+`Δ = Q_static ⊗ Q_dynamic ⊗ conj(Q_static)` and applies it to all PMT directions,
+where `Q_static = mod.q` is the static DETX quaternion and `Q_dynamic` is the
+compass reading at the time of interest (e.g. from [`orientation`](@ref)).
+
+Returns a new `DetectorModule` with updated PMT directions and updated quaternion
+`Q_effective = Q_static ⊗ Q_dynamic`.
+"""
+function calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion)
+    Q_static = mod.q
+    Q_effective = Q_static ⊗ Q_dynamic
+    Δ = Q_effective ⊗ conj(Q_static)
+    rotated_pmts = map(mod.pmts) do p
+        r = Δ ⊗ Quaternion(zero(Float64), p.dir.x, p.dir.y, p.dir.z) ⊗ conj(Δ)
+        PMT(p.id, p.pos, Direction(r.qx, r.qy, r.qz), p.t₀, p.status)
+    end
+    DetectorModule(mod.id, mod.pos, mod.location, mod.n_pmts, rotated_pmts, Q_effective, mod.status, mod.t₀)
+end
+
+
+"""
 
 Apply full geometry and time calibration to given hits. This way of calibration
 should be used wisely since it creates a very bloaded [`XCalibratedHit`](@ref)

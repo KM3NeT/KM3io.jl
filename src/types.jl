@@ -10,6 +10,23 @@ struct Quaternion{T} <: FieldVector{4, T}
     qz::T
 end
 
+"""
+Hamilton product of two quaternions.
+"""
+function ⊗(q1::Quaternion, q2::Quaternion)
+    Quaternion(
+        q1.q0*q2.q0 - q1.qx*q2.qx - q1.qy*q2.qy - q1.qz*q2.qz,
+        q1.q0*q2.qx + q1.qx*q2.q0 + q1.qy*q2.qz - q1.qz*q2.qy,
+        q1.q0*q2.qy - q1.qx*q2.qz + q1.qy*q2.q0 + q1.qz*q2.qx,
+        q1.q0*q2.qz + q1.qx*q2.qy - q1.qy*q2.qx + q1.qz*q2.q0,
+    )
+end
+
+"""
+Quaternion conjugate (negates the imaginary components).
+"""
+Base.conj(q::Quaternion) = Quaternion(q.q0, -q.qx, -q.qy, -q.qz)
+
 struct DateRange
     from::DateTime
     to::DateTime
