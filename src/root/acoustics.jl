@@ -62,15 +62,18 @@ struct AcousticsFile
                 "ACOUSTICS_FIT", [
                     Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStart") => s"timestart",
                     Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/UNIXTimeStop") => s"timestop",
-                    Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(ndf|npar|nhit|chi2|numberOfIterations|nfit)") => s"\1",
-                    Regex("ACOUSTICS_FIT/vector<JACOUSTICS::JFit>/vector<JACOUSTICS::JFit>.((id)|(vs)|(t[xy]))") => s"\1"       ]
+                    Regex("ACOUSTICS_FIT/JACOUSTICS::JHead/(detid|ndf|npar|nhit|chi2|numberOfIterations|nfit)") => s"\1",
+                    Regex("ACOUSTICS_FIT/vector<JACOUSTICS::JFit>/vector<JACOUSTICS::JFit>.((id)|(vs)|(t[xy]2?))") => s"\1"
+                ]
             )
             cals = map(tree) do entry
                 fits = map(1:length(entry.id)) do idx
-                    AcousticsFit(entry.id[idx], entry.tx[idx], entry.ty[idx], entry.tx2[idx], entry.ty[idx], entry.vs[idx])     end
+                    AcousticsFit(entry.id[idx], entry.tx[idx], entry.ty[idx], entry.tx2[idx], entry.ty2[idx], entry.vs[idx])
+                end
 
                 DynamicCalibration(
                     DynamicCalibrationHeader(
+                        entry.detid,
                         entry.timestart,
                         entry.timestop,
                         entry.ndf,
@@ -79,7 +82,6 @@ struct AcousticsFile
                         entry.chi2,
                         entry.numberOfIterations,
                         entry.nfit,
-                        # entry.OID ? is this even a thing?
                     ),
                     fits
                 )
@@ -158,5 +160,5 @@ Base.getindex(f::AcousticsFile, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::AcousticsFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 
 function Base.show(io::IO, e::AcousticsEvent)
-    print(io, "AcousticsEvent(ID=$(e.id), detector=$(e.detid), $(e.overlays) overlays, counter=$(e.counter), $(length(e)) transmissions)")
+    print(io, "AcousticsEvent(ID=$(e.id), detector=$(e.det_id), $(e.overlays) overlays, counter=$(e.counter), $(length(e)) transmissions)")
 end

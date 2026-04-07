@@ -160,6 +160,7 @@ struct AcousticsFit
 end
 
 struct DynamicCalibrationHeader
+    detid::Int
     timestart::Float64
     timestop::Float64
     ndf::Float64
@@ -168,7 +169,6 @@ struct DynamicCalibrationHeader
     chi2::Float64
     numberOfIterations::Int
     nfit::Int
-    # TODO: OID missing maybe? UnROOT needs a fix to parse the std::string correctly i think
 end
 
 
