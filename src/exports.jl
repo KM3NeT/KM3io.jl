@@ -52,7 +52,12 @@ piezoenabled,
 
 # ROOT
 ROOTFile,
-AcousticsFile,
+DynamicPositionFile,
+AcousticsFit,
+DynamicPosition,
+DynamicPositionHeader,
+DynamicPositionSet,
+detector_mechanics,
 
 # Online dataformat
 DAQEvent,

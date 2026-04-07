@@ -364,7 +364,7 @@ end
 end
 
 @testset "Acoustics File" begin
-    f = AcousticsFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
+    f = DynamicPositionFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
     @test 9 == f[1].id
     @test 267 == f[1].det_id
     @test 3 == f[1].overlays
@@ -388,4 +388,47 @@ end
         n += length(event)
     end
     @test 208111 == n
+end
+
+@testset "DynamicPositionFile with mechanical model" begin
+    f = DynamicPositionFile(datapath("acoustics", "mechanical_model.root"))
+
+    # file has an empty ACOUSTICS tree and a populated ACOUSTICS_FIT tree
+    @test 0 == length(f)
+    @test !isnothing(f._transmissions)
+    @test !isnothing(f._calibration_sets)
+
+    cs = f._calibration_sets
+    @test 14 == length(cs.calibrations)
+
+    h = cs.calibrations[1].header
+    @test 148 == h.detid
+    @test 1.684305246695606e9 ≈ h.timestart
+    @test 1.684305846765883e9 ≈ h.timestop
+    @test 7909 == h.nhit
+    @test 7909 == h.nfit
+    @test 104 == h.npar
+    @test 7574.75 ≈ h.ndf atol=1e-2
+    @test 3422.471 ≈ h.chi2 atol=1e-3
+    @test 19 == h.numberOfIterations
+
+    fits = cs.calibrations[1].fits
+    @test 14 == length(fits)
+    @test 10 == fits[1].id
+    @test 0.004444270786890379 ≈ fits[1].tx
+    @test -0.002677338350879895 ≈ fits[1].ty
+    @test -5.848360031938995e-6 ≈ fits[1].tx2
+    @test -3.1562347126287645e-6 ≈ fits[1].ty2
+    @test 6.013913271231749e-6 ≈ fits[1].vs
+    @test 31 == fits[end].id
+
+    @test 148 == cs.calibrations[end].header.detid
+    @test 1.6843131642554398e9 ≈ cs.calibrations[end].header.timestart
+
+    m = detector_mechanics(f)
+    @test 0.00311 ≈ m.default.a
+    @test 85.966 ≈ m.default.b
+    @test 1 == length(m.stringparams)
+    @test 0.00087 ≈ m[9].a
+    @test 267.054 ≈ m[9].b
 end

@@ -34,13 +34,13 @@ const _ACOUSTICS_CUSTOMSTRUCTS = Dict(
 )
 
 
-struct AcousticsFile
+struct DynamicPositionFile
     _fobj::UnROOT.ROOTFile
     _transmissions::Union{Nothing, UnROOT.LazyTree}
-    _calibration_sets::Union{Nothing, DynamicCalibrationSet}
+    _calibration_sets::Union{Nothing, DynamicPositionSet}
     _headers::Union{Nothing, UnROOT.LazyTree}
 
-    function AcousticsFile(fname::AbstractString)
+    function DynamicPositionFile(fname::AbstractString)
         fobj = UnROOT.ROOTFile(fname; customstructs=_ACOUSTICS_CUSTOMSTRUCTS)
         tname = "ACOUSTICS"
         if haskey(fobj, tname)
@@ -71,8 +71,8 @@ struct AcousticsFile
                     AcousticsFit(entry.id[idx], entry.tx[idx], entry.ty[idx], entry.tx2[idx], entry.ty2[idx], entry.vs[idx])
                 end
 
-                DynamicCalibration(
-                    DynamicCalibrationHeader(
+                DynamicPosition(
+                    DynamicPositionHeader(
                         entry.detid,
                         entry.timestart,
                         entry.timestop,
@@ -86,7 +86,7 @@ struct AcousticsFile
                     fits
                 )
             end
-            calibration_sets = DynamicCalibrationSet(cals)
+            calibration_sets = DynamicPositionSet(cals)
         else
             calibration_sets = nothing
         end
@@ -95,19 +95,19 @@ struct AcousticsFile
 end
 
 
-Base.close(f::AcousticsFile) = close(f._fobj)
-Base.length(f::AcousticsFile) = isnothing(f._headers) ? 0 : length(f._headers)
-Base.firstindex(f::AcousticsFile) = 1
-Base.lastindex(f::AcousticsFile) = length(f)
-function Base.iterate(f::AcousticsFile, state=1)
+Base.close(f::DynamicPositionFile) = close(f._fobj)
+Base.length(f::DynamicPositionFile) = isnothing(f._headers) ? 0 : length(f._headers)
+Base.firstindex(f::DynamicPositionFile) = 1
+Base.lastindex(f::DynamicPositionFile) = length(f)
+function Base.iterate(f::DynamicPositionFile, state=1)
     state > length(f) ? nothing : (f[state], state+1)
 end
-function Base.show(io::IO, f::AcousticsFile)
-    print(io, "AcousticsFile ($(length(f)) events)")
+function Base.show(io::IO, f::DynamicPositionFile)
+    print(io, "DynamicPositionFile ($(length(f)) events)")
 end
 
 """
-    detector_mechanics(f::AcousticsFile) -> StringMechanics
+    detector_mechanics(f::DynamicPositionFile) -> StringMechanics
 
 Read the `JACOUSTICS::JDetectorMechanics_t` object from a Katoomba acoustics file
 and return it as a `StringMechanics`.  The wildcard entry (C++ map key -1) becomes
@@ -115,7 +115,7 @@ the `default` field; all other keys populate `stringparams`.
 Use `f._fobj["JACOUSTICS::JDetectorMechanics_t"]` for the raw
 `Dict{Int32,StringMechanicsParameters}`.
 """
-function detector_mechanics(f::AcousticsFile)
+function detector_mechanics(f::DynamicPositionFile)
     raw = f._fobj["JACOUSTICS::JDetectorMechanics_t"]
     default = get(raw, Int32(-1), StringMechanicsParameters(0.0, 0.0))
     stringparams = Dict{Int, StringMechanicsParameters}(k => v for (k, v) in raw if k != Int32(-1))
@@ -143,9 +143,9 @@ struct AcousticsEvent
 end
 Base.length(e::AcousticsEvent) = length(e.transmissions)
 
-Base.eltype(::AcousticsFile) = AcousticsEvent
+Base.eltype(::DynamicPositionFile) = AcousticsEvent
 
-function Base.getindex(f::AcousticsFile, idx::Integer)
+function Base.getindex(f::DynamicPositionFile, idx::Integer)
     tr = f._transmissions[idx]
     h = f._headers[idx]
     n = length(tr.id)  # arbitrary field for length determination
@@ -156,8 +156,8 @@ function Base.getindex(f::AcousticsFile, idx::Integer)
     end
     return AcousticsEvent(h.id, h.detid, h.overlays, h.counter, transmissions)
 end
-Base.getindex(f::AcousticsFile, r::UnitRange) = [f[idx] for idx ∈ r]
-Base.getindex(f::AcousticsFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+Base.getindex(f::DynamicPositionFile, r::UnitRange) = [f[idx] for idx ∈ r]
+Base.getindex(f::DynamicPositionFile, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 
 function Base.show(io::IO, e::AcousticsEvent)
     print(io, "AcousticsEvent(ID=$(e.id), detector=$(e.det_id), $(e.overlays) overlays, counter=$(e.counter), $(length(e)) transmissions)")

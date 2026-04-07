@@ -159,7 +159,7 @@ struct AcousticsFit
     vs::Float64   #  stretching factor
 end
 
-struct DynamicCalibrationHeader
+struct DynamicPositionHeader
     detid::Int
     timestart::Float64
     timestop::Float64
@@ -175,17 +175,17 @@ end
 """
 A container type to store and access dynamic calibration results conveniently.
 """
-struct DynamicCalibration
-    header::DynamicCalibrationHeader
+struct DynamicPosition
+    header::DynamicPositionHeader
     fits::Vector{AcousticsFit}
 end
 
-struct DynamicCalibrationSet
-    calibrations::Vector{DynamicCalibration}
+struct DynamicPositionSet
+    calibrations::Vector{DynamicPosition}
 end
 
-function Base.show(io::IO, s::DynamicCalibrationSet)
+function Base.show(io::IO, s::DynamicPositionSet)
     timestart = unix2datetime(minimum(s.header.timestart for s in s.calibrations))
     timestop = unix2datetime(maximum(s.header.timestop for s in s.calibrations))
-    print(io, "DynamicCalibrationSet ($timestart - $timestop)")
+    print(io, "DynamicPositionSet ($timestart - $timestop)")
 end
