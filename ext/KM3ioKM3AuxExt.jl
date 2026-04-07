@@ -4,9 +4,9 @@ import KM3io: gettripods, gethydrophones, getwaveforms, getpmtfile
 import KM3io: Tripod, Hydrophone, Waveform, PMTFile
 
 if isdefined(Base, :get_extension)
-    import KM3Aux: filepath
+    import KM3Aux: auxfilepath
 else
-    import ..KM3Aux: filepath
+    import ..KM3Aux: auxfilepath
 end
 
 """
@@ -15,7 +15,7 @@ end
 Load the PMT data from K40 calibrations for a given detector and run from the auxiliary repository.
 """
 function getpmtfile(det_id, run)
-    read(filepath(det_id, run, "pmt"), PMTFile)
+    read(auxfilepath(det_id, run, "pmt"), PMTFile)
 end
 
 """
@@ -24,7 +24,7 @@ end
 Load the tripods for a given detector and run from the auxiliary repository.
 """
 function gettripods(det_id, run)
-    read(filepath(det_id, run, "tripod"), Tripod)
+    read(auxfilepath(det_id, run, "tripod"), Tripod)
 end
 
 """
@@ -33,7 +33,7 @@ end
 Load the hydrophones for a given detector and run from the auxiliary repository.
 """
 function gethydrophones(det_id, run)
-    read(filepath(det_id, run, "hydrophone"), Hydrophone)
+    read(auxfilepath(det_id, run, "hydrophone"), Hydrophone)
 end
 
 """
@@ -42,7 +42,7 @@ end
 Load the waveforms for a given detector and run from the auxiliary repository.
 """
 function getwaveforms(det_id, run)
-    read(filepath(det_id, run, "waveform"), Waveform)
+    read(auxfilepath(det_id, run, "waveform"), Waveform)
 end
 
 end
