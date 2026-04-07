@@ -91,7 +91,6 @@ function calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion)
     DetectorModule(mod.id, mod.pos, mod.location, mod.n_pmts, rotated_pmts, Q1, mod.status, mod.t₀)
 end
 
-
 """
 
 Apply full geometry and time calibration to given hits. This way of calibration
