@@ -58,6 +58,9 @@ DynamicPosition,
 DynamicPositionHeader,
 DynamicPositionSet,
 detector_mechanics,
+DynamicOrientationFile,
+OrientationFit,
+orientation,
 
 # Online dataformat
 DAQEvent,

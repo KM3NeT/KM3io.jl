@@ -162,3 +162,98 @@ Base.getindex(f::DynamicPositionFile, mask::BitArray) = [f[idx] for (idx, select
 function Base.show(io::IO, e::AcousticsEvent)
     print(io, "AcousticsEvent(ID=$(e.id), detector=$(e.det_id), $(e.overlays) overlays, counter=$(e.counter), $(length(e)) transmissions)")
 end
+
+
+function _orientation_fit(e)
+    OrientationFit(
+        e.id, e.t, e.ns,
+        Quaternion(
+            getproperty(e, Symbol("JCOMPASS::JQuaternion_a")),
+            getproperty(e, Symbol("JCOMPASS::JQuaternion_b")),
+            getproperty(e, Symbol("JCOMPASS::JQuaternion_c")),
+            getproperty(e, Symbol("JCOMPASS::JQuaternion_d"))
+        ),
+        e.policy
+    )
+end
+
+"""
+    DynamicOrientationFile(filename)
+
+Reader for dynamic orientation ROOT files produced by Jpp. Builds a per-module
+lookup of `OrientationFit` entries sorted by time so that
+[`orientation`](@ref) can interpolate quaternions at arbitrary timestamps.
+"""
+struct DynamicOrientationFile
+    _fobj::UnROOT.ROOTFile
+    _fits::UnROOT.LazyTree
+    _lookup::Dict{Int32, Vector{OrientationFit}}
+
+    function DynamicOrientationFile(fname::AbstractString)
+        fobj = UnROOT.ROOTFile(fname)
+        fits = UnROOT.LazyTree(fobj, "ORIENTATION")
+        lookup = Dict{Int32, Vector{OrientationFit}}()
+        for row in fits
+            fit = _orientation_fit(row)
+            push!(get!(Vector{OrientationFit}, lookup, fit.id), fit)
+        end
+        for v in values(lookup)
+            sort!(v, by = f -> f.t + f.ns * 1e-9)
+        end
+        new(fobj, fits, lookup)
+    end
+end
+
+Base.close(f::DynamicOrientationFile) = close(f._fobj)
+Base.length(f::DynamicOrientationFile) = length(f._fits)
+Base.firstindex(f::DynamicOrientationFile) = 1
+Base.lastindex(f::DynamicOrientationFile) = length(f)
+Base.eltype(::DynamicOrientationFile) = OrientationFit
+
+function Base.iterate(f::DynamicOrientationFile, state=1)
+    state > length(f) && return nothing
+    (_orientation_fit(f._fits[state]), state + 1)
+end
+
+function Base.getindex(f::DynamicOrientationFile, idx::Integer)
+    _orientation_fit(f._fits[idx])
+end
+Base.getindex(f::DynamicOrientationFile, r::UnitRange) = [f[idx] for idx ∈ r]
+
+function Base.show(io::IO, f::DynamicOrientationFile)
+    n = length(f._lookup)
+    total = length(f)
+    if n > 0
+        t_min = minimum(first(v).t for v in values(f._lookup))
+        t_max = maximum(last(v).t  for v in values(f._lookup))
+        print(io, "DynamicOrientationFile ($total measurements, $n modules, $(unix2datetime(t_min)) - $(unix2datetime(t_max)))")
+    else
+        print(io, "DynamicOrientationFile (empty)")
+    end
+end
+
+"""
+    orientation(f::DynamicOrientationFile, module_id, t, ns=0) -> Quaternion
+
+Return the interpolated orientation quaternion for `module_id` at UNIX time `t`
+[s] with optional sub-second offset `ns` [nanoseconds]. Uses spherical linear
+interpolation (slerp) between the two nearest measurements. Returns the closest
+boundary quaternion when the requested time is outside the recorded range.
+"""
+function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns::Integer=0)
+    fits = f._lookup[Int32(module_id)]
+    target_t = t + ns * 1e-9
+
+    idx = searchsortedfirst(fits, target_t; lt = (fit, x) -> fit.t + fit.ns * 1e-9 < x)
+
+    # outside range: return nearest boundary
+    (idx == 1 || idx > length(fits)) && return fits[clamp(idx, 1, length(fits))].q
+
+    before = fits[idx - 1]
+    after  = fits[idx]
+    t1 = before.t + before.ns * 1e-9
+    t2 = after.t  + after.ns  * 1e-9
+    Δt = t2 - t1
+    Δt == 0.0 && return before.q
+    slerp(before.q, after.q, (target_t - t1) / Δt)
+end

@@ -189,3 +189,16 @@ function Base.show(io::IO, s::DynamicPositionSet)
     timestop = unix2datetime(maximum(s.header.timestop for s in s.calibrations))
     print(io, "DynamicPositionSet ($timestart - $timestop)")
 end
+
+
+"""
+A single orientation measurement from a DOM compass, storing the quaternion
+orientation (a, b, c, d correspond to q0, qx, qy, qz) and the timestamp.
+"""
+struct OrientationFit
+    id::Int32        # module identifier
+    t::Float64       # UNIX time [s]
+    ns::UInt64       # sub-second nanoseconds
+    q::Quaternion{Float64}  # orientation quaternion
+    policy::Bool
+end
