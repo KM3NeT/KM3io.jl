@@ -85,8 +85,14 @@ function calibrate_orientation(mod::DetectorModule, Q_dynamic::Quaternion)
     Q1 = mod.q ⊗ Q_dynamic         # Q_static * Q_dynamic
     Δ  = Q1 ⊗ conj(Q0)
     rotated_pmts = map(mod.pmts) do p
-        r = Δ ⊗ Quaternion(zero(Float64), p.dir.x, p.dir.y, p.dir.z) ⊗ conj(Δ)
-        PMT(p.id, p.pos, Direction(r.qx, r.qy, r.qz), p.t₀, p.status)
+        r_dir = Δ ⊗ Quaternion(zero(Float64), p.dir.x, p.dir.y, p.dir.z) ⊗ conj(Δ)
+        # Rotate PMT position around the module centre (positions are absolute world-frame)
+        rel_x = p.pos.x - mod.pos.x
+        rel_y = p.pos.y - mod.pos.y
+        rel_z = p.pos.z - mod.pos.z
+        r_pos = Δ ⊗ Quaternion(zero(Float64), rel_x, rel_y, rel_z) ⊗ conj(Δ)
+        new_pos = Position{Float64}(mod.pos.x + r_pos.qx, mod.pos.y + r_pos.qy, mod.pos.z + r_pos.qz)
+        PMT(p.id, new_pos, Direction(r_dir.qx, r_dir.qy, r_dir.qz), p.t₀, p.status)
     end
     DetectorModule(mod.id, mod.pos, mod.location, mod.n_pmts, rotated_pmts, Q1, mod.status, mod.t₀)
 end

@@ -511,8 +511,15 @@ function calibrate_position(det::Detector, f::DynamicPositionFile, t::Real)
             anchor.z + dz - piezo_dz,   # +0.20: piezo position → module centre
         )
 
+        # Translate PMT positions (absolute world-frame) by the same delta.
+        Δx = new_pos.x - mod.pos.x
+        Δy = new_pos.y - mod.pos.y
+        Δz = new_pos.z - mod.pos.z
+        new_pmts = [PMT(p.id, Position{Float64}(p.pos.x + Δx, p.pos.y + Δy, p.pos.z + Δz),
+                        p.dir, p.t₀, p.status) for p in mod.pmts]
+
         new_modules[mid] = DetectorModule(mod.id, new_pos, mod.location, mod.n_pmts,
-                                          mod.pmts, mod.q, mod.status, mod.t₀)
+                                          new_pmts, mod.q, mod.status, mod.t₀)
     end
 
     # Rebuild auxiliary lookup dicts.
