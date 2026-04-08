@@ -66,6 +66,8 @@ include("constants.jl")
 include("types.jl")
 
 include("hardware.jl")
+include("hardware_transforms.jl")
+include("modulefixer.jl")
 include("calibration.jl")
 include("root/online.jl")
 include("root/offline.jl")
