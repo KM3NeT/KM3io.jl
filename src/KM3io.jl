@@ -64,6 +64,7 @@ include("constants.jl")
 # COV_EXCL_STOP
 
 include("types.jl")
+include("math.jl")
 
 include("hardware.jl")
 include("hardware_transforms.jl")

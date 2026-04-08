@@ -10,55 +10,6 @@ struct Quaternion{T} <: FieldVector{4, T}
     qz::T
 end
 
-"""
-Hamilton product of two quaternions.
-"""
-function ⊗(q1::Quaternion, q2::Quaternion)
-    Quaternion(
-        q1.q0*q2.q0 - q1.qx*q2.qx - q1.qy*q2.qy - q1.qz*q2.qz,
-        q1.q0*q2.qx + q1.qx*q2.q0 + q1.qy*q2.qz - q1.qz*q2.qy,
-        q1.q0*q2.qy - q1.qx*q2.qz + q1.qy*q2.q0 + q1.qz*q2.qx,
-        q1.q0*q2.qz + q1.qx*q2.qy - q1.qy*q2.qx + q1.qz*q2.q0,
-    )
-end
-
-"""
-Quaternion conjugate (negates the imaginary components).
-"""
-Base.conj(q::Quaternion) = Quaternion(q.q0, -q.qx, -q.qy, -q.qz)
-
-"""
-Convert a 3×3 rotation matrix to a `Quaternion` using the Shepperd method.
-"""
-function rotation_matrix_to_quaternion(R::AbstractMatrix)
-    trace = R[1,1] + R[2,2] + R[3,3]
-    if trace > 0
-        s = sqrt(trace + 1.0) * 2            # s = 4*q0
-        Quaternion(0.25 * s,
-                   (R[3,2] - R[2,3]) / s,
-                   (R[1,3] - R[3,1]) / s,
-                   (R[2,1] - R[1,2]) / s)
-    elseif R[1,1] > R[2,2] && R[1,1] > R[3,3]
-        s = sqrt(1.0 + R[1,1] - R[2,2] - R[3,3]) * 2  # s = 4*qx
-        Quaternion((R[3,2] - R[2,3]) / s,
-                   0.25 * s,
-                   (R[1,2] + R[2,1]) / s,
-                   (R[1,3] + R[3,1]) / s)
-    elseif R[2,2] > R[3,3]
-        s = sqrt(1.0 + R[2,2] - R[1,1] - R[3,3]) * 2  # s = 4*qy
-        Quaternion((R[1,3] - R[3,1]) / s,
-                   (R[1,2] + R[2,1]) / s,
-                   0.25 * s,
-                   (R[2,3] + R[3,2]) / s)
-    else
-        s = sqrt(1.0 + R[3,3] - R[1,1] - R[2,2]) * 2  # s = 4*qz
-        Quaternion((R[2,1] - R[1,2]) / s,
-                   (R[1,3] + R[3,1]) / s,
-                   (R[2,3] + R[3,2]) / s,
-                   0.25 * s)
-    end
-end
-
 struct DateRange
     from::DateTime
     to::DateTime
