@@ -523,15 +523,15 @@ function calibrate_position(det::Detector, f::DynamicPositionFile, t::Real)
     end
 
     # Rebuild auxiliary lookup dicts.
-    new_locations = Dict{Tuple{Int, Int}, DetectorModule}()
-    new_pmt_map   = Dict{Int, DetectorModule}()
+    new_locations = Dict{Tuple{Int, Int}, Int32}()
+    new_pmt_id_map = Dict{Int, Int32}()
     for m in values(new_modules)
-        new_locations[(m.location.string, m.location.floor)] = m
+        new_locations[(m.location.string, m.location.floor)] = m.id
         for pmt in m.pmts
-            new_pmt_map[pmt.id] = m
+            new_pmt_id_map[pmt.id] = m.id
         end
     end
 
     Detector(det.version, det.id, det.validity, det.pos, det.lonlat, det.utm_ref_grid,
-             det.n_modules, new_modules, new_locations, det.strings, det.comments, new_pmt_map)
+             det.n_modules, new_modules, new_locations, det.strings, det.comments, new_pmt_id_map)
 end
