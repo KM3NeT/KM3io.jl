@@ -309,73 +309,6 @@ struct OrientationFit
 end
 
 """
-A compass with yaw, pitch and roll.
-"""
-struct Compass{T} <: FieldVector{3, T}
-    yaw::T
-    pitch::T
-    roll::T
-end
-
-"""
-
-Initialises a [`Compass`](@ref) from a [`Quaternion`](@ref).
-
-"""
-function Compass(q::Quaternion)
-    yaw = -atan(2.0 * (q.q0 * q.qz + q.qx * q.qy), 1.0 - 2.0 * (q.qy * q.qy + q.qz * q.qz))
-    sp = 2.0 * (q.q0 * q.qy - q.qz * q.qx)
-
-    if (sp >= +1.0)
-        pitch = asin(+1.0)
-    elseif (sp <= -1.0)
-        pitch = asin(-1.0)
-    else
-        pitch = asin(sp)
-    end
-
-    roll = -atan(2.0 * (q.q0 * q.qx + q.qy * q.qz), 1.0 - 2.0 * (q.qx * q.qx + q.qy * q.qy))
-
-    Compass(yaw, pitch, roll)
-end
-
-Quaternion(c::Compass) = Quaternion(c.yaw, c.pitch, c.roll)
-
-"""
-    correct(c::Compass, declination::Real, meridian::Real) -> Compass
-
-Apply magnetic declination and meridian convergence corrections to a compass
-measurement, mirroring Jpp's `JCompass::correct(declination, meridian)`.
-
-`declination` and `meridian` must be in **radians**.
-
-Jpp stores yaw in the nautical (z-down, North-to-East) frame and applies:
-    yaw -= declination;  yaw += meridian
-KM3io's `Compass.yaw` is the negation of Jpp's yaw (KM3NeT z-up frame), so
-the equivalent correction is:
-    yaw += declination - meridian
-
-See also [`orca_magnetic_declination`](@ref), [`arca_magnetic_declination`](@ref),
-[`ORCA_MERIDIAN_CONVERGENCE_ANGLE_RAD`](@ref), [`ARCA_MERIDIAN_CONVERGENCE_ANGLE_RAD`](@ref).
-"""
-correct(c::Compass, declination::Real, meridian::Real) =
-    Compass(c.yaw + declination - meridian, c.pitch, c.roll)
-
-"""
-    correct(q::Quaternion, declination::Real, meridian::Real) -> Quaternion
-
-Apply magnetic declination and meridian convergence corrections directly to an
-orientation quaternion. Equivalent to converting to [`Compass`](@ref), calling
-[`correct`](@ref), and converting back.
-
-`declination` and `meridian` must be in **radians**.
-"""
-function correct(q::Quaternion, declination::Real, meridian::Real)
-    Δyaw = declination - meridian
-    Quaternion(Δyaw, 0.0, 0.0) ⊗ q
-end
-
-"""
 Meridian convergence angle for the ORCA site [rad].
 From Jpp `JCompassSupportkit.hh`: `ORCA_MERIDIAN_CONVERGENCE_ANGLE_DEG = -2.022225934803321`.
 """
@@ -673,19 +606,3 @@ using piecewise-linear interpolation of NOAA data (same table as Jpp's
 range (2000-01-01 to ~2029-12-31).
 """
 arca_magnetic_declination(t::Real) = _noaa_interp(_ARCA_NOAA_TIMES, _ARCA_NOAA_DECL_DEG, t)
-
-function Quaternion(yaw, pitch, roll)
-    cr = cos(-roll*0.5)
-    sr = sin(-roll*0.5)
-    cp = cos(pitch*0.5)
-    sp = sin(pitch*0.5)
-    cy = cos(-yaw*0.5)
-    sy = sin(-yaw*0.5)
-
-    Quaternion(
-        cr * cp * cy + sr * sp * sy,
-        sr * cp * cy - cr * sp * sy,
-        cr * sp * cy + sr * cp * sy,
-        cr * cp * sy - sr * sp * cy
-    )
-end
