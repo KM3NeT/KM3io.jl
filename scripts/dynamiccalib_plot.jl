@@ -126,10 +126,12 @@ function main()
         xticklabelrotation = π/4,
     )
 
+    angle_clim = (0.0, max(maximum(module_base_angles), maximum(module_median_angles)))
+
     scatter!(ax1, xs, module_floors,
         color      = module_base_angles,
         colormap   = cmap_angle,
-        colorrange = (0, 180),
+        colorrange = angle_clim,
         markersize = 28,
         marker     = :rect,
         strokewidth = 0,
@@ -137,7 +139,7 @@ function main()
     sc1 = scatter!(ax1, xs, module_floors,
         color      = module_median_angles,
         colormap   = cmap_angle,
-        colorrange = (0, 180),
+        colorrange = angle_clim,
         markersize = 14,
         marker     = :rect,
         strokewidth = 0,
