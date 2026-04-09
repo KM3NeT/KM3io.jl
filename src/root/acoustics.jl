@@ -279,6 +279,18 @@ function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns:
     # Degenerate window (all at same time): return closest measurement
     xm == 0.0 && return window[1].q
 
+    # Normalize quaternion signs so they all lie in the same hemisphere.
+    # q and -q represent the same rotation; a linear fit across a sign flip
+    # would interpolate through zero, giving a completely wrong result.
+    # Flip each quaternion so its dot product with the first one is positive.
+    qs = Vector{Quaternion{Float64}}(undef, nw)
+    qs[1] = window[1].q
+    for i in 2:nw
+        q_i = window[i].q
+        dot = qs[1].q0 * q_i.q0 + qs[1].qx * q_i.qx + qs[1].qy * q_i.qy + qs[1].qz * q_i.qz
+        qs[i] = dot < 0 ? Quaternion(-q_i.q0, -q_i.qx, -q_i.qy, -q_i.qz) : q_i
+    end
+
     # Legendre normalised x ∈ [-1, 1]: z_i = 2*x_i/x_max - 1
     zs = [2*x/xm - 1 for x in xs]
     zq = 2*xq/xm - 1
@@ -295,10 +307,10 @@ function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns:
         c0 + c1 * zq
     end
 
-    q = Quaternion(legfit([f.q.q0 for f in window]),
-                   legfit([f.q.qx for f in window]),
-                   legfit([f.q.qy for f in window]),
-                   legfit([f.q.qz for f in window]))
+    q = Quaternion(legfit([q.q0 for q in qs]),
+                   legfit([q.qx for q in qs]),
+                   legfit([q.qy for q in qs]),
+                   legfit([q.qz for q in qs]))
     normalize(q)
 end
 
