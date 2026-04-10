@@ -303,7 +303,7 @@ orientation (a, b, c, d correspond to q0, qx, qy, qz) and the timestamp.
 struct OrientationFit
     id::Int32        # module identifier
     t::Float64       # UNIX time [s]
-    ns::UInt64       # sub-second nanoseconds
+    npoints::UInt64  # number of compass measurements used in the fit
     q::Quaternion{Float64}  # orientation quaternion
     policy::Bool
 end

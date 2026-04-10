@@ -198,7 +198,7 @@ struct DynamicOrientationFile
             push!(get!(Vector{OrientationFit}, lookup, fit.id), fit)
         end
         for v in values(lookup)
-            sort!(v, by = f -> f.t + f.ns * 1e-9)
+            sort!(v, by = f -> f.t)
         end
         new(fobj, fits, lookup)
     end
@@ -243,6 +243,10 @@ to 21 measurements centred roughly on the query time, fits a degree-1 Legendre
 polynomial to each quaternion component independently, evaluates at the query
 time, then normalises the result. Returns the closest boundary quaternion when
 the requested time is outside the recorded range.
+
+Note: `OrientationFit.npoints` stores the number of compass measurements used in
+the fit (what Jpp calls `ns`). It is not a nanosecond offset and is not used in
+the time axis (Jpp's own code never uses this field in calculations either).
 """
 function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns::Integer=0)
     fits    = f._lookup[Int32(module_id)]
@@ -253,10 +257,10 @@ function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns:
     n = min(21, N)
 
     # lower_bound: first 1-based index where fit.t >= target_t
-    idx = searchsortedfirst(fits, target_t; lt = (fit, x) -> fit.t + fit.ns * 1e-9 < x)
+    idx = searchsortedfirst(fits, target_t; lt = (fit, x) -> fit.t < x)
 
     # outside range: return nearest boundary (Jpp throws; we fall back gracefully)
-    idx == 1 && fits[1].t + fits[1].ns * 1e-9 > target_t && return fits[1].q
+    idx == 1 && fits[1].t > target_t && return fits[1].q
     idx > N  && return fits[N].q
 
     # Replicate Jpp's window-centering logic (0-based j = idx - 1):
@@ -271,8 +275,8 @@ function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns:
     nw    = length(window)
 
     # x-axis: time elapsed from window start
-    t0 = window[1].t + window[1].ns * 1e-9
-    xs = [f.t + f.ns * 1e-9 - t0 for f in window]
+    t0 = window[1].t
+    xs = [f.t - t0 for f in window]
     xq = target_t - t0
     xm = xs[end]
 
