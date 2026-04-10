@@ -232,21 +232,56 @@ function Base.show(io::IO, f::DynamicOrientationFile)
     end
 end
 
+# Quaternion raised to power y, matching JQuaternion3D::pow in JGeometry3D/JQuaternion3D.hh.
+# For unit quaternion q = (cos θ, sin θ · û): q^y = (cos(θy), sin(θy) · û).
+# Returns identity for zero-vector part.
+function _quat_power(q::Quaternion{Float64}, y::Float64)::Quaternion{Float64}
+    v2 = q.qx^2 + q.qy^2 + q.qz^2
+    iszero(v2) && return Quaternion(1.0, 0.0, 0.0, 0.0)
+    v = sqrt(v2)
+    theta = atan(v, q.q0)          # half-angle of q
+    s, c  = sincos(theta * y)
+    f     = s / v
+    Quaternion(c, f*q.qx, f*q.qy, f*q.qz)
+end
+
+# Weighted Fréchet mean of unit quaternions via 4×4 outer-product eigenvalue
+# decomposition.  Matches JAverage<JQuaternion3D> in JGeometry3D/JEigen3D.hh:
+#   A = Σ wᵢ · qᵢ qᵢᵀ,  W = Σ wᵢ²
+# Returns the leading eigenvector (sign-normalised to q0 ≥ 0), raised to
+# power (λ_max / W).  Weights may be negative.
+function _quat_average(qs::Vector{Quaternion{Float64}}, ws::Vector{Float64})::Quaternion{Float64}
+    A = zeros(4, 4)
+    W = 0.0
+    for (q, w) in zip(qs, ws)
+        v = (q.q0, q.qx, q.qy, q.qz)
+        for i in 1:4, j in 1:4
+            A[i,j] += w * v[i] * v[j]
+        end
+        W += w^2
+    end
+    F  = eigen(Symmetric(A))          # ascending eigenvalue order in Julia
+    ev = F.values[end]
+    u  = F.vectors[:, end]
+    q  = Quaternion(u[1], u[2], u[3], u[4])
+    q.q0 < 0 && (q = Quaternion(-q.q0, -q.qx, -q.qy, -q.qz))
+    _quat_power(q, ev / W)
+end
+
 """
     orientation(f::DynamicOrientationFile, module_id, t, ns=0) -> Quaternion
 
 Return the interpolated orientation quaternion for `module_id` at UNIX time `t`
 [s] with optional sub-second offset `ns` [nanoseconds].
 
-Matches Jpp's `JPolfitFunction1D<20, 1>` interpolation: selects a window of up
-to 21 measurements centred roughly on the query time, fits a degree-1 Legendre
-polynomial to each quaternion component independently, evaluates at the query
-time, then normalises the result. Returns the closest boundary quaternion when
-the requested time is outside the recorded range.
+Matches Jpp's `JPolfitFunction1D<20,1>` / `JLegendre<JQuaternion3D,1>` algorithm
+(specialisation in `JGeometry3D/JEigen3D.hh`): selects a window of up to 21
+measurements centred on the query time, then fits a degree-1 quaternion Legendre
+polynomial via weighted Fréchet means (4×4 outer-product eigenvalue method).
+Evaluation: `coeff[0] ⊗ pow(coeff[1], z_q)`, normalised.
 
-Note: `OrientationFit.npoints` stores the number of compass measurements used in
-the fit (what Jpp calls `ns`). It is not a nanosecond offset and is not used in
-the time axis (Jpp's own code never uses this field in calculations either).
+Returns the closest boundary quaternion when the requested time is outside the
+recorded range.
 """
 function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns::Integer=0)
     fits    = f._lookup[Int32(module_id)]
@@ -283,39 +318,26 @@ function orientation(f::DynamicOrientationFile, module_id::Integer, t::Real, ns:
     # Degenerate window (all at same time): return closest measurement
     xm == 0.0 && return window[1].q
 
-    # Normalize quaternion signs so they all lie in the same hemisphere.
-    # q and -q represent the same rotation; a linear fit across a sign flip
-    # would interpolate through zero, giving a completely wrong result.
-    # Flip each quaternion so its dot product with the first one is positive.
-    qs = Vector{Quaternion{Float64}}(undef, nw)
-    qs[1] = window[1].q
-    for i in 2:nw
-        q_i = window[i].q
-        dot = qs[1].q0 * q_i.q0 + qs[1].qx * q_i.qx + qs[1].qy * q_i.qy + qs[1].qz * q_i.qz
-        qs[i] = dot < 0 ? Quaternion(-q_i.q0, -q_i.qx, -q_i.qy, -q_i.qz) : q_i
-    end
-
     # Legendre normalised x ∈ [-1, 1]: z_i = 2*x_i/x_max - 1
     zs = [2*x/xm - 1 for x in xs]
     zq = 2*xq/xm - 1
 
-    # Degree-1 Legendre series fit (JLegendre<T, 1> algorithm):
-    #   c₀ = Σ P₀(zᵢ)⋅yᵢ / Σ P₀(zᵢ)²  =  mean(y)
-    #   c₁ = Σ P₁(zᵢ)⋅(yᵢ − c₀) / Σ P₁(zᵢ)²  (P₁(z) = z)
-    #   ŷ(x) = c₀⋅P₀(zq) + c₁⋅P₁(zq) = c₀ + c₁⋅zq
-    sum_z2 = sum(z^2 for z in zs)
-    function legfit(vals)
-        c0 = sum(vals) / nw
-        c1 = iszero(sum_z2) ? zero(c0) :
-             sum(zs[i] * (vals[i] - c0) for i in 1:nw) / sum_z2
-        c0 + c1 * zq
-    end
+    qs = [f.q for f in window]
 
-    q = Quaternion(legfit([q.q0 for q in qs]),
-                   legfit([q.qx for q in qs]),
-                   legfit([q.qy for q in qs]),
-                   legfit([q.qz for q in qs]))
-    normalize(q)
+    # Degree-1 quaternion Legendre fit (JLegendre<JQuaternion3D,1> in JEigen3D.hh):
+    #
+    # n=0: coeff[0] = Fréchet mean of raw quaternions (weights P0(z)=1).
+    # n=1: coeff[1] = Fréchet mean of residuals conj(coeff[0]) ⊗ qᵢ
+    #                 (weights P1(zᵢ)=zᵢ), raised to power factor=4/π.
+    # Evaluation: coeff[0] ⊗ pow(coeff[1], zq), then normalise.
+
+    coeff0 = _quat_average(qs, ones(Float64, nw))
+
+    residuals = [conj(coeff0) ⊗ q for q in qs]
+    factor    = 4.0 / π                       # 1 / (π · 45° in rad) = 4/π
+    coeff1    = _quat_power(_quat_average(residuals, zs), factor)
+
+    normalize(coeff0 ⊗ _quat_power(coeff1, zq))
 end
 
 
