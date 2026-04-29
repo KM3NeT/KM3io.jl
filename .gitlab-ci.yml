@@ -44,15 +44,6 @@ before_script:
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
 
-Julia 1.9:
-  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.9
-  stage: test
-  extends:
-    - .script
-    - .coverage
-  tags:
-    - shared-cache
-
 Julia 1.10:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10
   stage: test
@@ -68,17 +59,6 @@ Julia 1.11:
   extends:
     - .script
     - .coverage
-  tags:
-    - shared-cache
-
-Julia 1.9-multi-thread:
-  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.9
-  stage: test
-  extends:
-    - .script
-    - .coverage
-  variables:
-    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
