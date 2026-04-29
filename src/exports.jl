@@ -92,6 +92,8 @@ XCalibratedHit,
 FitInformation,
 WeightList,
 hasofflineevents,
+hasonlineevents,
+hassummaryslices,
 
 # Oscillations open data
 OscillationsData,

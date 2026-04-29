@@ -144,24 +144,29 @@ end
 
 struct OnlineTree
     _fobj::UnROOT.ROOTFile
-    events::EventContainer
-    summaryslices::SummarysliceContainer
+    events::Union{EventContainer, Nothing}
+    summaryslices::Union{SummarysliceContainer, Nothing}
     _frame_index_trigger_counter_lookup_map::Dict{Tuple{Int, Int}, Int}
 
     function OnlineTree(fobj::UnROOT.ROOTFile)
-        new(fobj,
+        keyset = keys(fobj)
+        events = ROOT.TTREE_ONLINE_EVENT ∈ keyset ?
             EventContainer(
                 UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/KM3NETDAQ::JDAQEventHeader"),
                 UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/snapshotHits"),
                 UnROOT.LazyBranch(fobj, "KM3NET_EVENT/KM3NET_EVENT/triggeredHits"),
-            ),
+            ) : nothing
+        summaryslices = ROOT.TTREE_ONLINE_SUMMARYSLICE ∈ keyset ?
             SummarysliceContainer(
                 UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/KM3NETDAQ::JDAQSummarysliceHeader"),
                 UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/vector<KM3NETDAQ::JDAQSummaryFrame>")
-            ),
-            Dict{Tuple{Int, Int}, Int}()
-        )
-
+            ) : nothing
+        new(fobj, events, summaryslices, Dict{Tuple{Int, Int}, Int}())
     end
 end
-Base.show(io::IO, t::OnlineTree) = print(io, "OnlineTree ($(length(t.events)) events, $(length(t.summaryslices)) summaryslices)")
+function Base.show(io::IO, t::OnlineTree)
+    parts = String[]
+    isnothing(t.events) || push!(parts, "$(length(t.events)) events")
+    isnothing(t.summaryslices) || push!(parts, "$(length(t.summaryslices)) summaryslices")
+    print(io, "OnlineTree ($(join(parts, ", ")))")
+end

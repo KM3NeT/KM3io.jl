@@ -24,10 +24,10 @@ struct ROOTFile
             "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
         )
         fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
-        tpath_offline = ROOT.TTREE_OFFLINE_EVENT
-        offline = tpath_offline ∈ keys(fobj) ? OfflineTree(fobj) : nothing
-        tpath_online = ROOT.TTREE_ONLINE_EVENT
-        online = tpath_online ∈ keys(fobj) ? OnlineTree(fobj) : nothing
+        keyset = keys(fobj)
+        offline = ROOT.TTREE_OFFLINE_EVENT ∈ keyset ? OfflineTree(fobj) : nothing
+        has_online = ROOT.TTREE_ONLINE_EVENT ∈ keyset || ROOT.TTREE_ONLINE_SUMMARYSLICE ∈ keyset
+        online = has_online ? OnlineTree(fobj) : nothing
         new(fobj, online, offline)
     end
 end
@@ -44,6 +44,16 @@ end
 Returns true if the file contains offline events.
 """
 hasofflineevents(f::ROOTFile) = !isnothing(f.offline) && length(f.offline) > 0
+
+"""
+Returns true if the file contains online events.
+"""
+hasonlineevents(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.events) && length(f.online.events) > 0
+
+"""
+Returns true if the file contains summaryslices.
+"""
+hassummaryslices(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.summaryslices) && length(f.online.summaryslices) > 0
 
 
 """
