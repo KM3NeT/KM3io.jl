@@ -78,6 +78,15 @@ status,
 tdcstatus,
 wrstatus,
 
+# DST dataformat
+DSTTree,
+DSTEvent,
+DSTBranchView,
+DSTRunHeaders,
+DSTHistory,
+DST_BRANCHES,
+describe_dst_branch,
+
 # Offline dataformat
 OfflineEventTape,
 CalibratedHit,

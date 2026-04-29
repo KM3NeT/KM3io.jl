@@ -389,3 +389,91 @@ end
     end
     @test 208111 == n
 end
+
+@testset "DST files" begin
+    # v6 DST: full schema (sum_mc_evt, sum_casc, headerTree, dst_history, ...)
+    f = ROOTFile(datapath("dst", "mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.dst.bdt_trk.bdt_casc.10events.root"))
+    @test f.dst isa DSTTree
+    @test f.offline isa KM3io.OfflineTree   # the E tree is parsed by OfflineTree
+    @test 10 == length(f.dst)
+    @test eltype(f.dst) === DSTEvent
+
+    e = f.dst[1]
+    @test e isa DSTEvent
+
+    # All top-level T-tree branches are exposed dynamically
+    @test (:sum_mc_evt, :sum_mc_trks, :sum_mc_hits, :sum_hits, :sum_trig_hits,
+           :sum_jpptrack, :sum_casc, :crkv_hits, :bdt_trk, :bdt_casc) ⊆ propertynames(e)
+
+    # Composite branches return DSTBranchView objects (lazy NamedTuple-like)
+    @test e.sum_mc_evt isa KM3io.DSTBranchView
+    @test 41 == e.sum_mc_evt.MC_run
+    @test 128_000_000 == e.sum_mc_evt.n_gen
+
+    @test e.sum_mc_trks isa KM3io.DSTBranchView
+    @test 42 == e.sum_mc_trks.ntrks
+    # The highest-energy MC muon is flattened into the same view
+    @test e.sum_mc_trks.Etot ≈ e.sum_mc_trks.tmuon_E
+
+    @test 1086 == e.sum_mc_hits.nhits
+    @test 6629 == e.sum_hits.nhits
+    @test 413  == e.sum_trig_hits.nhits
+
+    # crkv_hits members were originally "crkv_hits.X[3]"; should be cleaned to just X
+    @test issubset(
+        (:nhits, :nhits_20m, :nhits_50m, :nhits_100m, :nhits_200m,
+         :sumtot, :closest, :furthest),
+        propertynames(e.crkv_hits))
+    @test 6 == length(e.crkv_hits.nhits)
+
+    @test 819 == e.sum_casc.nhits_aashower
+    @test 3 == length(e.sum_casc.inertia_tensor_eigenvalues)
+
+    @test 12 == e.sum_jpptrack.ntrks
+
+    # Scalar top-level branches return their value directly (not wrapped in a NamedTuple)
+    @test e.bdt_trk isa AbstractVector{<:Real}   # bdt_trk happens to be array-valued per event
+    @test e.bdt_casc isa AbstractVector{<:Real}
+
+    # Iteration and indexing
+    @test 10 == count(_ -> true, f.dst)
+    @test 3 == length(f.dst[2:4])
+
+    # Raw branch access
+    @test [ev.sum_mc_evt.weight for ev ∈ f.dst] == f.dst["sum_mc_evt/weight", :]
+
+    # headerTree (optional)
+    @test f.dst.run_headers isa DSTRunHeaders
+    @test 1 == length(f.dst.run_headers)
+    @test f.dst.run_headers.headers[1] isa KM3io.MCHeader
+
+    # dst_history (optional)
+    @test f.dst.history isa DSTHistory
+    @test !isempty(f.dst.history.input_files)
+    @test !isempty(f.dst.history.command_line)
+    close(f)
+
+    # v5.1 DST: minimal schema (no sum_mc_evt, no sum_casc, no headerTree, no dst_history)
+    f = ROOTFile(datapath("dst", "mcv5.1.km3_numuCC.ALL.dst.bdt.10events.root"))
+    @test f.dst isa DSTTree
+    @test 10 == length(f.dst)
+    e = f.dst[1]
+    @test :sum_mc_evt ∉ propertynames(e)   # not in the file
+    @test :sum_casc   ∉ propertynames(e)
+    @test :sum_jgandalf ∈ propertynames(e)
+    @test :bdt        ∈ propertynames(e)   # scalar bare-bdt branch
+    @test e.sum_mc_trks.ntrks isa Integer
+    @test e.sum_hits.nhits    isa Integer
+    @test isnothing(f.dst.run_headers)
+    @test isnothing(f.dst.history)
+    close(f)
+
+    # Non-DST files must not get a DSTTree wrapper
+    @test isnothing(ROOTFile(OFFLINEFILE).dst)
+    @test isnothing(ROOTFile(ONLINEFILE).dst)
+
+    # Registry / lookup helpers
+    @test DST_BRANCHES isa Dict
+    @test occursin("MC", describe_dst_branch("sum_mc_evt"))
+    @test ismissing(describe_dst_branch("not_a_known_branch"))
+end
