@@ -495,7 +495,7 @@ using Markdown
 
 io = IOBuffer()
 println(io, "| Branch | Description |")
-println(io, "|--------|-------------|")
+println(io, "|:-------|:------------|")
 for k in sort!(collect(keys(DST_BRANCHES)))
     desc = replace(DST_BRANCHES[k], "_" => "\\_")
     println(io, "| `", k, "` | ", desc, " |")
