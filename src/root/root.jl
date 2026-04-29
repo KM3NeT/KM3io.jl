@@ -29,7 +29,8 @@ struct ROOTFile
         offline = ROOT.TTREE_OFFLINE_EVENT ∈ keyset ? OfflineTree(fobj) : nothing
         has_online = ROOT.TTREE_ONLINE_EVENT ∈ keyset || ROOT.TTREE_ONLINE_SUMMARYSLICE ∈ keyset
         online = has_online ? OnlineTree(fobj) : nothing
-        new(fobj, online, offline)
+        dst = _is_dst(fobj) ? DSTTree(fobj) : nothing
+        new(fobj, online, offline, dst)
     end
 end
 Base.close(f::ROOTFile) = close(f._fobj)
