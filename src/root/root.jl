@@ -14,6 +14,7 @@ struct ROOTFile
     _fobj::UnROOT.ROOTFile
     online::Union{OnlineTree, Nothing}
     offline::Union{OfflineTree, Nothing}
+    dst::Union{DSTTree, Nothing}
 
     function ROOTFile(filename::AbstractString)
         customstructs = Dict(
@@ -36,8 +37,22 @@ function Base.show(io::IO, f::ROOTFile)
     s = String[]
     !isnothing(f.online) && push!(s, "$(f.online)")
     !isnothing(f.offline) && push!(s, "$(f.offline)")
+    !isnothing(f.dst) && push!(s, "$(f.dst)")
     info = join(s, ", ")
     print(io, "ROOTFile{$info}")
+end
+
+# A DST is identified by the presence of the "T" summary tree together
+# with at least one DST-specific class streamer (guards against unrelated
+# files that happen to carry a tree called "T").
+function _is_dst(fobj::UnROOT.ROOTFile)
+    TTREE_DST_SUMMARY ∈ keys(fobj) || return false
+    for s ∈ fobj.streamers.elements
+        s.streamer.fName ∈ ("MC_evts_summary", "MC_trks_summary", "hits_summary",
+                            "rec_trks_summary", "cascade_summary", "crkv_hits") &&
+            return true
+    end
+    false
 end
 
 """

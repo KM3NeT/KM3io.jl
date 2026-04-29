@@ -339,6 +339,201 @@ end
 ```
 
 
+## [DST Format](@id dst_format)
+
+A DST ("Data Summary Tree") is a compact summary of MC truth, hits, and
+reconstruction results produced from offline files. KM3NeT DST files
+typically contain:
+
+- An `E` tree identical to the offline event format. It is parsed by
+  `OfflineTree` and reachable via the `.offline` field of `ROOTFile`,
+  exactly like a regular offline file.
+- A `T` tree with one entry per event, holding several summary structs
+  (e.g. `MC_evts_summary`, `MC_trks_summary`, `hits_summary`,
+  `cascade_summary`, `crkv_hits`, per-algorithm `rec_trks_summary`, BDT
+  scores). This tree is exposed as a [`DSTTree`](@ref) via the `.dst`
+  field of `ROOTFile`.
+- An optional `headerTree` carrying per-source-file metadata when
+  multiple input files have been merged into one DST: the original
+  `Head`, the run number and the live time. Parsed into a
+  [`DSTRunHeaders`](@ref).
+- An optional `dst_history` directory recording the input files and the
+  command line that produced the DST. Parsed into a [`DSTHistory`](@ref).
+
+### Schema-flexible access
+
+The DST schema varies between productions: not every branch is
+guaranteed to be present, and additional branches may appear.
+`DSTTree` discovers the top-level branches of the `T` tree at load
+time and exposes them dynamically as properties on each
+[`DSTEvent`](@ref). For composite branches (multiple leaves), the
+property returns a [`DSTBranchView`](@ref), a lazy NamedTuple-like view
+onto the underlying leaves. For a single scalar branch, the property
+returns the value directly.
+
+```julia-repl
+julia> using KM3io, KM3NeTTestData
+
+julia> f = ROOTFile(datapath("dst", "mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.dst.bdt_trk.bdt_casc.10events.root"))
+ROOTFile{OfflineTree (10 events), DSTTree (10 events, 10 branches)}
+
+julia> f.dst
+DSTTree (10 events, 10 branches)
+
+julia> f.dst[1]
+DSTEvent (idx=1, 10 branches)
+
+julia> propertynames(f.dst[1])
+(:bdt_casc, :bdt_trk, :crkv_hits, :sum_casc, :sum_hits, :sum_jpptrack, :sum_mc_evt, :sum_mc_hits, :sum_mc_trks, :sum_trig_hits)
+
+julia> f.dst[1].sum_mc_evt
+DSTBranchView(E_max_gen, E_min_gen, MC_run, livetime_DAQ, livetime_sim, n_gen, weight, weight_noOsc)
+
+julia> f.dst[1].sum_mc_evt.weight
+1.1701346f-5
+
+julia> f.dst[1].sum_mc_evt.MC_run
+41
+
+julia> f.dst[1].bdt_trk
+2-element Vector{Float32}:
+  1.0
+ -2.0
+```
+
+The `sum_mc_trks` branch carries a flattened version of the
+highest-energy MC muon ("tmuon") in addition to the count and energy
+totals. Its leaves are exposed under the `tmuon_` prefix:
+
+```julia-repl
+julia> v = f.dst[1].sum_mc_trks
+DSTBranchView(Emax, Etot, Evis, ntrks, tmuon_AAObject_tmuon_TObject_tmuon_fBits, tmuon_AAObject_tmuon_TObject_tmuon_fUniqueID, tmuon_AAObject_tmuon_any, tmuon_AAObject_tmuon_usr, tmuon_AAObject_tmuon_usr_names, tmuon_E, tmuon_comment, tmuon_counter, tmuon_dir_x, tmuon_dir_y, tmuon_dir_z, tmuon_error_matrix, tmuon_fitinf, tmuon_hit_ids, tmuon_id, tmuon_len, tmuon_lik, tmuon_mother_id, tmuon_pos_x, tmuon_pos_y, tmuon_pos_z, tmuon_rec_stages, tmuon_rec_type, tmuon_status, tmuon_t, tmuon_type)
+
+julia> v.ntrks, v.Etot, v.Emax, v.Evis
+(42, 31144.157509773937, 31144.157509773937, 31144.157509773937)
+
+julia> v.tmuon_E, v.tmuon_pos_x, v.tmuon_dir_z
+(31144.157509773937, -410.1658000858246, -0.29218912046986895)
+```
+
+Similarly, `crkv_hits` exposes its eight per-shell members directly:
+
+```julia-repl
+julia> v = f.dst[1].crkv_hits
+DSTBranchView(closest, furthest, nhits, nhits_100m, nhits_200m, nhits_20m, nhits_50m, sumtot)
+
+julia> v.nhits
+6-element Vector{Int32}:
+   5
+ 147
+   1
+  20
+   1
+  47
+```
+
+### Iteration and slicing
+
+`DSTTree` implements the array protocol (`length`, indexing, slicing,
+iteration):
+
+```julia-repl
+julia> length(f.dst)
+10
+
+julia> [e.sum_mc_evt.weight for e in f.dst]
+10-element Vector{Float32}:
+ 1.1701346f-5
+ 0.0060263677
+ 8.647894f-5
+ 0.016838863
+ 0.22624199
+ 9.984811f-6
+ 0.030309035
+ 0.0013151936
+ 2.4152963f-5
+ 0.08190833
+```
+
+Raw branch access is available by passing the path within the `T`
+tree:
+
+```julia-repl
+julia> f.dst["sum_mc_evt/weight", :]
+10-element Vector{Float32}:
+ 1.1701346f-5
+ 0.0060263677
+ ...
+```
+
+### Branch name registry
+
+The constant [`DST_BRANCHES`](@ref) and the helper
+[`describe_dst_branch`](@ref) provide a lookup table of well-known
+top-level branch names with one-line descriptions. They are purely a
+discoverability aid; `DSTTree` exposes whatever branches the file
+actually contains, regardless of whether they appear in the registry.
+
+```julia-repl
+julia> describe_dst_branch("sum_casc")
+"Cascade reconstruction summary (cascade_summary): aashower hit/total counts in time windows, inertia tensor metrics. Observed in v6 productions; not documented upstream."
+
+julia> describe_dst_branch("not_in_registry")
+missing
+```
+
+#### Known summary parameters
+
+The table below is generated from [`DST_BRANCHES`](@ref) at doc-build
+time. Most descriptions follow the upstream documentation at
+<https://common.pages.km3net.de/aanet/dstpage.html>. To register a new
+local branch name, push it into `DST_BRANCHES` after `using KM3io`.
+
+```@example dst_branches
+using KM3io
+using Markdown
+
+io = IOBuffer()
+println(io, "| Branch | Description |")
+println(io, "|--------|-------------|")
+for k in sort!(collect(keys(DST_BRANCHES)))
+    desc = replace(DST_BRANCHES[k], "_" => "\\_")
+    println(io, "| `", k, "` | ", desc, " |")
+end
+Markdown.parse(String(take!(io)))
+```
+
+### Per-source-file headers and provenance
+
+When present, the optional `headerTree` and `dst_history` are exposed
+via the `.run_headers` and `.history` properties of the `DSTTree`.
+
+```julia-repl
+julia> f.dst.run_headers
+DSTRunHeaders (1 source files)
+
+julia> f.dst.run_headers.run_numbers
+1-element Vector{Int32}:
+ 1
+
+julia> f.dst.run_headers.livetimes_s
+1-element Vector{Float64}:
+ 3.15576e7
+
+julia> f.dst.run_headers.headers[1]
+MCHeader
+  ...
+
+julia> f.dst.history
+DSTHistory (160 input files)
+
+julia> f.dst.history.input_files[1]
+"/sps/km3net/repo/v6_ARCA115/.../mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.41.root"
+```
+
+If neither the `headerTree` nor the `dst_history` directory is in the
+file, `f.dst.run_headers` and `f.dst.history` are `nothing`.
+
 ## xrootd access
 
 You can access files directly via `xrootd` by providing the URL on e.g. HPSS. Be
