@@ -4,6 +4,9 @@
 f = ROOTFile(datapath(&quot;offline&quot;, &quot;numucc.root&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}</code></pre><p>The <code>ROOTFile</code> is the container object which gives access to both the online and offline tree. In this case, the online tree is empty</p><pre><code class="language-julia hljs">f.online</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OnlineTree (0 events, 0 summaryslices)</code></pre><p>and the offline tree holds our 10 MC events:</p><pre><code class="language-julia hljs">f.offline</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OfflineTree (10 events)</code></pre><h2 id="Events"><a class="docs-heading-anchor" href="#Events">Events</a><a id="Events-1"></a><a class="docs-heading-anchor-permalink" href="#Events" title="Permalink"></a></h2><p>To access a single event, you can use the usual indexing syntax:</p><pre><code class="language-julia hljs">some_event = f.offline[5]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (4105 hits, 78 MC hits, 0 reco tracks, 10 MC tracks)
   ID: 5
   Detector ID: 20
+  Run ID: 1
+  Trigger counter: 4
+  Frame index: 139
   MC ID: 497
   MC event time: UTCTime(0, 0)
   Primary MC particle: MCTrk(0, Position{Float64}(59.008, 86.346, 387.320), Direction{Float64}(-0.649, -0.483, 0.588), 0.0, 132.718, 0.0, 14, 0, 0, 0)
@@ -14,18 +17,27 @@ f = ROOTFile(datapath(&quot;offline&quot;, &quot;numucc.root&quot;))</code></pre
  Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks)</code></pre><p>Another way to access events is given by getter function <code>getevent()</code> (which also works for online trees). If a single number if passed, it will be treated as a regular index, just like above:</p><pre><code class="language-julia hljs">event = getevent(f.offline, 3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
   ID: 3
   Detector ID: 20
+  Run ID: 1
+  Trigger counter: 2
+  Frame index: 87
   MC ID: 301
   MC event time: UTCTime(0, 0)
   Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
 </code></pre><p>when two numbers are passed, the first one is interpreted as <code>frame_index</code> and the second one as <code>trigger_counter</code>:</p><pre><code class="language-julia hljs">event = getevent(f.offline, 87, 2)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
   ID: 3
   Detector ID: 20
+  Run ID: 1
+  Trigger counter: 2
+  Frame index: 87
   MC ID: 301
   MC event time: UTCTime(0, 0)
   Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
 </code></pre><h3 id="Hits"><a class="docs-heading-anchor" href="#Hits">Hits</a><a id="Hits-1"></a><a class="docs-heading-anchor-permalink" href="#Hits" title="Permalink"></a></h3><p>Each event consists of a vector of hits, MC hits, tracks and MC tracks. Depending on the file, they may be empty. They are accessible via the fields <code>.hit</code>, <code>.mc_hits</code>, <code>.trks</code> and <code>.mc_trks</code>.</p><p>Let&#39;s grab an event:</p><pre><code class="language-julia hljs">evt = f.offline[3]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MC/Reco Event (Evt) (3680 hits, 28 MC hits, 38 reco tracks, 12 MC tracks)
   ID: 3
   Detector ID: 20
+  Run ID: 1
+  Trigger counter: 2
+  Frame index: 87
   MC ID: 301
   MC event time: UTCTime(0, 0)
   Primary MC particle: MCTrk(0, Position{Float64}(514.808, 252.685, 954.126), Direction{Float64}(-0.239, 0.028, -0.971), 0.0, 189.456, 0.0, 14, 0, 0, 0)
@@ -160,4 +172,4 @@ BenchmarkTools.Trial: 6 samples with 1 evaluation per sample.
   █▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█ ▁
   881 ms           Histogram: frequency by time          898 ms &lt;
 
- Memory estimate: 231.59 MiB, allocs estimate: 1612771.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../online_data/">« Online data</a><a class="docs-footer-nextpage" href="../cherenkov_times/">Cherenkov times »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 8 April 2026 14:17">Wednesday 8 April 2026</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ Memory estimate: 231.59 MiB, allocs estimate: 1612771.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../online_data/">« Online data</a><a class="docs-footer-nextpage" href="../cherenkov_times/">Cherenkov times »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 29 April 2026 09:48">Wednesday 29 April 2026</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
