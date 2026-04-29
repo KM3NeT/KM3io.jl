@@ -29,6 +29,17 @@ WeightList
 hasofflineevents
 ```
 
+## DST Format
+```@docs
+DSTTree
+DSTEvent
+DSTBranchView
+DSTRunHeaders
+DSTHistory
+DST_BRANCHES
+describe_dst_branch
+```
+
 ## Online Format
 ```@docs
 DAQEvent

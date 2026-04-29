@@ -7,9 +7,16 @@ variables:
   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
 
 cache:
+  # Cache the package sources, registries and artifacts but NOT the
+  # `compiled/` precompile cache: Julia patch-version changes in the
+  # docker image leave behind stale .ji files that brick stdlib loads
+  # (LibGit2 / Pkg / MbedTLS_jll). Letting Julia rebuild compiled/ on
+  # every run keeps the cache consistent at a small precompile cost.
   paths:
-    - $JULIA_DEPOT_PATH
-  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    - $JULIA_DEPOT_PATH/registries
+    - $JULIA_DEPOT_PATH/packages
+    - $JULIA_DEPOT_PATH/artifacts
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME-v2"
 
 
 before_script:
@@ -44,15 +51,6 @@ before_script:
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
 
-Julia 1.9:
-  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.9
-  stage: test
-  extends:
-    - .script
-    - .coverage
-  tags:
-    - shared-cache
-
 Julia 1.10:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.10
   stage: test
@@ -68,17 +66,6 @@ Julia 1.11:
   extends:
     - .script
     - .coverage
-  tags:
-    - shared-cache
-
-Julia 1.9-multi-thread:
-  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.9
-  stage: test
-  extends:
-    - .script
-    - .coverage
-  variables:
-    JULIA_NUM_THREADS: 10,1
   tags:
     - shared-cache
 
@@ -119,34 +106,11 @@ docs:
       julia --project=docs -e '
         using Pkg
         Pkg.update()
-        Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         Pkg.resolve()
-        # See https://github.com/JuliaDocs/Documenter.jl/issues/2698
-        Pkg.add(name="OpenSSL_jll", version="3.0")
         using Documenter: doctest
         using KM3io
         doctest(KM3io)
         include("docs/make.jl")'
-#  only:
-#    - main
-#    - tags
   tags:
     - shared-cache
-
-#register:
-#  image: docker.km3net.de/base/julia:1.8
-#  stage: deploy
-#  script:
-#    - |
-#      julia --project=. -e '
-#        using Pkg
-#        Pkg.update()
-#        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
-#        Pkg.add("LocalRegistry")
-#        using LocalRegistry
-#        register(KM3io; registry="KM3NeT", create_gitlab_mr=true)
-#        '
-#  only:
-#    variables:
-#      - $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+-?.*$/
