@@ -99,34 +99,11 @@ docs:
       julia --project=docs -e '
         using Pkg
         Pkg.update()
-        Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         Pkg.resolve()
-        # See https://github.com/JuliaDocs/Documenter.jl/issues/2698
-        Pkg.add(name="OpenSSL_jll", version="3.0")
         using Documenter: doctest
-        using KM3io
-        doctest(KM3io)
+        using KM3Astro
+        doctest(KM3Astro)
         include("docs/make.jl")'
-#  only:
-#    - main
-#    - tags
   tags:
     - shared-cache
-
-#register:
-#  image: docker.km3net.de/base/julia:1.8
-#  stage: deploy
-#  script:
-#    - |
-#      julia --project=. -e '
-#        using Pkg
-#        Pkg.update()
-#        Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
-#        Pkg.add("LocalRegistry")
-#        using LocalRegistry
-#        register(KM3io; registry="KM3NeT", create_gitlab_mr=true)
-#        '
-#  only:
-#    variables:
-#      - $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+-?.*$/
