@@ -7,9 +7,16 @@ variables:
   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
 
 cache:
+  # Cache the package sources, registries and artifacts but NOT the
+  # `compiled/` precompile cache: Julia patch-version changes in the
+  # docker image leave behind stale .ji files that brick stdlib loads
+  # (LibGit2 / Pkg / MbedTLS_jll). Letting Julia rebuild compiled/ on
+  # every run keeps the cache consistent at a small precompile cost.
   paths:
-    - $JULIA_DEPOT_PATH
-  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    - $JULIA_DEPOT_PATH/registries
+    - $JULIA_DEPOT_PATH/packages
+    - $JULIA_DEPOT_PATH/artifacts
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME-v2"
 
 
 before_script:
