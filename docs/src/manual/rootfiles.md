@@ -6,6 +6,35 @@ trees. `UnROOT` has a single `ROOTFile` type to represent a KM3NeT ROOT file
 which can be used to access both the online and offline information. This
 section describes what kind of data is stored in each tree and how to access them.
 
+## Inspecting file contents
+
+A KM3NeT ROOT file may contain offline events, online events, summaryslices, or
+any combination of those — for example, an offline DST file can carry the
+summaryslices of the underlying run alongside its reconstructed events. Three
+predicates make it easy to check what is actually present without poking into
+the lazy containers:
+
+- [`hasofflineevents`](@ref) === `true` if the file has a non-empty offline event tree (`E`).
+- [`hasonlineevents`](@ref) === `true` if the file has a non-empty online event tree (`KM3NET_EVENT`).
+- [`hassummaryslices`](@ref)  === `true` if the file has a non-empty summaryslice tree (`KM3NET_SUMMARYSLICE`).
+
+Each returns `false` when the corresponding tree is missing or empty, so they
+are safe to call on any file:
+
+```julia-repl
+julia> using KM3io
+
+julia> f = ROOTFile("KM3NeT_00000133_00015285.offline.dst.root");
+
+julia> hasofflineevents(f), hasonlineevents(f), hassummaryslices(f)
+(true, false, true)
+```
+
+When `hasonlineevents(f)` is `false` but `hassummaryslices(f)` is `true`, the
+file still has an `OnlineTree`, but `f.online.events` will be `nothing` and
+should not be accessed without a guard. The same applies to
+`f.online.summaryslices` in the reverse case.
+
 ## [Offline Dataformat](@id offline dataformat)
 
 The [offline

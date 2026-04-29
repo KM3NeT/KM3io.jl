@@ -42,6 +42,8 @@ UTCExtended
 Summaryslice
 SummarysliceHeader
 SummaryFrame
+hasonlineevents
+hassummaryslices
 ```
 
 ## Oscillations Open Data
