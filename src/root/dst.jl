@@ -4,6 +4,7 @@
 const TTREE_DST_SUMMARY      = "T"            # DST summary tree
 const TTREE_DST_HEADER       = "headerTree"   # per-source-file DST header
 const TDIRECTORY_DST_HISTORY = "dst_history"  # DST provenance directory
+const TDIRECTORY_DST_HEADDIR = "HeadDir"      # per-key TNamed header directory
 
 """
 Description registry of top-level branch names commonly found in KM3NeT
@@ -156,6 +157,7 @@ and [`describe_dst_branch`](@ref).
 struct DSTTree{T}
     _fobj::UnROOT.ROOTFile
     header::Union{MCHeader, Missing}
+    head_dir::Union{MCHeader, Nothing}
     run_headers::Union{DSTRunHeaders, Nothing}
     history::Union{DSTHistory, Nothing}
     _t::T
@@ -193,12 +195,14 @@ struct DSTTree{T}
         t = UnROOT.LazyTree(fobj, tpath, branch_paths)
 
         header = "Head" ∈ keys(fobj) ? MCHeader(fobj["Head"]) : missing
+        head_dir = TDIRECTORY_DST_HEADDIR ∈ keys(fobj) ?
+            _read_dst_headdir(fobj) : nothing
         run_headers = TTREE_DST_HEADER ∈ keys(fobj) ?
             _read_dst_run_headers(fobj) : nothing
         history = TDIRECTORY_DST_HISTORY ∈ keys(fobj) ?
             _read_dst_history(fobj) : nothing
 
-        new{typeof(t)}(fobj, header, run_headers, history, t, branches)
+        new{typeof(t)}(fobj, header, head_dir, run_headers, history, t, branches)
     end
 end
 DSTTree(filename::AbstractString) = DSTTree(UnROOT.ROOTFile(filename))
@@ -284,6 +288,20 @@ function _read_dst_run_headers(fobj::UnROOT.ROOTFile)
     headers = [MCHeader(Dict{String,String}(zip(String.(ks), String.(vs))))
                for (ks, vs) ∈ zip(keys_per_row, vals_per_row)]
     DSTRunHeaders(headers, Int32.(run_numbers), Float64.(livetimes_s))
+end
+
+# TODO: unit tests for HeadDir reading are missing, pending a small
+# sample DST file in KM3NeTTestData that contains a HeadDir TDirectory.
+# Verified manually against
+# KM3NeT_00000133_00015285.mc.gsg_astro-neutrinos_merged.sirene.jterbr
+# .jppmuon_aashower_static.offline.dst.v9.1.root .
+function _read_dst_headdir(fobj::UnROOT.ROOTFile)
+    dir = fobj[TDIRECTORY_DST_HEADDIR]
+    raw = Dict{String, String}()
+    for k ∈ dir.keys
+        raw[String(k.fName)] = String(k.fTitle)
+    end
+    MCHeader(raw)
 end
 
 function _read_dst_history(fobj::UnROOT.ROOTFile)
