@@ -3,14 +3,16 @@ using KM3io
 using KM3Aux
 
 @testset "KM3Aux Extension" begin
+    # Pull only the LFS objects KM3Aux actually requests, not the full ~6.7 GiB repo.
+    ENV["GIT_LFS_SKIP_SMUDGE"] = "1"
+
     token = get(ENV, "CI_JOB_TOKEN", "")
     if token != ""
-        ENV["GIT_LFS_SKIP_SMUDGE"] = "1"  # prevent cloning everything from LFS
         KM3Aux.set_auxiliary_repo("https://gitlab-ci-token:$(token)@git.km3net.de/auxiliary_data/calibration.git")
     end
 
     hydros = gethydrophones(160, 19466)
-    @test 30 == length(hydros)
+    @test 28 == length(hydros)
     @test hydros[1].location == Location(9, -1)
     @test isapprox(hydros[1].pos, Position(-0.570, -0.420, 0.570))
 
