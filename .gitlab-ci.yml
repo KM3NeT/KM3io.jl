@@ -5,6 +5,7 @@ stages:
 
 variables:
   JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
+  GIT_LFS_SKIP_SMUDGE: "1"  
 
 cache:
   # Cache the package sources, registries and artifacts but NOT the
@@ -16,6 +17,7 @@ cache:
     - $JULIA_DEPOT_PATH/registries
     - $JULIA_DEPOT_PATH/packages
     - $JULIA_DEPOT_PATH/artifacts
+    - calibration/  #  the KM3Aux calibration data
   key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME-v2"
 
 
