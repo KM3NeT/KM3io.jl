@@ -9,7 +9,7 @@ section describes what kind of data is stored in each tree and how to access the
 ## Inspecting file contents
 
 A KM3NeT ROOT file may contain offline events, online events, summaryslices, or
-any combination of those — for example, an offline DST file can carry the
+any combination of those, for example, an offline DST file can carry the
 summaryslices of the underlying run alongside its reconstructed events. Three
 predicates make it easy to check what is actually present without poking into
 the lazy containers:
@@ -359,6 +359,13 @@ typically contain:
   [`DSTRunHeaders`](@ref).
 - An optional `dst_history` directory recording the input files and the
   command line that produced the DST. Parsed into a [`DSTHistory`](@ref).
+- An optional `HeadDir` directory: an alternative on-disk encoding of
+  the global header as a `TDirectory` of `TNamed` entries (one per
+  header field, with the field name in `fName` and the value in
+  `fTitle`). Parsed into the same `MCHeader` type as the regular
+  `Head` object and exposed via the `.head_dir` property. The `Head`
+  object and the `HeadDir` directory are independent; a file can carry
+  one, the other, both, or neither.
 
 ### Schema-flexible access
 
@@ -503,10 +510,25 @@ end
 Markdown.parse(String(take!(io)))
 ```
 
-### Per-source-file headers and provenance
+### Headers and provenance
 
-When present, the optional `headerTree` and `dst_history` are exposed
-via the `.run_headers` and `.history` properties of the `DSTTree`.
+A `DSTTree` exposes four optional header / provenance properties,
+each populated only when the corresponding object is present in the
+file:
+
+| Property | Source on disk | Type | Fallback |
+|:---------|:---------------|:-----|:---------|
+| `.header` | `Head` object | `MCHeader` | `missing` |
+| `.head_dir` | `HeadDir` `TDirectory` | `MCHeader` | `nothing` |
+| `.run_headers` | `headerTree` `TTree` | [`DSTRunHeaders`](@ref) | `nothing` |
+| `.history` | `dst_history` `TDirectory` | [`DSTHistory`](@ref) | `nothing` |
+
+`.header` and `.head_dir` carry the same kind of information (a
+`Dict{String,String}` of header tags wrapped in `MCHeader`) but read
+from two distinct on-disk encodings; in files that carry both, the
+contents are typically identical, but no enforcement is done. The
+`headerTree` is per-source-file (one row per merged input), whereas
+`Head` / `HeadDir` are global to the DST.
 
 ```julia-repl
 julia> f.dst.run_headers
@@ -531,8 +553,26 @@ julia> f.dst.history.input_files[1]
 "/sps/km3net/repo/v6_ARCA115/.../mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.41.root"
 ```
 
-If neither the `headerTree` nor the `dst_history` directory is in the
-file, `f.dst.run_headers` and `f.dst.history` are `nothing`.
+The `.head_dir` property behaves like `.header`: every header field is
+addressable by its name, with structured ones (e.g. `fixedcan`,
+`spectrum`, `DAQ`) returning `NamedTuple`s as defined by the MC
+header registry.
+
+```julia-repl
+julia> f.dst.head_dir
+MCHeader
+  DAQ => (livetime = 10741,)
+  calibration => dynamical
+  depth => 3450
+  detector => Any["JSirene", "00000133/.../KM3NeT_..._offline.detx"]
+  ...
+
+julia> f.dst.head_dir.start_run
+15285
+
+julia> f.dst.head_dir.fixedcan
+(xcenter = 25.3, ycenter = 295, zmin = 0, zmax = 1039.7, radius = 624.7)
+```
 
 ## xrootd access
 
