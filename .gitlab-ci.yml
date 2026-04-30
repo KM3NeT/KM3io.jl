@@ -90,6 +90,28 @@ Julia 1.11-multi-thread:
   tags:
     - shared-cache
 
+Julia 1.12-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.12
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    JULIA_NUM_THREADS: 10,1
+  tags:
+    - shared-cache
+
+Julia 1.12-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.12
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    JULIA_NUM_THREADS: 10,1
+  tags:
+    - shared-cache
+
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11-tex
   stage: docs
