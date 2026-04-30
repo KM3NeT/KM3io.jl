@@ -27,7 +27,7 @@ before_script:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
       julia --project=@. -e '
         using Pkg
@@ -35,7 +35,6 @@ before_script:
         Pkg.resolve()
         Pkg.build()
         Pkg.test(coverage=true)'
-        git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.km3net.de/auxiliary_data/calibration.git
 
 .coverage:
   coverage: /Test coverage (\d+\.\d+%)/
@@ -43,7 +42,7 @@ before_script:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.add("Coverage")
         using Coverage
@@ -91,6 +90,28 @@ Julia 1.11-multi-thread:
   tags:
     - shared-cache
 
+Julia 1.12-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.12
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    JULIA_NUM_THREADS: 10,1
+  tags:
+    - shared-cache
+
+Julia 1.12-multi-thread:
+  image: git.km3net.de:4567/common/dockerfiles/base/julia:1.12
+  stage: test
+  extends:
+    - .script
+    - .coverage
+  variables:
+    JULIA_NUM_THREADS: 10,1
+  tags:
+    - shared-cache
+
 docs:
   image: git.km3net.de:4567/common/dockerfiles/base/julia:1.11-tex
   stage: docs
@@ -100,12 +121,11 @@ docs:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
     - |
       julia --project=docs -e '
         using Pkg
-        Pkg.update()
         Pkg.instantiate()
         Pkg.resolve()
         using Documenter: doctest
