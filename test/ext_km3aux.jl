@@ -3,9 +3,11 @@ using KM3io
 using KM3Aux
 
 @testset "KM3Aux Extension" begin
+    # Pull only the LFS objects KM3Aux actually requests, not the full ~6.7 GiB repo.
+    ENV["GIT_LFS_SKIP_SMUDGE"] = "1"
+
     token = get(ENV, "CI_JOB_TOKEN", "")
     if token != ""
-        ENV["GIT_LFS_SKIP_SMUDGE"] = "1"  # prevent cloning everything from LFS
         KM3Aux.set_auxiliary_repo("https://gitlab-ci-token:$(token)@git.km3net.de/auxiliary_data/calibration.git")
     end
 
