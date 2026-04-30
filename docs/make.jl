@@ -24,6 +24,7 @@ makedocs(;
         "Home" => "index.md",
         "Manual" => Any[
             "manual/rootfiles.md",
+            "manual/udst.md",
             "manual/multi-threading.md",
             "manual/detector.md",
             "manual/calibration.md",
