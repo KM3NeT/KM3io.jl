@@ -27,7 +27,7 @@ before_script:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
       julia --project=@. -e '
         using Pkg
@@ -42,7 +42,7 @@ before_script:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))
         Pkg.add("Coverage")
         using Coverage
@@ -99,12 +99,11 @@ docs:
     - |
       julia -e '
         using Pkg
-        Pkg.update()
+        Pkg.Registry.add()
         Pkg.Registry.add(RegistrySpec(url = "https://git.km3net.de/common/julia-registry"))'
     - |
       julia --project=docs -e '
         using Pkg
-        Pkg.update()
         Pkg.instantiate()
         Pkg.resolve()
         using Documenter: doctest
