@@ -3,8 +3,34 @@ export
 
 H5CompoundDataset,
 H5File,
+H5uDSTFile,
+H5uDSTParameter,
 addmeta,
 create_dataset,
+description,
+metadata,
+register!,
+validate,
+validate_lengths,
+
+# uDST schema constants
+UDST_GROUP,
+UDST_BRANCH_TYPES,
+UDST_PARAMETER_DESCRIPTIONS,
+UDST_MC_EVTS_SUMMARY,
+UDST_MC_HITS_SUMMARY,
+UDST_HITS_SUMMARY,
+UDST_NU_SUMMARY,
+UDST_CHERENKOV_HITS,
+UDST_REC_TRKS_SUMMARY,
+UDST_JPPSHOWER_SUMMARY,
+UDST_CELESTIAL_COORDINATES,
+UDST_MC_TRUTH,
+UDST_HITS,
+UDST_RECO_TRACKS,
+UDST_RECO_SHOWERS,
+UDST_BDT,
+UDST_ASTRO,
 
 # Basic types
 Direction,     # reexport from KM3Base

@@ -39,6 +39,7 @@ makedocs(;
             "examples/orientations.md",
             "examples/controlhost.md",
             "examples/hdf5.md",
+            "examples/udst.md",
         ],
         "API" => "api.md"
     ],

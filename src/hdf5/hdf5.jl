@@ -27,12 +27,14 @@ Forces the cache to be written to the HDF5 file.
 """
 function Base.flush(d::H5CompoundDataset; nolock=false)
     !nolock && lock(d._lock)
-    current_dims, _ = HDF5.get_extent_dims(d.dset)
-    idx = first(current_dims)
     n = length(d.cache)
-    HDF5.set_extent_dims(d.dset, (idx + n,))
-    d.dset[idx+1:idx+n] = d.cache.buffer
-    empty!(d.cache.buffer)
+    if n > 0
+        current_dims, _ = HDF5.get_extent_dims(d.dset)
+        idx = first(current_dims)
+        HDF5.set_extent_dims(d.dset, (idx + n,))
+        d.dset[idx+1:idx+n] = d.cache.buffer
+        empty!(d.cache.buffer)
+    end
     !nolock && unlock(d._lock)
     d
 end
@@ -117,12 +119,3 @@ function addmeta(dset::Union{HDF5.Dataset, HDF5.File, HDF5.Group, HDF5.Datatype}
 end
 addmeta(cdset::H5CompoundDataset, object) = addmeta(cdset.dset, object)
 addmeta(f::H5File, object) = addmeta(f._h5f, object)
-
-
-struct H5uDST
-    _h5f::H5File
-
-    function H5uDST(filename::AbstractString; mode::AbstractString="r")
-        return new(H5File(filename; mode=mode))
-    end
-end
