@@ -79,7 +79,7 @@ The main entry points exported by KM3io are:
 |--------------------------------|--------------------------------------------------------------|
 | [`H5uDSTFile`](@ref)           | Open / create a uDST file (`"r"`, `"w"`, `"cw"`, `"r+"`)     |
 | [`register!`](@ref)            | Declare a parameter column on a writeable file               |
-| [`Base.push!`](@ref)           | Append one event (strict by default; `strict=false` allows partial pushes for backfilling new columns) |
+| `push!`                        | Append one event (strict by default; `strict=false` allows partial pushes for backfilling new columns) |
 | [`validate`](@ref)             | Check that a uDST registers a given set of parameter names   |
 | [`validate_lengths`](@ref)     | Check that all columns have the same number of events        |
 | [`description`](@ref)          | Read a parameter's stored description                         |
