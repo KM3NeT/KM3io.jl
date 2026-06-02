@@ -355,7 +355,7 @@ applied coincidence level:
 | SN | `.SN` | the supernova stream (higher-order coincidences) |
 
 They are reachable through the `.timeslices` field of the `OnlineTree`. Each
-present stream is a lazy [`TimesliceContainer`](@ref) and absent (or empty)
+present stream is a lazy `TimesliceContainer` and absent (or empty)
 streams are `nothing`:
 
 ```@example timeslices
