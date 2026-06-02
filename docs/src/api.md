@@ -61,6 +61,10 @@ SuperFrame
 hasonlineevents
 hassummaryslices
 hastimeslices
+hasl0timeslices
+hasl1timeslices
+hasl2timeslices
+hassntimeslices
 ```
 
 ## Oscillations Open Data

@@ -117,3 +117,28 @@ id) to [`calibrate`](@ref) or [`calibratetime`](@ref):
 det = Detector(datapath("detx", "km3net_offline.detx"))
 calibratetime(det, frame)[1:3]
 ```
+
+Streams support indexing, slicing and iteration. For hot loops, pass the
+container into a function (a *function barrier*) so that Julia specialises on its
+concrete type:
+
+```@example 1
+total_hits(c) = sum(length(frame.hits) for ts in c for frame in ts.frames)
+total_hits(f.online.timeslices.L1)
+```
+
+The test data also ships dedicated single-stream samples. Here is a real ARCA L1
+timeslice file:
+
+```@example 1
+f_l1 = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_L1.root"))
+ts = f_l1.online.timeslices.L1[1]
+(nframes = length(ts.frames), nhits = total_hits(f_l1.online.timeslices.L1))
+```
+
+and the corresponding supernova stream, where some timeslices are empty:
+
+```@example 1
+f_sn = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_SN.root"))
+[length(ts.frames) for ts in f_sn.online.timeslices.SN[1:3]]
+```
