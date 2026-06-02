@@ -457,6 +457,82 @@ end
     close(f)
 end
 
+# Per-stream timeslice files using the member-wise (low split level) layout.
+# Guarded by `isfile` so the suite still runs with older KM3NeTTestData releases
+# which do not ship these files yet.
+@testset "Timeslices (per-stream, member-wise)" begin
+    L1FILE = datapath("online", "KM3NeT_00000267_00025291_L1.root")
+    L2FILE = datapath("online", "KM3NeT_00000267_00025291_L2.root")
+    SNFILE = datapath("online", "KM3NeT_00000267_00025291_SN.root")
+
+    if isfile(L1FILE)
+        f = ROOTFile(L1FILE)
+        @test hastimeslices(f, :L1)
+        @test !hastimeslices(f, :SN)
+        @test f.online.timeslices.L0 === nothing
+        @test f.online.timeslices.L2 === nothing
+        @test f.online.timeslices.SN === nothing
+
+        L1 = f.online.timeslices.L1
+        @test 3 == length(L1)
+        ts = L1[1]
+        @test 267 == ts.header.detector_id
+        @test 25291 == ts.header.run
+        @test 5057 == ts.header.frame_index
+        @test 453 == length(ts.frames)
+        @test 167499 == sum(length(frame.hits) for frame in ts.frames)
+
+        frame = ts.frames[1]
+        @test 806455816 == frame.module_id
+        @test 432 == length(frame.hits)
+        @test 1835037 == frame.daq
+        @test 0x80000000 == frame.status
+        @test [20, 20, 18, 18] == [h.channel_id for h in frame.hits[1:4]]
+        @test [97069, 97078, 690216, 690224] == [h.t for h in frame.hits[1:4]]
+        @test [4, 4, 7, 19] == [h.tot for h in frame.hits[1:4]]
+
+        @test 5058 == L1[2].header.frame_index
+        @test 168414 == sum(length(fr.hits) for fr in L1[2].frames)
+        @test 5059 == L1[3].header.frame_index
+        @test 167420 == sum(length(fr.hits) for fr in L1[3].frames)
+        close(f)
+    end
+
+    if isfile(SNFILE)
+        f = ROOTFile(SNFILE)
+        @test hastimeslices(f, :SN)
+        @test !hastimeslices(f, :L1)
+        SN = f.online.timeslices.SN
+        @test 100 == length(SN)
+
+        @test 2087 == SN[1].header.frame_index
+        @test 0 == length(SN[1].frames)  # empty supernova timeslice
+
+        sn = SN[51]
+        @test 2137 == sn.header.frame_index
+        @test 454 == length(sn.frames)
+        @test 1084 == sum(length(frame.hits) for frame in sn.frames)
+        # frames may be empty; the first non-empty one carries the hits
+        nonempty = sn.frames[findfirst(fr -> !isempty(fr.hits), sn.frames)]
+        @test 806476519 == nonempty.module_id
+        @test 4 == length(nonempty.hits)
+        @test [12, 14, 15, 19] == [h.channel_id for h in nonempty.hits]
+        @test [62757457, 62757456, 62757463, 62757457] == [h.t for h in nonempty.hits]
+
+        @test 2186 == SN[100].header.frame_index
+        @test 1068 == sum(length(fr.hits) for fr in SN[100].frames)
+        close(f)
+    end
+
+    if isfile(L2FILE)
+        # this file's timeslice trees are all empty
+        f = ROOTFile(L2FILE)
+        @test !hastimeslices(f)
+        @test f.online.timeslices.L2 === nothing
+        close(f)
+    end
+end
+
 @testset "Acoustics Event File" begin
     f = AcousticsEventFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
     @test 9 == f[1].id
