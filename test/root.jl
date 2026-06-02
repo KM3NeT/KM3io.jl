@@ -226,6 +226,7 @@ end
     @test length(evt.usr) == 0
 
     for fpath in readdir(datapath("offline"); join=true)
+        endswith(fpath, ".root") || continue  # skip non-ROOT companion files (e.g. .md)
         basename(fpath) == "mcv6.gsg_nue-CCHEDIS_1e4-1e6GeV.sirene.jte.jchain.aanet.1.root" && continue
         f = ROOTFile(fpath)
         if length(f.offline) > 0
