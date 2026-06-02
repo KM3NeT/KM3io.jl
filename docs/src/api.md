@@ -56,6 +56,7 @@ SummaryFrame
 Timeslice
 TimesliceHeader
 Timeslices
+TimesliceContainer
 TimesliceHit
 SuperFrame
 hasonlineevents
