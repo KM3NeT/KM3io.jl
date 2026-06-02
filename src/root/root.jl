@@ -22,12 +22,15 @@ struct ROOTFile
             "KM3NETDAQ::JDAQEvent.triggeredHits" => Vector{TriggeredHit},
             "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
             "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
-            "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame}
+            "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame},
+            "KM3NETDAQ::JDAQTimeslice.vector<KM3NETDAQ::JDAQSuperFrame>" => Vector{SuperFrame},
+            "KM3NETDAQ::JDAQChronometer.timeslice_start" => UTCExtended
         )
         fobj = UnROOT.ROOTFile(filename, customstructs=customstructs)
         keyset = keys(fobj)
         offline = ROOT.TTREE_OFFLINE_EVENT ∈ keyset ? OfflineTree(fobj) : nothing
-        has_online = ROOT.TTREE_ONLINE_EVENT ∈ keyset || ROOT.TTREE_ONLINE_SUMMARYSLICE ∈ keyset
+        has_online = ROOT.TTREE_ONLINE_EVENT ∈ keyset || ROOT.TTREE_ONLINE_SUMMARYSLICE ∈ keyset ||
+            any(k -> startswith(k, "KM3NET_TIMESLICE"), keyset)
         online = has_online ? OnlineTree(fobj) : nothing
         dst = _is_dst(fobj) ? DSTTree(fobj) : nothing
         new(fobj, online, offline, dst)
@@ -70,6 +73,19 @@ hasonlineevents(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.event
 Returns true if the file contains summaryslices.
 """
 hassummaryslices(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.summaryslices) && length(f.online.summaryslices) > 0
+
+"""
+Returns true if the file contains timeslices of the given stream (`:L0`, `:L1`,
+`:L2` or `:SN`). If no stream is given, returns true if any timeslice stream is
+present.
+"""
+function hastimeslices(f::ROOTFile, stream::Symbol)
+    isnothing(f.online) && return false
+    c = getproperty(f.online.timeslices, stream)
+    !isnothing(c) && length(c) > 0
+end
+hastimeslices(f::ROOTFile) = !isnothing(f.online) &&
+    any(s -> hastimeslices(f, s), (:L0, :L1, :L2, :SN))
 
 
 """

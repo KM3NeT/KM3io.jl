@@ -187,3 +187,45 @@ struct DAQEvent
     snapshot_hits::Vector{SnapshotHit}
     triggered_hits::Vector{TriggeredHit}
 end
+
+"""
+
+The header of a timeslice, holding the data acquisition meta information of the
+corresponding 100 ms data taking period.
+
+"""
+struct TimesliceHeader
+    detector_id::Int32
+    run::Int32
+    frame_index::Int32
+    t::UTCExtended
+end
+
+"""
+
+A hit recorded by a single PMT within a timeslice [`SuperFrame`](@ref). Unlike a
+[`SnapshotHit`](@ref) it does not carry the module id, since that is stored once
+in the enclosing super frame.
+
+"""
+struct TimesliceHit <: AbstractDAQHit
+    channel_id::UInt8
+    t::Int32
+    tot::UInt8
+end
+
+"""
+
+A super frame holds all the hits which were recorded by a single optical module
+during the time window of a timeslice, together with the data acquisition status
+flags of that module. Use [`calibrate`](@ref) or [`calibratetime`](@ref) on a
+super frame to obtain calibrated hits.
+
+"""
+struct SuperFrame
+    module_id::Int32
+    daq::UInt32
+    status::UInt32
+    fifo::UInt32
+    hits::Vector{TimesliceHit}
+end

@@ -363,6 +363,100 @@ end
     close(f)
 end
 
+@testset "Timeslices" begin
+    f = ROOTFile(ONLINEFILE)
+
+    @test hastimeslices(f)
+    @test hastimeslices(f, :L1)
+    @test hastimeslices(f, :SN)
+    @test !hastimeslices(f, :L0)
+    @test !hastimeslices(f, :L2)
+
+    # absent/empty streams are `nothing`
+    @test f.online.timeslices.L0 === nothing
+    @test f.online.timeslices.L2 === nothing
+
+    L1 = f.online.timeslices.L1
+    @test 3 == length(L1)
+
+    ts = L1[1]
+    @test :L1 == ts.stream
+    @test 44 == ts.header.detector_id
+    @test 6633 == ts.header.run
+    @test 512 == ts.header.frame_index
+    @test 1573257651 == ts.header.t.s
+    @test 200000000 == ts.header.t.ns  # 12500000 cycles * 16 ns
+
+    @test 69 == length(ts.frames)
+    @test 49243 == sum(length(frame.hits) for frame in ts.frames)
+
+    frame = ts.frames[1]
+    @test 806451572 == frame.module_id
+    @test 984 == length(frame.hits)
+    @test 1441815 == frame.daq
+    @test 0x80000000 == frame.status
+    @test 0x80000000 == frame.fifo
+
+    # hits are lightweight TimesliceHits which do not carry the module id
+    @test all(h -> h isa TimesliceHit, frame.hits)
+    @test !hasfield(TimesliceHit, :dom_id)
+    @test [9, 28, 4, 4] == [h.channel_id for h in frame.hits[1:4]]
+    @test [486480, 486490, 709517, 709526] == [h.t for h in frame.hits[1:4]]
+    @test [27, 24, 5, 7] == [h.tot for h in frame.hits[1:4]]
+
+    @test 806455814 == ts.frames[2].module_id
+    @test 1004 == length(ts.frames[2].hits)
+    @test 809544061 == ts.frames[end].module_id
+    @test 726 == length(ts.frames[end].hits)
+
+    # range and iteration
+    @test 2 == length(L1[1:2])
+    collected = Timeslice[]
+    for t in L1
+        push!(collected, t)
+    end
+    @test 3 == length(collected)
+    @test 69 == length(collected[1].frames)
+
+    # SN stream (supernova), with much fewer hits and even empty frames
+    SN = f.online.timeslices.SN
+    @test 3 == length(SN)
+    sn = SN[1]
+    @test :SN == sn.stream
+    @test 126 == sn.header.frame_index
+    @test 64 == length(sn.frames)
+    @test 98 == sum(length(frame.hits) for frame in sn.frames)
+    @test 806451572 == sn.frames[1].module_id
+    @test 4 == length(sn.frames[1].hits)
+    @test 0 == length(sn.frames[2].hits)  # empty frame
+    @test [0, 1, 2, 5] == [h.channel_id for h in sn.frames[1].hits]
+    @test [65829267, 65829259, 65829263, 65829271] == [h.t for h in sn.frames[1].hits]
+
+    # a super frame can be calibrated using the module id it carries
+    det = Detector(DETX_44)
+    chits = calibratetime(det, frame)
+    @test length(frame.hits) == length(chits)
+    @test all(ch -> ch isa CalibratedSnapshotHit, chits)
+    @test all(ch -> ch.dom_id == frame.module_id, chits)
+    pmt = getmodule(det, frame.module_id)[frame.hits[1].channel_id]
+    @test chits[1].t == frame.hits[1].t + pmt.t₀
+    xhits = calibrate(det, frame)
+    @test length(frame.hits) == length(xhits)
+    @test all(xh -> xh isa XCalibratedHit, xhits)
+    @test all(xh -> xh.dom_id == frame.module_id, xhits)
+
+    # threaded access over all frames of all timeslices
+    n_hits = Threads.Atomic{Int}(0)
+    Threads.@threads for t in L1
+        for frame in t.frames
+            Threads.atomic_add!(n_hits, length(frame.hits))
+        end
+    end
+    @test n_hits[] > 0
+
+    close(f)
+end
+
 @testset "Acoustics Event File" begin
     f = AcousticsEventFile(datapath("acoustics", "KM3NeT_00000267_00024724.acoustic-events_A_2.0.0.root"))
     @test 9 == f[1].id
