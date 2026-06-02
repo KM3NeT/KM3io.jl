@@ -53,8 +53,14 @@ UTCExtended
 Summaryslice
 SummarysliceHeader
 SummaryFrame
+Timeslice
+TimesliceHeader
+Timeslices
+TimesliceHit
+SuperFrame
 hasonlineevents
 hassummaryslices
+hastimeslices
 ```
 
 ## Oscillations Open Data

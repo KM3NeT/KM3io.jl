@@ -18,7 +18,8 @@ offline tree. In this case, the online tree is empty
 f.offline
 ```
 
-and the online tree holds 3 events and 3 summaryslices:
+and the online tree holds 3 events, 3 summaryslices and the L1 and SN timeslice
+streams (3 timeslices each):
 
 ```@example 1
 f.online
@@ -36,7 +37,7 @@ some_event = f.online.events[2]
 
     While both the offline and online tree contain events which are essentially an
     array of events (`Vector{Evt}` respectively `Vector{DAQEvent}`), the online tree
-    also contains summaryslices and timeslices (timeslices are not implemented yet).
+    also contains summaryslices and timeslices.
     For simplicity, indexing into an `OfflineTree` is directly indexing into events
     by default, while in case of the `OfflineTree` the field `.events` is necessary.
 
@@ -68,3 +69,51 @@ event = getevent(f.online, 127, 1)
     experience some delays especially dependening on the location of the event in
     the tree. In future, a fuzzy binary search might be implemented to speed up this
     process signifficantly.
+
+## Timeslices
+
+A timeslice covers the same 100 ms data taking period as a summaryslice but,
+instead of a single rate byte per PMT, it keeps every individual hit grouped per
+optical module into [`SuperFrame`](@ref)s. KM3NeT stores timeslices in up to four
+streams which differ in the applied coincidence level: `L0` (unfiltered), `L1`
+and `L2` (loose and tight coincidences) and `SN` (the supernova stream). They are
+accessible via `f.online.timeslices`, where each present stream is a lazy
+container and absent streams are `nothing`:
+
+```@example 1
+f.online.timeslices
+```
+
+A single timeslice is read on demand by indexing into a stream:
+
+```@example 1
+ts = f.online.timeslices.L1[1]
+```
+
+Its header carries the data acquisition meta information:
+
+```@example 1
+ts.header
+```
+
+The super frames hold the hits per optical module:
+
+```@example 1
+frame = ts.frames[1]
+```
+
+The hits are lightweight [`TimesliceHit`](@ref)s (PMT channel, time and
+time-over-threshold); the module id is stored once on the super frame rather than
+on every hit:
+
+```@example 1
+frame.hits[1:3]
+```
+
+To obtain calibrated hits, pass the whole super frame (which carries the module
+id) to [`calibrate`](@ref) or [`calibratetime`](@ref):
+
+```@example 1
+det = Detector(datapath("detx", "km3net_offline.detx"))
+calibratetime(det, frame)[1:3]
+```
