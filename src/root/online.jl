@@ -310,17 +310,21 @@ end
 # encodings. The strategy types below abstract over these so that the public
 # `TimesliceContainer`/`Timeslice` interface stays the same.
 
+# The strategy types are parametrised over the concrete `UnROOT.LazyBranch` types
+# they hold so that the lazy-branch field accesses (and hence indexing into a
+# `TimesliceContainer`) stay type-stable.
+
 # --- header time readers ---
 abstract type _TimesliceTimeReader end
 # `timeslice_start` stored as a single (member-wise streamed) object leaf
-struct _TimesliceTimeObject <: _TimesliceTimeReader
-    _t::UnROOT.LazyBranch
+struct _TimesliceTimeObject{T<:UnROOT.LazyBranch} <: _TimesliceTimeReader
+    _t::T
 end
 _readtime(r::_TimesliceTimeObject, idx::Integer) = r._t[idx]
 # `timeslice_start` split into two scalar leaves (fully split trees)
-struct _TimesliceTimeSplit <: _TimesliceTimeReader
-    _seconds::UnROOT.LazyBranch
-    _cycles::UnROOT.LazyBranch
+struct _TimesliceTimeSplit{S<:UnROOT.LazyBranch, C<:UnROOT.LazyBranch} <: _TimesliceTimeReader
+    _seconds::S
+    _cycles::C
 end
 _readtime(r::_TimesliceTimeSplit, idx::Integer) = UTCExtended(r._seconds[idx], r._cycles[idx])
 
@@ -329,8 +333,8 @@ abstract type _SuperFrameReader end
 
 # Member-wise blob layout: the whole `vector<JDAQSuperFrame>` is a single branch
 # decoded per entry by `_parse_superframes` (via the custom `interped_data`).
-struct _MemberwiseFrameReader <: _SuperFrameReader
-    _frames::UnROOT.LazyBranch
+struct _MemberwiseFrameReader{F<:UnROOT.LazyBranch} <: _SuperFrameReader
+    _frames::F
 end
 _readframes(r::_MemberwiseFrameReader, idx::Integer) = r._frames[idx]
 
@@ -338,13 +342,13 @@ _readframes(r::_MemberwiseFrameReader, idx::Integer) = r._frames[idx]
 # the `.buffer` sub-branch, a `TStreamerLoop` which UnROOT cannot interpret on its
 # own, so it is read raw (lazily, then cached) and partitioned into frames using
 # the per-frame `.numberOfHits`.
-mutable struct _SplitFrameReader <: _SuperFrameReader
+mutable struct _SplitFrameReader{M<:UnROOT.LazyBranch, N<:UnROOT.LazyBranch, D<:UnROOT.LazyBranch, S<:UnROOT.LazyBranch, F<:UnROOT.LazyBranch} <: _SuperFrameReader
     _fobj::UnROOT.ROOTFile
-    _module_id::UnROOT.LazyBranch
-    _numberOfHits::UnROOT.LazyBranch
-    _daq::UnROOT.LazyBranch
-    _status::UnROOT.LazyBranch
-    _fifo::UnROOT.LazyBranch
+    _module_id::M
+    _numberOfHits::N
+    _daq::D
+    _status::S
+    _fifo::F
     _buffer_branch::UnROOT.TBranchElement
     _buffer_raw::Union{Nothing, Tuple{Vector{UInt8}, Vector{Int32}}}
     _lock::ReentrantLock
@@ -406,13 +410,13 @@ A lazy container for the timeslices of a single stream (`:L0`, `:L1`, `:L2` or
 `:SN`). Timeslices are read on demand via indexing or iteration.
 
 """
-struct TimesliceContainer
+struct TimesliceContainer{D<:UnROOT.LazyBranch, R<:UnROOT.LazyBranch, FI<:UnROOT.LazyBranch, TR<:_TimesliceTimeReader, FR<:_SuperFrameReader}
     stream::Symbol
-    _detector_id::UnROOT.LazyBranch
-    _run::UnROOT.LazyBranch
-    _frame_index::UnROOT.LazyBranch
-    _time::_TimesliceTimeReader
-    _frames::_SuperFrameReader
+    _detector_id::D
+    _run::R
+    _frame_index::FI
+    _time::TR
+    _frames::FR
 end
 function TimesliceContainer(fobj::UnROOT.ROOTFile, tree::UnROOT.TTree, stream::Symbol)
     header = _find_branch(tree, "KM3NETDAQ::JDAQTimesliceHeader")
