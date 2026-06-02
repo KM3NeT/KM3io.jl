@@ -372,6 +372,10 @@ end
     @test hastimeslices(f, :SN)
     @test !hastimeslices(f, :L0)
     @test !hastimeslices(f, :L2)
+    @test hasl1timeslices(f)
+    @test hassntimeslices(f)
+    @test !hasl0timeslices(f)
+    @test !hasl2timeslices(f)
 
     # absent/empty streams are `nothing`
     @test f.online.timeslices.L0 === nothing
@@ -464,6 +468,10 @@ end
     f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_L1.root"))
     @test hastimeslices(f, :L1)
     @test !hastimeslices(f, :SN)
+    @test hasl1timeslices(f)
+    @test !hasl0timeslices(f)
+    @test !hasl2timeslices(f)
+    @test !hassntimeslices(f)
     @test f.online.timeslices.L0 === nothing
     @test f.online.timeslices.L2 === nothing
     @test f.online.timeslices.SN === nothing
@@ -495,6 +503,8 @@ end
     f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_SN.root"))
     @test hastimeslices(f, :SN)
     @test !hastimeslices(f, :L1)
+    @test hassntimeslices(f)
+    @test !hasl1timeslices(f)
     SN = f.online.timeslices.SN
     @test 100 == length(SN)
 

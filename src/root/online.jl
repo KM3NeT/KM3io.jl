@@ -281,6 +281,9 @@ function Base.show(io::IO, ts::Timeslice)
     nhits = sum(f -> length(f.hits), ts.frames; init=0)
     print(io, "$(ts.stream)-Timeslice with $(length(ts.frames)) frames and $(nhits) hits")
 end
+# Concise show methods, otherwise a single super frame would dump all of its hits.
+Base.show(io::IO, f::SuperFrame) = print(io, "SuperFrame(module $(f.module_id), $(length(f.hits)) hits)")
+Base.show(io::IO, h::TimesliceHit) = print(io, "TimesliceHit(channel_id=$(Int(h.channel_id)), t=$(h.t), tot=$(Int(h.tot)))")
 
 const _TIMESLICE_VECTOR_BRANCH = "vector<KM3NETDAQ::JDAQSuperFrame>"
 
