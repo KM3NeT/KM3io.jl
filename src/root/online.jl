@@ -254,7 +254,7 @@ function _parse_superframes(rawdata::Vector{UInt8}, rawoffsets)
                 pmt = read(io, UInt8)
                 tdc = ltoh(read(io, UInt32))     # little-endian on disk
                 tot = read(io, UInt8)
-                hits[j] = TimesliceHit(pmt, tdc % Int32, tot)
+                hits[j] = TimesliceHit(tdc % Int32, pmt, tot)
             end
             frames[i] = SuperFrame(module_ids[i], daq[i], status[i], fifo[i], hits)
         end
@@ -375,7 +375,7 @@ function _readframes(r::_SplitFrameReader, idx::Integer)
             pmt = read(io, UInt8)
             tdc = ltoh(read(io, UInt32))  # little-endian on disk
             tot = read(io, UInt8)
-            hits[j] = TimesliceHit(pmt, tdc % Int32, tot)
+            hits[j] = TimesliceHit(tdc % Int32, pmt, tot)
         end
         frames[k] = SuperFrame(module_ids[k], reinterpret(UInt32, daq[k]),
                                reinterpret(UInt32, status[k]), reinterpret(UInt32, fifo[k]), hits)

@@ -209,8 +209,11 @@ in the enclosing super frame.
 
 """
 struct TimesliceHit <: AbstractDAQHit
-    channel_id::UInt8
+    # field order chosen so the struct packs to 8 bytes (a leading UInt8 would pad
+    # it to 12 due to the Int32 alignment), which matters since timeslices hold
+    # millions of these hits
     t::Int32
+    channel_id::UInt8
     tot::UInt8
 end
 
