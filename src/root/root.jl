@@ -87,6 +87,26 @@ end
 hastimeslices(f::ROOTFile) = !isnothing(f.online) &&
     any(s -> hastimeslices(f, s), (:L0, :L1, :L2, :SN))
 
+"""
+Returns true if the file contains L0 (unfiltered) timeslices.
+"""
+hasl0timeslices(f::ROOTFile) = hastimeslices(f, :L0)
+
+"""
+Returns true if the file contains L1 (loose coincidence) timeslices.
+"""
+hasl1timeslices(f::ROOTFile) = hastimeslices(f, :L1)
+
+"""
+Returns true if the file contains L2 (tight coincidence) timeslices.
+"""
+hasl2timeslices(f::ROOTFile) = hastimeslices(f, :L2)
+
+"""
+Returns true if the file contains SN (supernova) timeslices.
+"""
+hassntimeslices(f::ROOTFile) = hastimeslices(f, :SN)
+
 
 """
 
