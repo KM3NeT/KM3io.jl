@@ -30,6 +30,29 @@ function calibrate(det::Detector, hits)
     calibrated_hits
 end
 
+"""
+
+Apply full geometry and time calibration to the hits of a [`SuperFrame`](@ref).
+The module id needed to look up the geometry is taken from the super frame, so
+its [`TimesliceHit`](@ref)s (which do not carry it themselves) can be calibrated.
+
+"""
+function calibrate(det::Detector, frame::SuperFrame)
+    m = getmodule(det, frame.module_id)
+    dom_id = UInt32(frame.module_id)
+    string = m.location.string
+    floor = m.location.floor
+    calibrated_hits = Vector{XCalibratedHit}(undef, length(frame.hits))
+    for (i, hit) in enumerate(frame.hits)
+        pmt = m[hit.channel_id]
+        calibrated_hits[i] = XCalibratedHit(
+            dom_id, hit.channel_id, hit.t + pmt.t₀, hit.tot, 0,
+            pmt.pos, pmt.dir, pmt.t₀, string, floor,
+        )
+    end
+    calibrated_hits
+end
+
 Base.time(det::Detector, hit; correct_slew=true) = time(hit; correct_slew=correct_slew) + getpmt(det, hit).t₀
 
 """
@@ -41,6 +64,22 @@ function calibratetime(det::Detector, hits::Vector{T}) where T<:SnapshotHit
     out = sizehint!(Vector{CalibratedSnapshotHit}(), length(hits))
     for h in hits
         push!(out, CalibratedSnapshotHit(h.dom_id, h.channel_id, h.t + getpmt(det, h).t₀, h.tot))
+    end
+    out
+end
+
+"""
+
+Calibrate the time of the hits of a [`SuperFrame`](@ref), returning
+`CalibratedSnapshotHit`s carrying the module id of the frame.
+
+"""
+function calibratetime(det::Detector, frame::SuperFrame)
+    m = getmodule(det, frame.module_id)
+    dom_id = UInt32(frame.module_id)
+    out = Vector{CalibratedSnapshotHit}(undef, length(frame.hits))
+    for (i, hit) in enumerate(frame.hits)
+        out[i] = CalibratedSnapshotHit(dom_id, hit.channel_id, hit.t + m[hit.channel_id].t₀, hit.tot)
     end
     out
 end
