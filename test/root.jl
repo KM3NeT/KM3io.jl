@@ -226,6 +226,7 @@ end
     @test length(evt.usr) == 0
 
     for fpath in readdir(datapath("offline"); join=true)
+        endswith(fpath, ".root") || continue  # skip non-ROOT companion files (e.g. .md)
         basename(fpath) == "mcv6.gsg_nue-CCHEDIS_1e4-1e6GeV.sirene.jte.jchain.aanet.1.root" && continue
         f = ROOTFile(fpath)
         if length(f.offline) > 0
@@ -360,6 +361,169 @@ end
     end
     @test 57008.977876930316 ≈ n_total_pmt_rate[] / n_pmts[]
 
+    close(f)
+end
+
+@testset "Timeslices" begin
+    f = ROOTFile(ONLINEFILE)
+
+    @test hastimeslices(f)
+    @test hastimeslices(f, :L1)
+    @test hastimeslices(f, :SN)
+    @test !hastimeslices(f, :L0)
+    @test !hastimeslices(f, :L2)
+    @test hasl1timeslices(f)
+    @test hassntimeslices(f)
+    @test !hasl0timeslices(f)
+    @test !hasl2timeslices(f)
+
+    # absent/empty streams are `nothing`
+    @test f.online.timeslices.L0 === nothing
+    @test f.online.timeslices.L2 === nothing
+
+    L1 = f.online.timeslices.L1
+    @test 3 == length(L1)
+
+    ts = L1[1]
+    @test :L1 == ts.stream
+    @test 44 == ts.header.detector_id
+    @test 6633 == ts.header.run
+    @test 512 == ts.header.frame_index
+    @test 1573257651 == ts.header.t.s
+    @test 200000000 == ts.header.t.ns  # 12500000 cycles * 16 ns
+
+    @test 69 == length(ts.frames)
+    @test 49243 == sum(length(frame.hits) for frame in ts.frames)
+
+    frame = ts.frames[1]
+    @test 806451572 == frame.module_id
+    @test 984 == length(frame.hits)
+    @test 1441815 == frame.daq
+    @test 0x80000000 == frame.status
+    @test 0x80000000 == frame.fifo
+
+    # hits are lightweight TimesliceHits which do not carry the module id
+    @test all(h -> h isa TimesliceHit, frame.hits)
+    @test !hasfield(TimesliceHit, :dom_id)
+    @test [9, 28, 4, 4] == [h.channel_id for h in frame.hits[1:4]]
+    @test [486480, 486490, 709517, 709526] == [h.t for h in frame.hits[1:4]]
+    @test [27, 24, 5, 7] == [h.tot for h in frame.hits[1:4]]
+
+    @test 806455814 == ts.frames[2].module_id
+    @test 1004 == length(ts.frames[2].hits)
+    @test 809544061 == ts.frames[end].module_id
+    @test 726 == length(ts.frames[end].hits)
+
+    # range and iteration
+    @test 2 == length(L1[1:2])
+    collected = Timeslice[]
+    for t in L1
+        push!(collected, t)
+    end
+    @test 3 == length(collected)
+    @test 69 == length(collected[1].frames)
+
+    # SN stream (supernova), with much fewer hits and even empty frames
+    SN = f.online.timeslices.SN
+    @test 3 == length(SN)
+    sn = SN[1]
+    @test :SN == sn.stream
+    @test 126 == sn.header.frame_index
+    @test 64 == length(sn.frames)
+    @test 98 == sum(length(frame.hits) for frame in sn.frames)
+    @test 806451572 == sn.frames[1].module_id
+    @test 4 == length(sn.frames[1].hits)
+    @test 0 == length(sn.frames[2].hits)  # empty frame
+    @test [0, 1, 2, 5] == [h.channel_id for h in sn.frames[1].hits]
+    @test [65829267, 65829259, 65829263, 65829271] == [h.t for h in sn.frames[1].hits]
+
+    # a super frame can be calibrated using the module id it carries
+    det = Detector(DETX_44)
+    chits = calibratetime(det, frame)
+    @test length(frame.hits) == length(chits)
+    @test all(ch -> ch isa CalibratedSnapshotHit, chits)
+    @test all(ch -> ch.dom_id == frame.module_id, chits)
+    pmt = getmodule(det, frame.module_id)[frame.hits[1].channel_id]
+    @test chits[1].t == frame.hits[1].t + pmt.t₀
+    xhits = calibrate(det, frame)
+    @test length(frame.hits) == length(xhits)
+    @test all(xh -> xh isa XCalibratedHit, xhits)
+    @test all(xh -> xh.dom_id == frame.module_id, xhits)
+
+    # threaded access over all frames of all timeslices
+    n_hits = Threads.Atomic{Int}(0)
+    Threads.@threads for t in L1
+        for frame in t.frames
+            Threads.atomic_add!(n_hits, length(frame.hits))
+        end
+    end
+    @test n_hits[] > 0
+
+    close(f)
+end
+
+# Dedicated per-stream timeslice files using the member-wise (low split level)
+# layout, as opposed to the fully split layout of `km3net_online.root` above.
+@testset "Timeslices (per-stream, member-wise)" begin
+    f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_L1.root"))
+    @test hastimeslices(f, :L1)
+    @test !hastimeslices(f, :SN)
+    @test hasl1timeslices(f)
+    @test !hasl0timeslices(f)
+    @test !hasl2timeslices(f)
+    @test !hassntimeslices(f)
+    @test f.online.timeslices.L0 === nothing
+    @test f.online.timeslices.L2 === nothing
+    @test f.online.timeslices.SN === nothing
+
+    L1 = f.online.timeslices.L1
+    @test 3 == length(L1)
+    ts = L1[1]
+    @test 267 == ts.header.detector_id
+    @test 25291 == ts.header.run
+    @test 5057 == ts.header.frame_index
+    @test 453 == length(ts.frames)
+    @test 167499 == sum(length(frame.hits) for frame in ts.frames)
+
+    frame = ts.frames[1]
+    @test 806455816 == frame.module_id
+    @test 432 == length(frame.hits)
+    @test 1835037 == frame.daq
+    @test 0x80000000 == frame.status
+    @test [20, 20, 18, 18] == [h.channel_id for h in frame.hits[1:4]]
+    @test [97069, 97078, 690216, 690224] == [h.t for h in frame.hits[1:4]]
+    @test [4, 4, 7, 19] == [h.tot for h in frame.hits[1:4]]
+
+    @test 5058 == L1[2].header.frame_index
+    @test 168414 == sum(length(fr.hits) for fr in L1[2].frames)
+    @test 5059 == L1[3].header.frame_index
+    @test 167420 == sum(length(fr.hits) for fr in L1[3].frames)
+    close(f)
+
+    f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_SN.root"))
+    @test hastimeslices(f, :SN)
+    @test !hastimeslices(f, :L1)
+    @test hassntimeslices(f)
+    @test !hasl1timeslices(f)
+    SN = f.online.timeslices.SN
+    @test 100 == length(SN)
+
+    @test 2087 == SN[1].header.frame_index
+    @test 0 == length(SN[1].frames)  # empty supernova timeslice
+
+    sn = SN[51]
+    @test 2137 == sn.header.frame_index
+    @test 454 == length(sn.frames)
+    @test 1084 == sum(length(frame.hits) for frame in sn.frames)
+    # frames may be empty; the first non-empty one carries the hits
+    nonempty = sn.frames[findfirst(fr -> !isempty(fr.hits), sn.frames)]
+    @test 806476519 == nonempty.module_id
+    @test 4 == length(nonempty.hits)
+    @test [12, 14, 15, 19] == [h.channel_id for h in nonempty.hits]
+    @test [62757457, 62757456, 62757463, 62757457] == [h.t for h in nonempty.hits]
+
+    @test 2186 == SN[100].header.frame_index
+    @test 1068 == sum(length(fr.hits) for fr in SN[100].frames)
     close(f)
 end
 

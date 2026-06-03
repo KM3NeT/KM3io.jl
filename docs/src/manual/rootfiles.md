@@ -8,15 +8,16 @@ section describes what kind of data is stored in each tree and how to access the
 
 ## Inspecting file contents
 
-A KM3NeT ROOT file may contain offline events, online events, summaryslices, or
-any combination of those, for example, an offline DST file can carry the
-summaryslices of the underlying run alongside its reconstructed events. Three
-predicates make it easy to check what is actually present without poking into
-the lazy containers:
+A KM3NeT ROOT file may contain offline events, online events, summaryslices,
+timeslices, or any combination of those, for example, an offline DST file can
+carry the summaryslices of the underlying run alongside its reconstructed
+events. A handful of predicates make it easy to check what is actually present
+without poking into the lazy containers:
 
 - [`hasofflineevents`](@ref) === `true` if the file has a non-empty offline event tree (`E`).
 - [`hasonlineevents`](@ref) === `true` if the file has a non-empty online event tree (`KM3NET_EVENT`).
 - [`hassummaryslices`](@ref)  === `true` if the file has a non-empty summaryslice tree (`KM3NET_SUMMARYSLICE`).
+- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2` or `:SN`) to check a specific one. The per-stream shortcuts [`hasl0timeslices`](@ref), [`hasl1timeslices`](@ref), [`hasl2timeslices`](@ref) and [`hassntimeslices`](@ref) are also available.
 
 Each returns `false` when the corresponding tree is missing or empty, so they
 are safe to call on any file:
@@ -33,7 +34,7 @@ julia> hasofflineevents(f), hasonlineevents(f), hassummaryslices(f)
 When `hasonlineevents(f)` is `false` but `hassummaryslices(f)` is `true`, the
 file still has an `OnlineTree`, but `f.online.events` will be `nothing` and
 should not be accessed without a guard. The same applies to
-`f.online.summaryslices` in the reverse case.
+`f.online.summaryslices` and `f.online.timeslices.<stream>` in the reverse cases.
 
 ## [Offline Dataformat](@id offline dataformat)
 
@@ -337,6 +338,99 @@ for pmt in 0:30
     println("PMT $(pmt): HRV($(hrvstatus(frame, pmt))) FIFO($(fifostatus(frame, pmt)))")
 end
 ```
+
+### Timeslices
+
+Timeslices are the raw hit data from which summaryslices are derived. Like a
+summaryslice, a timeslice spans 100 ms, but instead of a single rate byte per PMT
+it keeps **every individual hit**, grouped per optical module into
+[`SuperFrame`](@ref)s. The DAQ writes them in up to four streams, ordered by the
+applied coincidence level:
+
+| Stream | Field | Content |
+|:-------|:------|:--------|
+| L0 | `.L0` | unfiltered, all hits (only stored for short, dedicated runs) |
+| L1 | `.L1` | hits with a loose local coincidence (e.g. on the same module within a few ns) |
+| L2 | `.L2` | L1 plus an angular/causality condition (a subset of L1) |
+| SN | `.SN` | the supernova stream (higher-order coincidences) |
+
+They are reachable through the `.timeslices` field of the `OnlineTree`. Each
+present stream is a lazy [`TimesliceContainer`](@ref) and absent (or empty)
+streams are `nothing`:
+
+```@example timeslices
+using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath("online", "km3net_online.root"))
+f.online.timeslices
+```
+
+A single timeslice is read on demand by indexing into a stream; it carries a
+header and the super frames:
+
+```@example timeslices
+ts = f.online.timeslices.L1[1]
+```
+
+```@example timeslices
+ts.header
+```
+
+Each [`SuperFrame`](@ref) holds the DAQ status words and all the hits recorded by
+one optical module during the slice:
+
+```@example timeslices
+frame = ts.frames[1]
+```
+
+The hits are lightweight [`TimesliceHit`](@ref)s, holding the PMT channel, the
+hit time and the time-over-threshold. The module id is stored once on the super
+frame rather than on every hit:
+
+```@example timeslices
+frame.hits[1:5]
+```
+
+To calibrate, hand the whole super frame (which carries the module id) to
+[`calibratetime`](@ref), or to [`calibrate`](@ref) for the full geometry
+calibration:
+
+```@example timeslices
+det = Detector(datapath("detx", "km3net_offline.detx"))
+calibratetime(det, frame)[1:5]
+```
+
+Containers support indexing, slicing and iteration. A sum over all hits of a
+stream is most efficient when written behind a function barrier (`total_hits`
+below), so that Julia can specialise on the concrete container type:
+
+```@example timeslices
+total_hits(c) = sum(length(frame.hits) for ts in c for frame in ts.frames)
+total_hits(f.online.timeslices.L1)
+```
+
+The supernova stream is accessed in exactly the same way. Because it only keeps
+higher-order coincidences, many of its super frames (and occasionally whole
+timeslices) are empty:
+
+```@example timeslices
+sn = f.online.timeslices.SN[1]
+(nframes = length(sn.frames), nhits = sum(length(fr.hits) for fr in sn.frames; init=0))
+```
+
+In addition to the multi-stream `km3net_online.root` used above, the test data
+also ships dedicated single-stream samples such as
+`KM3NeT_00000267_00025291_L1.root` and `KM3NeT_00000267_00025291_SN.root`, read
+the very same way.
+
+!!! note
+
+    Depending on the ROOT split level a file was written with, the super frames
+    are stored either as a single member-wise streamed branch (modern files) or
+    fully split into one sub-branch per data member (older files); the
+    `timeslice_start` time is likewise either a single object leaf or two scalar
+    leaves. `KM3io` detects and reads all of these transparently, so the access
+    shown above is identical in every case.
 
 
 ## [DST Format](@id dst_format)
