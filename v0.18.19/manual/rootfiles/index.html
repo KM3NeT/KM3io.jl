@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>ROOT Files · KM3io.jl</title><meta name="title" content="ROOT Files · KM3io.jl"/><meta property="og:title" content="ROOT Files · KM3io.jl"/><meta property="twitter:title" content="ROOT Files · KM3io.jl"/><meta name="description" content="Documentation for KM3io.jl."/><meta property="og:description" content="Documentation for KM3io.jl."/><meta property="twitter:description" content="Documentation for KM3io.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="KM3io.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href>ROOT Files</a><ul class="internal"><li><a class="tocitem" href="#Inspecting-file-contents"><span>Inspecting file contents</span></a></li><li><a class="tocitem" href="#offline-dataformat"><span>Offline Dataformat</span></a></li><li><a class="tocitem" href="#online_dataformat"><span>Online Dataformat</span></a></li><li><a class="tocitem" href="#dst_format"><span>DST Format</span></a></li><li><a class="tocitem" href="#xrootd-access"><span>xrootd access</span></a></li><li><a class="tocitem" href="#oscillations-dataformat"><span>Oscillations Open Dataformat</span></a></li></ul></li><li><a class="tocitem" href="../multi-threading/">Multi-Threading</a></li><li><a class="tocitem" href="../detector/">Detector and its Components</a></li><li><a class="tocitem" href="../calibration/">Calibration</a></li><li><a class="tocitem" href="../coordinates/">Coordinates</a></li><li><a class="tocitem" href="../auxfiles/">Auxiliary Files</a></li><li><a class="tocitem" href="../tools/">Tools</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/online_data/">Online data</a></li><li><a class="tocitem" href="../../examples/offline_data/">Offline data</a></li><li><a class="tocitem" href="../../examples/cherenkov_times/">Cherenkov times</a></li><li><a class="tocitem" href="../../examples/footprint/">Detector Footprint</a></li><li><a class="tocitem" href="../../examples/orientations/">Orientations</a></li><li><a class="tocitem" href="../../examples/controlhost/">Accessing Live Data</a></li><li><a class="tocitem" href="../../examples/hdf5/">HDF5</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>ROOT Files</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>ROOT Files</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl" title="View the repository"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">Repository</span></a><a class="docs-navbar-link" href="https://git.km3net.de/common/KM3io.jl/blob/main/docs/src/manual/rootfiles.md#L" title="Edit source"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="ROOT-Files"><a class="docs-heading-anchor" href="#ROOT-Files">ROOT Files</a><a id="ROOT-Files-1"></a><a class="docs-heading-anchor-permalink" href="#ROOT-Files" title="Permalink"></a></h1><p>The two main types of ROOT files in KM3NeT are the online and offline files, however, both types can be mixed together as the data is stored in distinct ROOT trees. <code>UnROOT</code> has a single <code>ROOTFile</code> type to represent a KM3NeT ROOT file which can be used to access both the online and offline information. This section describes what kind of data is stored in each tree and how to access them.</p><h2 id="Inspecting-file-contents"><a class="docs-heading-anchor" href="#Inspecting-file-contents">Inspecting file contents</a><a id="Inspecting-file-contents-1"></a><a class="docs-heading-anchor-permalink" href="#Inspecting-file-contents" title="Permalink"></a></h2><p>A KM3NeT ROOT file may contain offline events, online events, summaryslices, timeslices, or any combination of those, for example, an offline DST file can carry the summaryslices of the underlying run alongside its reconstructed events. A handful of predicates make it easy to check what is actually present without poking into the lazy containers:</p><ul><li><a href="../../api/#KM3io.hasofflineevents"><code>hasofflineevents</code></a> === <code>true</code> if the file has a non-empty offline event tree (<code>E</code>).</li><li><a href="../../api/#KM3io.hasonlineevents"><code>hasonlineevents</code></a> === <code>true</code> if the file has a non-empty online event tree (<code>KM3NET_EVENT</code>).</li><li><a href="../../api/#KM3io.hassummaryslices"><code>hassummaryslices</code></a>  === <code>true</code> if the file has a non-empty summaryslice tree (<code>KM3NET_SUMMARYSLICE</code>).</li><li><a href="../../api/#KM3io.hastimeslices"><code>hastimeslices</code></a>  === <code>true</code> if the file has any non-empty timeslice tree; pass a stream symbol (<code>:L0</code>, <code>:L1</code>, <code>:L2</code> or <code>:SN</code>) to check a specific one. The per-stream shortcuts <a href="../../api/#KM3io.hasl0timeslices"><code>hasl0timeslices</code></a>, <a href="../../api/#KM3io.hasl1timeslices"><code>hasl1timeslices</code></a>, <a href="../../api/#KM3io.hasl2timeslices"><code>hasl2timeslices</code></a> and <a href="../../api/#KM3io.hassntimeslices"><code>hassntimeslices</code></a> are also available.</li></ul><p>Each returns <code>false</code> when the corresponding tree is missing or empty, so they are safe to call on any file:</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io
+
+julia&gt; f = ROOTFile(&quot;KM3NeT_00000133_00015285.offline.dst.root&quot;);
+
+julia&gt; hasofflineevents(f), hasonlineevents(f), hassummaryslices(f)
+(true, false, true)</code></pre><p>When <code>hasonlineevents(f)</code> is <code>false</code> but <code>hassummaryslices(f)</code> is <code>true</code>, the file still has an <code>OnlineTree</code>, but <code>f.online.events</code> will be <code>nothing</code> and should not be accessed without a guard. The same applies to <code>f.online.summaryslices</code> and <code>f.online.timeslices.&lt;stream&gt;</code> in the reverse cases.</p><h2 id="offline-dataformat"><a class="docs-heading-anchor" href="#offline-dataformat">Offline Dataformat</a><a id="offline-dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#offline-dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/offline">offline dataformat</a> is used to store Monte Carlo (MC) simulations and reconstruction results. The <code>OfflineTree</code> type represents an actual offline file and it is essentially a vector of events (<code>Vector{Evt}</code>) with some fancy caching, lazy access and slicing magic. The offline tree is accessible via the <code>.offline</code> field of the <code>ROOTFile</code> type.</p><h3 id="MC-Header"><a class="docs-heading-anchor" href="#MC-Header">MC Header</a><a id="MC-Header-1"></a><a class="docs-heading-anchor-permalink" href="#MC-Header" title="Permalink"></a></h3><p>The MC header stores metadata related to the simulation chain. The individual entries can be accessed as properties, as shown below.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;offline&quot;, &quot;numucc.root&quot;))
+ROOTFile{OnlineTree (0 events, 0 summaryslices), OfflineTree (10 events)}
+
+julia&gt; f.offline
+OfflineTree (10 events)
+
+julia&gt; f.offline.header
+MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; [0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; [&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Real[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; [0.0, 3450.0]
+
+
+julia&gt; f.offline.header.genvol
+(zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+
+julia&gt; f.offline.header.genvol.volume
+2.649e9</code></pre><h3 id="Event-data"><a class="docs-heading-anchor" href="#Event-data">Event data</a><a id="Event-data-1"></a><a class="docs-heading-anchor-permalink" href="#Event-data" title="Permalink"></a></h3><p>The following REPL session shows how to open a file, access individual events or slices of events, loop through events and access e.g. the tracks which are stored in the events.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;))
+ROOTFile{OfflineTree (10 events)}
+
+julia&gt; f.offline[5]
+KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; f.offline[3:5]
+3-element Vector{KM3io.Evt}:
+ KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+ KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event = f.offline[1]
+KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+
+julia&gt; event.trks[1:4]
+4-element Vector{KM3io.Trk}:
+ KM3io.Trk(1, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(2, [445.835395997812, ... , 294.6407542676734, 4000)
+ KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
+ KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
+
+julia&gt; for event in f.offline
+           @show event
+       end
+event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks)
+event = KM3io.Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
+event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
+event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)</code></pre><h3 id="Multiple-Files"><a class="docs-heading-anchor" href="#Multiple-Files">Multiple Files</a><a id="Multiple-Files-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Files" title="Permalink"></a></h3><p>The <a href="../../api/#KM3io.OfflineEventTape"><code>OfflineEventTape</code></a> offers an easy way to iterate over many sources (can be a mix of filepaths and XRootD URLs). During the iteration, files with an empty offline tree are automatically skipped.</p><p>The following example takes two files from the <a href="https://git.km3net.de/common/km3net-testdata">KM3NeT TestData</a> samples and iterate through both of them in a simple loop.</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+tape = KM3io.OfflineEventTape([
+    datapath(&quot;offline&quot;, &quot;numucc.root&quot;),
+    datapath(&quot;offline&quot;, &quot;km3net_offline.root&quot;)
+])
+
+for entry in tape
+    @show entry
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">entry = (event = Evt (4271 hits, 58 MC hits, 68 tracks, 11 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4145 hits, 145 MC hits, 38 tracks, 25 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (3680 hits, 28 MC hits, 38 tracks, 12 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (3967 hits, 19 MC hits, 18 tracks, 10 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4105 hits, 78 MC hits, 0 tracks, 10 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4301 hits, 50 MC hits, 60 tracks, 13 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (3949 hits, 58 MC hits, 59 tracks, 11 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4180 hits, 49 MC hits, 66 tracks, 10 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4210 hits, 35 MC hits, 38 tracks, 13 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (4024 hits, 48 MC hits, 22 tracks, 16 MC tracks), header = MCHeader
+  DAQ =&gt; (livetime = 394,)
+  PDF =&gt; (i1 = 4, i2 = 58)
+  XSecFile =&gt; Any[]
+  can =&gt; (zmin = 0, zmax = 1027, r = 888.4)
+  can_user =&gt; Any[0.0, 1027.0, 888.4]
+  coord_origin =&gt; (x = 0, y = 0, z = 0)
+  cut_in =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_nu =&gt; (Emin = 100, Emax = 1.0e8, cosTmin = -1, cosTmax = 1)
+  cut_primary =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  cut_seamuon =&gt; (Emin = 0, Emax = 0, cosTmin = 0, cosTmax = 0)
+  decay =&gt; Any[&quot;doesnt&quot;, &quot;happen&quot;]
+  detector =&gt; NOT
+  drawing =&gt; Volume
+  end_event =&gt; Any[]
+  genhencut =&gt; (gDir = 2000, Emin = 0)
+  genvol =&gt; (zmin = 0, zmax = 1027, r = 888.4, volume = 2.649e9, numberOfEvents = 100000)
+  kcut =&gt; 2
+  livetime =&gt; (numberOfSeconds = 0, errorOfSeconds = 0)
+  model =&gt; (interaction = 1, muon = 2, scattering = 0, numberOfEnergyBins = 1, field_4 = 12)
+  muon_desc_file =&gt; Any[]
+  ngen =&gt; 100000.0
+  norma =&gt; (primaryFlux = 0, numberOfPrimaries = 0)
+  nuflux =&gt; Any[0, 3, 0, 0.5, 0.0, 1.0, 3.0]
+  physics =&gt; (program = &quot;GENHEN&quot;, version = &quot;7.2-220514&quot;, date = 181116, time = 1138)
+  seed =&gt; (program = &quot;GENHEN&quot;, level = 3, iseed = 305765867, field_3 = 0, field_4 = 0)
+  simul =&gt; (program = &quot;JSirene&quot;, version = 11012, date = &quot;11/17/18&quot;, time = 7)
+  sourcemode =&gt; diffuse
+  spectrum =&gt; (alpha = -1.4,)
+  start_run =&gt; 1
+  target =&gt; isoscalar
+  usedetfile =&gt; false
+  xlat_user =&gt; 0.63297
+  xparam =&gt; OFF
+  zed_user =&gt; Any[0.0, 3450.0]
+)
+entry = (event = Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (125 hits, 0 MC hits, 55 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (318 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (157 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (83 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (60 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (71 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks), header = missing)
+entry = (event = Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks), header = missing)</code></pre><p>More examples can be found here: <a href="../../examples/offline_data/#offline_event_tape">Offline Event Tape Examples</a></p><h2 id="online_dataformat"><a class="docs-heading-anchor" href="#online_dataformat">Online Dataformat</a><a id="online_dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#online_dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/common/km3net-dataformat/-/tree/master/online">online dataformat</a> refers to the dataformat which is written by the data acquisition system (DAQ) of the KM3NeT detectors, more precisely, the ROOT files produced by the <code>JDataFilter</code> which is part of the <a href="https://git.km3net.de/common/jpp"><code>Jpp</code></a> framework. The very same format is used in run-by-run (RBR) Monte Carlo (MC) productions, which mimic the detector response and therefore produce similarly structured data. The online data can be accessed via the <code>.online</code> field of the <code>ROOTFile</code> type.</p><h3 id="Event-data-2"><a class="docs-heading-anchor" href="#Event-data-2">Event data</a><a class="docs-heading-anchor-permalink" href="#Event-data-2" title="Permalink"></a></h3><p>The events are accessible via <code>ROOTFile(filename).online.events</code> which supports indexing, slicing and iteration, just like the we have seen above, in case of the offline events. Notice however that the online format also contains other types of trees, that&#39;s why the explicit <code>.events</code> field is needed. Everything is lazily loaded so that the data is only occupying memory when it&#39;s actually accessed, similar to the offline access. In the examples below, we use <strong><a href="https://git.km3net.de/km3py/km3net-testdata"><code>KM3NeTTestdata</code></a></strong> to get access to small sample files.</p><pre><code class="language-julia hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
+
+julia&gt; event = f.online.events[1]
+KM3io.DAQEvent with 96 snapshot and 18 triggered hits
+
+julia&gt; event.triggered_hits[4:8]
+5-element Vector{KM3io.TriggeredHit}:
+ KM3io.TriggeredHit(808447186, 0x00, 30733214, 0x19, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x01, 30733214, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x02, 30733215, 0x15, 0x0000000000000016)
+ KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
+ KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
+
+julia&gt; for event ∈ f.online.events
+           @show event.header.frame_index length(event.snapshot_hits)
+       end
+event.header.frame_index = 127
+length(event.snapshot_hits) = 96
+event.header.frame_index = 127
+length(event.snapshot_hits) = 124
+event.header.frame_index = 129
+length(event.snapshot_hits) = 78</code></pre><h3 id="Summaryslices-and-Summary-Frames"><a class="docs-heading-anchor" href="#Summaryslices-and-Summary-Frames">Summaryslices and Summary Frames</a><a id="Summaryslices-and-Summary-Frames-1"></a><a class="docs-heading-anchor-permalink" href="#Summaryslices-and-Summary-Frames" title="Permalink"></a></h3><p>Summaryslices are generated from timeslices (raw hit data) and are produced by the DataFilter. A slice contains the data of 100ms and is divided into so-called frames, each corresponding to the data of a single optical module. Due to the high amount of data, the storage of timeslices is usually reduced by a factor of 10-100 after the event triggering stage. However, summaryslices are covering the full data taking period. They however do not contain hit data but only the rates of the PMTs encoded into a single byte, which therefore is only capable to store 256 different values. The actual rate is calcuated by the helper functions <code>pmtrate()</code> and <code>pmtrates()</code> which take a <code>SummaryFrame</code> and optionally a PMT channel ID as arguments.</p><p>The summaryslices are accessible using the <code>.summaryslices</code> attribute of the <code>OnlineTree</code> instance, which again is hidden behind the <code>.online</code> field of a <code>ROOTFile</code>:</p><pre><code class="language-julia hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+ROOTFile{OnlineTree (3 events, 3 summaryslices), OfflineTree (0 events)}
+
+julia&gt; f.online.summaryslices
+KM3io.SummarysliceContainer with 3 summaryslices
+
+julia&gt; for s ∈ f.online.summaryslices
+           @show s.header
+       end
+s.header = KM3io.SummarysliceHeader(44, 6633, 126, KM3io.UTCExtended(0x5dc6018c, 0x23c34600, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c, 0x29b92700, false))
+s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))</code></pre><p>Each summaryslice consists of multiple frames, one for every optical module which has sent data during the recording time of the corresponding timeslice.</p><div class="admonition is-info" id="Note-a68dc15ae1760e3a"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-a68dc15ae1760e3a" title="Permalink"></a></header><div class="admonition-body"><p>During run transistions, the number of summaryframes in a summaryslice is fluctuating a lot until it eventually saturates, usually within a few seconds or minutes. Therefore, it is expected that the number of summaryframes (i.e. active DOMs) is low at the beginning of the file and stabilises after a few summaryslices.</p></div></div><p>To access the actual PMT rates and flags (e.g. for high-rate veto or FIFO status) of a summaryframe, several helper functions exist. Let&#39;s grab a summaryslice:</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+
+s = f.online.summaryslices[1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Summaryslice(64 frames)</code></pre><p>and have a look at one of the frames, the 23rd of the first summaryslice:</p><pre><code class="language-julia hljs">frame = s.frames[23]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SummaryFrame(808951460, 0x00240025, 0xc8bffc08, 0xb7400000, 0x00000000, 0x00000000, UInt8[0x48, 0x4d, 0x52, 0x57, 0x4a, 0x41, 0x4e, 0x49, 0x51, 0x51  …  0xff, 0xff, 0xee, 0xfd, 0xff, 0xf9, 0x81, 0xe7, 0xff, 0xd8])</code></pre><p>The White Rabbit status:</p><pre><code class="language-julia hljs">wrstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>Checking if any of the PMTs is in high rate veto:</p><pre><code class="language-julia hljs">hrvstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>The number of PMTs in high rate veto:</p><pre><code class="language-julia hljs">count_hrvstatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">16</code></pre><p>Checking if any of the TDC FIFOs were almost full:</p><pre><code class="language-julia hljs">fifostatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><p>Counting the number of TDCs which had FIFO almost full:</p><pre><code class="language-julia hljs">count_fifostatus(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">6</code></pre><p>The rates of each individual PMT channel ordered by increasing channel ID:</p><pre><code class="language-julia hljs">pmtrates(frame)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">31-element StaticArraysCore.SVector{31, Float64} with indices SOneTo(31):
+  14063.351095892936
+  16103.205997541078
+  18438.93689569998
+  21113.45988466659
+  14846.299960355871
+  11634.182658748716
+  16545.391748267397
+  14449.523480635129
+  17946.144988571265
+  17946.144988571265
+      ⋮
+      1.9999999999999995e6
+      1.2619146889603864e6
+      1.8945260615030485e6
+      1.9999999999999995e6
+      1.69997196921803e6
+  65868.39094601915
+      1.0439436440871295e6
+      1.9999999999999995e6
+ 695354.8149531552</code></pre><p>Individual PMT parameters can be accessed as well, by passing the summaryframe and the PMT ID (DAQ channel ID):</p><pre><code class="language-julia hljs">pmtrate(frame, 3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">21113.45988466659</code></pre><p>Here is an example of a simple summary output:</p><pre><code class="language-julia hljs">for pmt in 0:30
+    println(&quot;PMT $(pmt): HRV($(hrvstatus(frame, pmt))) FIFO($(fifostatus(frame, pmt)))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">PMT 0: HRV(false) FIFO(false)
+PMT 1: HRV(false) FIFO(false)
+PMT 2: HRV(false) FIFO(false)
+PMT 3: HRV(true) FIFO(false)
+PMT 4: HRV(false) FIFO(false)
+PMT 5: HRV(false) FIFO(false)
+PMT 6: HRV(false) FIFO(false)
+PMT 7: HRV(false) FIFO(false)
+PMT 8: HRV(false) FIFO(false)
+PMT 9: HRV(false) FIFO(false)
+PMT 10: HRV(true) FIFO(false)
+PMT 11: HRV(true) FIFO(false)
+PMT 12: HRV(true) FIFO(false)
+PMT 13: HRV(true) FIFO(false)
+PMT 14: HRV(true) FIFO(false)
+PMT 15: HRV(true) FIFO(false)
+PMT 16: HRV(true) FIFO(false)
+PMT 17: HRV(true) FIFO(false)
+PMT 18: HRV(true) FIFO(false)
+PMT 19: HRV(true) FIFO(false)
+PMT 20: HRV(true) FIFO(false)
+PMT 21: HRV(true) FIFO(false)
+PMT 22: HRV(false) FIFO(true)
+PMT 23: HRV(true) FIFO(false)
+PMT 24: HRV(false) FIFO(true)
+PMT 25: HRV(false) FIFO(true)
+PMT 26: HRV(false) FIFO(true)
+PMT 27: HRV(true) FIFO(false)
+PMT 28: HRV(false) FIFO(true)
+PMT 29: HRV(false) FIFO(true)
+PMT 30: HRV(true) FIFO(false)</code></pre><h3 id="Timeslices"><a class="docs-heading-anchor" href="#Timeslices">Timeslices</a><a id="Timeslices-1"></a><a class="docs-heading-anchor-permalink" href="#Timeslices" title="Permalink"></a></h3><p>Timeslices are the raw hit data from which summaryslices are derived. Like a summaryslice, a timeslice spans 100 ms, but instead of a single rate byte per PMT it keeps <strong>every individual hit</strong>, grouped per optical module into <a href="../../api/#KM3io.SuperFrame"><code>SuperFrame</code></a>s. The DAQ writes them in up to four streams, ordered by the applied coincidence level:</p><table><tr><th style="text-align: left">Stream</th><th style="text-align: left">Field</th><th style="text-align: left">Content</th></tr><tr><td style="text-align: left">L0</td><td style="text-align: left"><code>.L0</code></td><td style="text-align: left">unfiltered, all hits (only stored for short, dedicated runs)</td></tr><tr><td style="text-align: left">L1</td><td style="text-align: left"><code>.L1</code></td><td style="text-align: left">hits with a loose local coincidence (e.g. on the same module within a few ns)</td></tr><tr><td style="text-align: left">L2</td><td style="text-align: left"><code>.L2</code></td><td style="text-align: left">L1 plus an angular/causality condition (a subset of L1)</td></tr><tr><td style="text-align: left">SN</td><td style="text-align: left"><code>.SN</code></td><td style="text-align: left">the supernova stream (higher-order coincidences)</td></tr></table><p>They are reachable through the <code>.timeslices</code> field of the <code>OnlineTree</code>. Each present stream is a lazy <a href="../../api/#KM3io.TimesliceContainer"><code>TimesliceContainer</code></a> and absent (or empty) streams are <code>nothing</code>:</p><pre><code class="language-julia hljs">using KM3io, KM3NeTTestData
+
+f = ROOTFile(datapath(&quot;online&quot;, &quot;km3net_online.root&quot;))
+f.online.timeslices</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Timeslices (3 L1, 3 SN)</code></pre><p>A single timeslice is read on demand by indexing into a stream; it carries a header and the super frames:</p><pre><code class="language-julia hljs">ts = f.online.timeslices.L1[1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">L1-Timeslice with 69 frames and 49243 hits</code></pre><pre><code class="language-julia hljs">ts.header</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">TimesliceHeader(44, 6633, 512, UTCExtended(1573257651, 200000000, 0))</code></pre><p>Each <a href="../../api/#KM3io.SuperFrame"><code>SuperFrame</code></a> holds the DAQ status words and all the hits recorded by one optical module during the slice:</p><pre><code class="language-julia hljs">frame = ts.frames[1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SuperFrame(module 806451572, 984 hits)</code></pre><p>The hits are lightweight <a href="../../api/#KM3io.TimesliceHit"><code>TimesliceHit</code></a>s, holding the PMT channel, the hit time and the time-over-threshold. The module id is stored once on the super frame rather than on every hit:</p><pre><code class="language-julia hljs">frame.hits[1:5]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5-element Vector{TimesliceHit}:
+ TimesliceHit(channel_id=9, t=486480, tot=27)
+ TimesliceHit(channel_id=28, t=486490, tot=24)
+ TimesliceHit(channel_id=4, t=709517, tot=5)
+ TimesliceHit(channel_id=4, t=709526, tot=7)
+ TimesliceHit(channel_id=9, t=813310, tot=23)</code></pre><p>To calibrate, hand the whole super frame (which carries the module id) to <a href="../../api/#KM3io.calibratetime"><code>calibratetime</code></a>, or to <a href="../../api/#KM3io.calibrate"><code>calibrate</code></a> for the full geometry calibration:</p><pre><code class="language-julia hljs">det = Detector(datapath(&quot;detx&quot;, &quot;km3net_offline.detx&quot;))
+calibratetime(det, frame)[1:5]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5-element Vector{CalibratedSnapshotHit}:
+ CalibratedSnapshotHit(0x30117974, 0x09, 694225.656, 0x1b)
+ CalibratedSnapshotHit(0x30117974, 0x1c, 694237.299, 0x18)
+ CalibratedSnapshotHit(0x30117974, 0x04, 917262.162, 0x05)
+ CalibratedSnapshotHit(0x30117974, 0x04, 917271.162, 0x07)
+ CalibratedSnapshotHit(0x30117974, 0x09, 1.021055656e6, 0x17)</code></pre><p>Containers support indexing, slicing and iteration. A sum over all hits of a stream is most efficient when written behind a function barrier (<code>total_hits</code> below), so that Julia can specialise on the concrete container type:</p><pre><code class="language-julia hljs">total_hits(c) = sum(length(frame.hits) for ts in c for frame in ts.frames)
+total_hits(f.online.timeslices.L1)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">147463</code></pre><p>The supernova stream is accessed in exactly the same way. Because it only keeps higher-order coincidences, many of its super frames (and occasionally whole timeslices) are empty:</p><pre><code class="language-julia hljs">sn = f.online.timeslices.SN[1]
+(nframes = length(sn.frames), nhits = sum(length(fr.hits) for fr in sn.frames; init=0))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(nframes = 64, nhits = 98)</code></pre><p>In addition to the multi-stream <code>km3net_online.root</code> used above, the test data also ships dedicated single-stream samples such as <code>KM3NeT_00000267_00025291_L1.root</code> and <code>KM3NeT_00000267_00025291_SN.root</code>, read the very same way.</p><div class="admonition is-info" id="Note-e9631f6213b8991c"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-e9631f6213b8991c" title="Permalink"></a></header><div class="admonition-body"><p>Depending on the ROOT split level a file was written with, the super frames are stored either as a single member-wise streamed branch (modern files) or fully split into one sub-branch per data member (older files); the <code>timeslice_start</code> time is likewise either a single object leaf or two scalar leaves. <code>KM3io</code> detects and reads all of these transparently, so the access shown above is identical in every case.</p></div></div><h2 id="dst_format"><a class="docs-heading-anchor" href="#dst_format">DST Format</a><a id="dst_format-1"></a><a class="docs-heading-anchor-permalink" href="#dst_format" title="Permalink"></a></h2><p>A DST (&quot;Data Summary Tree&quot;) is a compact summary of MC truth, hits, and reconstruction results produced from offline files. KM3NeT DST files typically contain:</p><ul><li>An <code>E</code> tree identical to the offline event format. It is parsed by <code>OfflineTree</code> and reachable via the <code>.offline</code> field of <code>ROOTFile</code>, exactly like a regular offline file.</li><li>A <code>T</code> tree with one entry per event, holding several summary structs (e.g. <code>MC_evts_summary</code>, <code>MC_trks_summary</code>, <code>hits_summary</code>, <code>cascade_summary</code>, <code>crkv_hits</code>, per-algorithm <code>rec_trks_summary</code>, BDT scores). This tree is exposed as a <a href="../../api/#KM3io.DSTTree"><code>DSTTree</code></a> via the <code>.dst</code> field of <code>ROOTFile</code>.</li><li>An optional <code>headerTree</code> carrying per-source-file metadata when multiple input files have been merged into one DST: the original <code>Head</code>, the run number and the live time. Parsed into a <a href="../../api/#KM3io.DSTRunHeaders"><code>DSTRunHeaders</code></a>.</li><li>An optional <code>dst_history</code> directory recording the input files and the command line that produced the DST. Parsed into a <a href="../../api/#KM3io.DSTHistory"><code>DSTHistory</code></a>.</li><li>An optional <code>HeadDir</code> directory: an alternative on-disk encoding of the global header as a <code>TDirectory</code> of <code>TNamed</code> entries (one per header field, with the field name in <code>fName</code> and the value in <code>fTitle</code>). Parsed into the same <code>MCHeader</code> type as the regular <code>Head</code> object and exposed via the <code>.head_dir</code> property. The <code>Head</code> object and the <code>HeadDir</code> directory are independent; a file can carry one, the other, both, or neither.</li></ul><h3 id="Schema-flexible-access"><a class="docs-heading-anchor" href="#Schema-flexible-access">Schema-flexible access</a><a id="Schema-flexible-access-1"></a><a class="docs-heading-anchor-permalink" href="#Schema-flexible-access" title="Permalink"></a></h3><p>The DST schema varies between productions: not every branch is guaranteed to be present, and additional branches may appear. <code>DSTTree</code> discovers the top-level branches of the <code>T</code> tree at load time and exposes them dynamically as properties on each <a href="../../api/#KM3io.DSTEvent"><code>DSTEvent</code></a>. For composite branches (multiple leaves), the property returns a <a href="../../api/#KM3io.DSTBranchView"><code>DSTBranchView</code></a>, a lazy NamedTuple-like view onto the underlying leaves. For a single scalar branch, the property returns the value directly.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = ROOTFile(datapath(&quot;dst&quot;, &quot;mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.dst.bdt_trk.bdt_casc.10events.root&quot;))
+ROOTFile{OfflineTree (10 events), DSTTree (10 events, 10 branches)}
+
+julia&gt; f.dst
+DSTTree (10 events, 10 branches)
+
+julia&gt; f.dst[1]
+DSTEvent (idx=1, 10 branches)
+
+julia&gt; propertynames(f.dst[1])
+(:bdt_casc, :bdt_trk, :crkv_hits, :sum_casc, :sum_hits, :sum_jpptrack, :sum_mc_evt, :sum_mc_hits, :sum_mc_trks, :sum_trig_hits)
+
+julia&gt; f.dst[1].sum_mc_evt
+DSTBranchView(E_max_gen, E_min_gen, MC_run, livetime_DAQ, livetime_sim, n_gen, weight, weight_noOsc)
+
+julia&gt; f.dst[1].sum_mc_evt.weight
+1.1701346f-5
+
+julia&gt; f.dst[1].sum_mc_evt.MC_run
+41
+
+julia&gt; f.dst[1].bdt_trk
+2-element Vector{Float32}:
+  1.0
+ -2.0</code></pre><p>The <code>sum_mc_trks</code> branch carries a flattened version of the highest-energy MC muon (&quot;tmuon&quot;) in addition to the count and energy totals. Its leaves are exposed under the <code>tmuon_</code> prefix:</p><pre><code class="language-julia-repl hljs">julia&gt; v = f.dst[1].sum_mc_trks
+DSTBranchView(Emax, Etot, Evis, ntrks, tmuon_AAObject_tmuon_TObject_tmuon_fBits, tmuon_AAObject_tmuon_TObject_tmuon_fUniqueID, tmuon_AAObject_tmuon_any, tmuon_AAObject_tmuon_usr, tmuon_AAObject_tmuon_usr_names, tmuon_E, tmuon_comment, tmuon_counter, tmuon_dir_x, tmuon_dir_y, tmuon_dir_z, tmuon_error_matrix, tmuon_fitinf, tmuon_hit_ids, tmuon_id, tmuon_len, tmuon_lik, tmuon_mother_id, tmuon_pos_x, tmuon_pos_y, tmuon_pos_z, tmuon_rec_stages, tmuon_rec_type, tmuon_status, tmuon_t, tmuon_type)
+
+julia&gt; v.ntrks, v.Etot, v.Emax, v.Evis
+(42, 31144.157509773937, 31144.157509773937, 31144.157509773937)
+
+julia&gt; v.tmuon_E, v.tmuon_pos_x, v.tmuon_dir_z
+(31144.157509773937, -410.1658000858246, -0.29218912046986895)</code></pre><p>Similarly, <code>crkv_hits</code> exposes its eight per-shell members directly:</p><pre><code class="language-julia-repl hljs">julia&gt; v = f.dst[1].crkv_hits
+DSTBranchView(closest, furthest, nhits, nhits_100m, nhits_200m, nhits_20m, nhits_50m, sumtot)
+
+julia&gt; v.nhits
+6-element Vector{Int32}:
+   5
+ 147
+   1
+  20
+   1
+  47</code></pre><h3 id="Iteration-and-slicing"><a class="docs-heading-anchor" href="#Iteration-and-slicing">Iteration and slicing</a><a id="Iteration-and-slicing-1"></a><a class="docs-heading-anchor-permalink" href="#Iteration-and-slicing" title="Permalink"></a></h3><p><code>DSTTree</code> implements the array protocol (<code>length</code>, indexing, slicing, iteration):</p><pre><code class="language-julia-repl hljs">julia&gt; length(f.dst)
+10
+
+julia&gt; [e.sum_mc_evt.weight for e in f.dst]
+10-element Vector{Float32}:
+ 1.1701346f-5
+ 0.0060263677
+ 8.647894f-5
+ 0.016838863
+ 0.22624199
+ 9.984811f-6
+ 0.030309035
+ 0.0013151936
+ 2.4152963f-5
+ 0.08190833</code></pre><p>Raw branch access is available by passing the path within the <code>T</code> tree:</p><pre><code class="language-julia-repl hljs">julia&gt; f.dst[&quot;sum_mc_evt/weight&quot;, :]
+10-element Vector{Float32}:
+ 1.1701346f-5
+ 0.0060263677
+ ...</code></pre><h3 id="Branch-name-registry"><a class="docs-heading-anchor" href="#Branch-name-registry">Branch name registry</a><a id="Branch-name-registry-1"></a><a class="docs-heading-anchor-permalink" href="#Branch-name-registry" title="Permalink"></a></h3><p>The constant <a href="../../api/#KM3io.DST_BRANCHES"><code>DST_BRANCHES</code></a> and the helper <a href="../../api/#KM3io.describe_dst_branch"><code>describe_dst_branch</code></a> provide a lookup table of well-known top-level branch names with one-line descriptions. They are purely a discoverability aid; <code>DSTTree</code> exposes whatever branches the file actually contains, regardless of whether they appear in the registry.</p><pre><code class="language-julia-repl hljs">julia&gt; describe_dst_branch(&quot;sum_casc&quot;)
+&quot;Cascade reconstruction summary (cascade_summary): aashower hit/total counts in time windows, inertia tensor metrics. Observed in v6 productions; not documented upstream.&quot;
+
+julia&gt; describe_dst_branch(&quot;not_in_registry&quot;)
+missing</code></pre><h4 id="Known-summary-parameters"><a class="docs-heading-anchor" href="#Known-summary-parameters">Known summary parameters</a><a id="Known-summary-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Known-summary-parameters" title="Permalink"></a></h4><p>The table below is generated from <a href="../../api/#KM3io.DST_BRANCHES"><code>DST_BRANCHES</code></a> at doc-build time. Most descriptions follow the upstream documentation at <a href="https://common.pages.km3net.de/aanet/dstpage.html">https://common.pages.km3net.de/aanet/dstpage.html</a>. To register a new local branch name, push it into <code>DST_BRANCHES</code> after <code>using KM3io</code>.</p><pre><code class="language-julia hljs">using KM3io
+using Markdown
+
+io = IOBuffer()
+println(io, &quot;| Branch | Description |&quot;)
+println(io, &quot;|:-------|:------------|&quot;)
+for k in sort!(collect(keys(DST_BRANCHES)))
+    desc = replace(DST_BRANCHES[k], &quot;_&quot; =&gt; &quot;\\_&quot;)
+    println(io, &quot;| `&quot;, k, &quot;` | &quot;, desc, &quot; |&quot;)
+end
+Markdown.parse(String(take!(io)))</code></pre><div class="markdown"><table><tr><th align="left">Branch</th><th align="left">Description</th></tr><tr><td align="left"><code>bdt</code></td><td align="left">BDT score&#40;s&#41;; typically a small array per event.</td></tr><tr><td align="left"><code>bdt_casc</code></td><td align="left">BDT score&#40;s&#41; for the cascade hypothesis.</td></tr><tr><td align="left"><code>bdt_trk</code></td><td align="left">BDT score&#40;s&#41; for the track hypothesis.</td></tr><tr><td align="left"><code>coords</code></td><td align="left">Celestial coordinates in the J2000 system &#40;Celestial_coordinates&#41;: mjd, plus right-ascension and declination &#91;rad&#93; for the MC neutrino, the track fit and the shower fit.</td></tr><tr><td align="left"><code>crkv_hits</code></td><td align="left">Expected Cherenkov hits binned by distance from vertex &#40;crkv_hits / Cherenkov_hits&#41;: nhits, per-shell counts &#40;20m, 50m, 100m, 200m&#41;, sumtot, closest, furthest &#91;m&#93;.</td></tr><tr><td align="left"><code>feat_Neutrino2020</code></td><td align="left">ORCA Neutrino 2020 reconstruction features &#40;ORCA_Neutrino2020&#41;: Cherenkov-condition trigger statistics &#40;cherCond_*&#41;, gandalf charges and hit counts, Q-based metrics, closest-approach geometry, minimum-DOM-Z, mean-Z hit positions.</td></tr><tr><td align="left"><code>sum_aashower</code></td><td align="left">AAShower reconstruction summary &#40;rec_trks_summary&#41;.</td></tr><tr><td align="left"><code>sum_casc</code></td><td align="left">Cascade reconstruction summary &#40;cascade_summary&#41;: aashower hit/total counts in time windows, inertia tensor metrics. Observed in v6 productions; not documented upstream.</td></tr><tr><td align="left"><code>sum_dusjshower</code></td><td align="left">Dusj shower reconstruction summary &#40;rec_trks_summary&#41;.</td></tr><tr><td align="left"><code>sum_hits</code></td><td align="left">All-hits summary &#40;hits_summary&#41;: nhits, atot, tmin, tmax, ndoms, nlines.</td></tr><tr><td align="left"><code>sum_jgandalf</code></td><td align="left">JGandalf reconstruction summary &#40;rec_trks_summary&#41;.</td></tr><tr><td align="left"><code>sum_jppmuon</code></td><td align="left">Jpp muon track reconstruction summary &#40;rec_trks_summary&#41;: ntrks, cos-zenith bounds, n_within_1deg, up/down counts and likelihoods.</td></tr><tr><td align="left"><code>sum_jppshower</code></td><td align="left">Jpp shower fit quality metrics &#40;jppshower_summary&#41;: prefit-postfit distance and dt, ratio_prefit_fits_near_best, mean_tres_selected_hits, n_selected_hits, n_prefit, n_near_prefit.</td></tr><tr><td align="left"><code>sum_jpptrack</code></td><td align="left">Jpp track reconstruction summary &#40;rec_trks_summary&#41;.</td></tr><tr><td align="left"><code>sum_jshower</code></td><td align="left">Jpp shower reconstruction summary &#40;rec_trks_summary&#41;.</td></tr><tr><td align="left"><code>sum_mc_evt</code></td><td align="left">Per-event MC truth summary &#40;MC_evts_summary&#41;: weight, weight_noOsc, livetime_DAQ &#91;s&#93;, livetime_sim &#91;s&#93;, n_gen, E_min_gen, E_max_gen &#91;GeV&#93;, MC_run.</td></tr><tr><td align="left"><code>sum_mc_hits</code></td><td align="left">MC hits summary &#40;MC_hits_summary or hits_summary&#41;: hit count, total amplitude &#91;pe&#93;, time bounds &#91;ns&#93;, and &#40;for hits_summary&#41; DOM/line counts.</td></tr><tr><td align="left"><code>sum_mc_nu</code></td><td align="left">MC neutrino interaction summary &#40;nu_summary&#41;: Bjorken bx, by; ichan, cc flag; atmospheric flux for numu, nue and oscillated total atm_flux &#91;GeV^-1 s^-1 sr^-1 m^-2&#93;; oscillation probabilities posc_from_numu, posc_from_nue; path_length &#91;km&#93; according to the PREM model.</td></tr><tr><td align="left"><code>sum_mc_trks</code></td><td align="left">MC tracks summary &#40;MC_trks_summary&#41;: ntrks, Etot, Emax, Evis &#91;GeV&#93;, plus the highest-energy MC muon as a flattened Trk &#40;tmuon_*&#41;.</td></tr><tr><td align="left"><code>sum_trig_hits</code></td><td align="left">Triggered-hits summary &#40;hits_summary&#41;.</td></tr></table>
+</div><h3 id="Headers-and-provenance"><a class="docs-heading-anchor" href="#Headers-and-provenance">Headers and provenance</a><a id="Headers-and-provenance-1"></a><a class="docs-heading-anchor-permalink" href="#Headers-and-provenance" title="Permalink"></a></h3><p>A <code>DSTTree</code> exposes four optional header / provenance properties, each populated only when the corresponding object is present in the file:</p><table><tr><th style="text-align: left">Property</th><th style="text-align: left">Source on disk</th><th style="text-align: left">Type</th><th style="text-align: left">Fallback</th></tr><tr><td style="text-align: left"><code>.header</code></td><td style="text-align: left"><code>Head</code> object</td><td style="text-align: left"><code>MCHeader</code></td><td style="text-align: left"><code>missing</code></td></tr><tr><td style="text-align: left"><code>.head_dir</code></td><td style="text-align: left"><code>HeadDir</code> <code>TDirectory</code></td><td style="text-align: left"><code>MCHeader</code></td><td style="text-align: left"><code>nothing</code></td></tr><tr><td style="text-align: left"><code>.run_headers</code></td><td style="text-align: left"><code>headerTree</code> <code>TTree</code></td><td style="text-align: left"><a href="../../api/#KM3io.DSTRunHeaders"><code>DSTRunHeaders</code></a></td><td style="text-align: left"><code>nothing</code></td></tr><tr><td style="text-align: left"><code>.history</code></td><td style="text-align: left"><code>dst_history</code> <code>TDirectory</code></td><td style="text-align: left"><a href="../../api/#KM3io.DSTHistory"><code>DSTHistory</code></a></td><td style="text-align: left"><code>nothing</code></td></tr></table><p><code>.header</code> and <code>.head_dir</code> carry the same kind of information (a <code>Dict{String,String}</code> of header tags wrapped in <code>MCHeader</code>) but read from two distinct on-disk encodings; in files that carry both, the contents are typically identical, but no enforcement is done. The <code>headerTree</code> is per-source-file (one row per merged input), whereas <code>Head</code> / <code>HeadDir</code> are global to the DST.</p><pre><code class="language-julia-repl hljs">julia&gt; f.dst.run_headers
+DSTRunHeaders (1 source files)
+
+julia&gt; f.dst.run_headers.run_numbers
+1-element Vector{Int32}:
+ 1
+
+julia&gt; f.dst.run_headers.livetimes_s
+1-element Vector{Float64}:
+ 3.15576e7
+
+julia&gt; f.dst.run_headers.headers[1]
+MCHeader
+  ...
+
+julia&gt; f.dst.history
+DSTHistory (160 input files)
+
+julia&gt; f.dst.history.input_files[1]
+&quot;/sps/km3net/repo/v6_ARCA115/.../mcv6.gsg_numu-CCHEDIS_1e2-1e8GeV.sirene.jte.jchain.aashower.41.root&quot;</code></pre><p>The <code>.head_dir</code> property behaves like <code>.header</code>: every header field is addressable by its name, with structured ones (e.g. <code>fixedcan</code>, <code>spectrum</code>, <code>DAQ</code>) returning <code>NamedTuple</code>s as defined by the MC header registry.</p><pre><code class="language-julia-repl hljs">julia&gt; f.dst.head_dir
+MCHeader
+  DAQ =&gt; (livetime = 10741,)
+  calibration =&gt; dynamical
+  depth =&gt; 3450
+  detector =&gt; Any[&quot;JSirene&quot;, &quot;00000133/.../KM3NeT_..._offline.detx&quot;]
+  ...
+
+julia&gt; f.dst.head_dir.start_run
+15285
+
+julia&gt; f.dst.head_dir.fixedcan
+(xcenter = 25.3, ycenter = 295, zmin = 0, zmax = 1039.7, radius = 624.7)</code></pre><h2 id="xrootd-access"><a class="docs-heading-anchor" href="#xrootd-access">xrootd access</a><a id="xrootd-access-1"></a><a class="docs-heading-anchor-permalink" href="#xrootd-access" title="Permalink"></a></h2><p>You can access files directly via <code>xrootd</code> by providing the URL on e.g. HPSS. Be aware that URL has to be typed correctly, <code>/</code> instead of <code>//</code> results in an error!), so it should always start with something like <code>root://ccxroot:1999//hpss/...</code>.</p><pre><code class="language-julia hljs">julia&gt; using KM3io
+
+julia&gt; f = ROOTFile(&quot;root://ccxroot:1999//hpss/in2p3.fr/group/km3net/data/raw/sea/KM3NeT_00000132/14/KM3NeT_00000132_00014481.root&quot;)
+ROOTFile{OnlineTree (136335 events, 107632 summaryslices)}</code></pre><p>Now you can use it as if it was on your local filesystem. <code>UnROOT.jl</code> will take care of loading only the needed data from the server.</p><h2 id="oscillations-dataformat"><a class="docs-heading-anchor" href="#oscillations-dataformat">Oscillations Open Dataformat</a><a id="oscillations-dataformat-1"></a><a class="docs-heading-anchor-permalink" href="#oscillations-dataformat" title="Permalink"></a></h2><p>The <a href="https://git.km3net.de/vcarretero/prepare-opendata-orca6-433kty/-/tree/main?ref_type=heads">oscillations dataformat</a> is used to store the responses from a particular oscillations analysis data release. The <code>OSCFile</code> type represents an actual ROOT file and it is essentially a vector of Response like entries (<code>Vector{ResponseMatrixBin}</code>) . Depending on what is stored in the initial ROOT file, neutrinos, data and muons response trees are accessible via the <code>.osc_opendata_nu</code>, <code>.osc_opendata_data</code> and <code>.osc_opendata_muons</code>  fields of the <code>ROOTFile</code> type respectively.</p><h3 id="ResponseMatrixBin"><a class="docs-heading-anchor" href="#ResponseMatrixBin">ResponseMatrixBin</a><a id="ResponseMatrixBin-1"></a><a class="docs-heading-anchor-permalink" href="#ResponseMatrixBin" title="Permalink"></a></h3><p>The <code>ResponseMatrixBin</code> stores individual directions of a bin in order to fill a histogram.</p><pre><code class="language-julia-repl hljs">julia&gt; using KM3io, KM3NeTTestData
+
+julia&gt; f = OSCFile(datapath(&quot;oscillations&quot;, &quot;ORCA6_433kt-y_opendata_v0.4_testdata.root&quot;))
+OSCFile{OscOpenDataTree of Neutrinos (59301 events), OscOpenDataTree of Data (106 events), OscOpenDataTree of Muons (99 events)}
+
+julia&gt; f.osc_opendata_nu
+OscOpenDataTree (59301 events)
+
+julia&gt; f.osc_opendata_nu[1]
+KM3io.ResponseMatrixBinNeutrinos(10, 1, 30, 18, -12, 1, 1, 52.25311519561337, 2730.388047646041)
+
+julia&gt; dump(f.osc_opendata_nu[1])
+KM3io.ResponseMatrixBinNeutrinos
+  E_reco_bin: Int64 10
+  Ct_reco_bin: Int64 1
+  E_true_bin: Int64 30
+  Ct_true_bin: Int64 18
+  Flav: Int16 -12
+  IsCC: Int16 1
+  AnaClass: Int16 1
+  W: Float64 52.25311519561337
+  Werr: Float64 2730.388047646041
+
+julia&gt; f.osc_opendata_data[1]
+KM3io.ResponseMatrixBinData(2, 6, 1, 2.0)
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Home</a><a class="docs-footer-nextpage" href="../multi-threading/">Multi-Threading »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 5 June 2026 11:19">Friday 5 June 2026</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
