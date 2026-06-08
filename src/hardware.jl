@@ -21,6 +21,7 @@ function Base.isapprox(lhs::PMT, rhs::PMT; kwargs...)
     for field in [:pos, :dir, :t₀]
         isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
     end
+    true
 end
 
 """
@@ -113,8 +114,11 @@ function Base.isapprox(lhs::DetectorModule, rhs::DetectorModule; kwargs...)
     for field in [:pos, :q, :t₀]
         isapprox(getfield(lhs, field), getfield(rhs, field); kwargs...) || return false
     end
-    for (lhs_pmt, rhs_pmt) in zip(lhs.pmts, rhs.pmts)
-        isapprox(lhs_pmt, rhs_pmt; kwargs...)
+    length(lhs.pmts) == length(rhs.pmts) || return false
+    rhs_pmts = Dict(pmt.id => pmt for pmt in rhs.pmts)
+    for lhs_pmt in lhs.pmts
+        haskey(rhs_pmts, lhs_pmt.id) || return false
+        isapprox(lhs_pmt, rhs_pmts[lhs_pmt.id]; kwargs...) || return false
     end
     true
 end

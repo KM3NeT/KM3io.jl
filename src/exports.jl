@@ -171,6 +171,18 @@ isnorthern,        # reexport from KM3Base
 haversine,         # reexport from KM3Base
 rotmatrix,         # reexport from KM3Base
 
+# Diff
+compare,
+Diff,
+FieldChange,
+isidentical,
+ndiffs,
+difftrait,
+diffkey,
+DiffLeaf,
+DiffStruct,
+DiffContainer,
+
 # Utils
 categorize,
 is3dmuon,
