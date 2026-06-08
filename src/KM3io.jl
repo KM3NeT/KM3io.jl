@@ -5,7 +5,7 @@ import Statistics: mean
 using KM3Base
 using Dates
 using LinearAlgebra
-using Printf: @printf
+using Printf: @printf, @sprintf
 using Dates: DateTime, datetime2unix, unix2datetime
 using Sockets
 using UUIDs
@@ -87,6 +87,7 @@ include("tools/reconstruction.jl")
 include("tools/math.jl")
 include("tools/coords.jl")
 include("tools/helpers.jl")
+include("tools/diff.jl")
 
 include("physics.jl")
 
