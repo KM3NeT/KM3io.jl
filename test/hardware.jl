@@ -163,12 +163,29 @@ end
             detx_locs = getfield(detx, field)
             datx_locs = getfield(datx, field)
             for key in keys(detx_locs)
-                @test isapprox(detx_locs[key], datx_locs[key]; atol=1e-06)
+                # atol covers the ~4e-6 PMT direction precision in the detx; the
+                # module isapprox now compares PMTs too (see the isapprox testset)
+                @test isapprox(detx_locs[key], datx_locs[key]; atol=1e-05)
             end
             continue
         end
         @test getfield(detx, field) == getfield(datx, field)
     end
+end
+@testset "isapprox" begin
+    det = Detector(datapath("detx", "KM3NeT_00000133_20221025.detx"))
+    m = first(Iterators.filter(isopticalmodule, det))
+    p = first(m.pmts)
+
+    @test isapprox(p, p) === true
+    p2 = PMT(p.id, p.pos, p.dir, p.t₀ + 5.0, p.status)
+    @test !isapprox(p, p2)
+
+    @test isapprox(m, m)
+    pmts2 = copy(m.pmts)
+    pmts2[1] = p2
+    m2 = DetectorModule(m.id, m.pos, m.location, m.n_pmts, pmts2, m.q, m.status, m.t₀)
+    @test !isapprox(m, m2)  # a differing PMT must make the modules differ
 end
 @testset "hydrophones" begin
     hydrophones = read(joinpath(SAMPLES_DIR, "hydrophone.txt"), Hydrophone)

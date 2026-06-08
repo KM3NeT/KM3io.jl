@@ -130,6 +130,20 @@ StringMechanicsParameters
 read(::AbstractString, ::Type{StringMechanics})
 ```
 
+## Comparing Objects
+```@docs
+compare
+Diff
+FieldChange
+isidentical
+ndiffs
+difftrait
+diffkey
+DiffLeaf
+DiffStruct
+DiffContainer
+```
+
 ## Optical Data
 ```@docs
 
