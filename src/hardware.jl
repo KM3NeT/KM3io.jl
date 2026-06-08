@@ -329,10 +329,10 @@ struct Detector
     utm_ref_grid::String
     n_modules::Int32
     modules::Dict{Int32, DetectorModule}
-    locations::Dict{Tuple{Int, Int}, DetectorModule}
+    locations::Dict{Tuple{Int, Int}, Int32}
     strings::Vector{Int}
     comments::Vector{String}
-    _pmt_id_module_map::Dict{Int, DetectorModule}
+    _pmt_id_module_id_map::Dict{Int, Int32}
 end
 
 """
@@ -354,7 +354,7 @@ function Base.getindex(d::Detector, module_id::Integer)
     error("Module with ID $(module_id) not found.")
 end
 function Base.getindex(d::Detector, string::Integer, floor::Integer)
-    haskey(d.locations, (string, floor)) && return d.locations[string, floor]
+    haskey(d.locations, (string, floor)) && return d.modules[d.locations[string, floor]]
     available_strings = join(d.strings, ", ", " and ")
     !(hasstring(d, string)) && error("String $(string) not found. Available strings: $(available_strings).")
     error("String $(string) has no module at floor $(floor).")
@@ -390,7 +390,7 @@ Return the detector module for a given DAQ hit.
 """
 Return the detector module for a given MC hit.
 """
-@inline getmodule(d::Detector, hit::AbstractMCHit) = d._pmt_id_module_map[hit.pmt_id]
+@inline getmodule(d::Detector, hit::AbstractMCHit) = d.modules[d._pmt_id_module_id_map[hit.pmt_id]]
 Base.getindex(d::Detector, string::Int, ::Colon) = sort!(filter(m->m.location.string == string, modules(d)))
 Base.getindex(d::Detector, string::Int, floors::T) where T<:Union{AbstractArray, UnitRange} = [d[string, floor] for floor in sort(floors)]
 Base.getindex(d::Detector, ::Colon, floor::Int) = sort!(filter(m->m.location.floor == floor, modules(d)))
@@ -488,9 +488,9 @@ function read_datx(io::IO)
     n_modules = read(io, Int32)
 
     modules = Dict{Int32, DetectorModule}()
-    locations = Dict{Tuple{Int, Int}, DetectorModule}()
+    locations = Dict{Tuple{Int, Int}, Int32}()
     strings = Int[]
-    _pmt_id_module_map = Dict{Int, DetectorModule}()
+    _pmt_id_module_id_map = Dict{Int, Int32}()
     for _ in 1:n_modules
         module_id = read(io, Int32)
         location = Location(read(io, Int32), read(io, Int32))
@@ -512,13 +512,13 @@ function read_datx(io::IO)
             push!(pmts, PMT(pmt_id, pmt_pos, pmt_dir, pmt_t₀, pmt_status))
         end
         m = DetectorModule(module_id, module_pos, location, n_pmts, pmts, q, module_status, module_t₀)
-        for pmt in pmts
-            _pmt_id_module_map[pmt.id] = m
-        end
         modules[module_id] = m
-        locations[(location.string, location.floor)] = m
+        locations[(location.string, location.floor)] = module_id
+        for pmt in pmts
+            _pmt_id_module_id_map[pmt.id] = module_id
+        end
     end
-    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
+    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_id_map)
 end
 @inline _readstring(io) = String(read(io, read(io, Int32)))
 
@@ -558,9 +558,9 @@ function read_detx(io::IO)
     utm_position = UTMPosition(easting, northing, zone_number, zone_letter, z)
 
     modules = Dict{Int32, DetectorModule}()
-    locations = Dict{Tuple{Int, Int}, DetectorModule}()
+    locations = Dict{Tuple{Int, Int}, Int32}()
     strings = Int32[]
-    _pmt_id_module_map = Dict{Int, DetectorModule}()
+    _pmt_id_module_id_map = Dict{Int, Int32}()
 
     # a counter to work around the floor == -1 bug in some older DETX files
     floor_counter = 1
@@ -635,15 +635,15 @@ function read_detx(io::IO)
 
         m = DetectorModule(module_id, pos, Location(string, floor), n_pmts, pmts, q, status, t₀)
         modules[module_id] = m
-        locations[(string, floor)] = m
+        locations[(string, floor)] = Int32(module_id)
         for pmt in pmts
-            _pmt_id_module_map[pmt.id] = m
+            _pmt_id_module_id_map[pmt.id] = Int32(module_id)
         end
 
         idx += n_pmts + 1
     end
 
-    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_map)
+    Detector(version, det_id, validity, utm_position, lonlat(utm_position), utm_ref_grid, n_modules, modules, locations, strings, comments, _pmt_id_module_id_map)
 end
 
 
@@ -773,8 +773,8 @@ model of the string.
 
 """
 struct StringMechanicsParameters
-    a::Float64
-    b::Float64
+    a::Float64  # logarithmic term
+    b::Float64  # linear term
 end
 
 """
@@ -816,6 +816,51 @@ function read(filename::AbstractString, T::Type{StringMechanics})
     end
     T(StringMechanicsParameters(default_a, default_b), stringparams)
 end
+
+"""
+Canonical (factory reference) PMT directions for a KM3NeT optical module,
+ordered by DAQ channel (TDC) index 0–30. From `JDetectorSupportkit.hh` and
+the `JKM3NeT_t` address map in Jpp.
+
+The ordering follows the KM3NeT standard address map (`JDetectorBuilder_t<JKM3NeT_t>`)
+which maps PMT numbers 1–31 to TDC channels 0–30.  This is the order in which
+PMTs appear in DETX/DATX files produced by Jpp, and the order used by
+`reference_rotation` when computing the rotation from the canonical frame to
+the static detector geometry.
+"""
+const CANONICAL_PMT_DIRECTIONS = Direction{Float64}[
+    Direction(+0.000, -0.832, +0.555),  # ch  0  (PMT 29)
+    Direction(-0.955, +0.000, +0.295),  # ch  1  (PMT 24)
+    Direction(-0.478, -0.827, +0.295),  # ch  2  (PMT 23)
+    Direction(+0.478, -0.827, +0.295),  # ch  3  (PMT 22)
+    Direction(+0.720, -0.416, +0.555),  # ch  4  (PMT 28)
+    Direction(-0.720, -0.416, +0.555),  # ch  5  (PMT 30)
+    Direction(+0.955, +0.000, +0.295),  # ch  6  (PMT 21)
+    Direction(-0.720, +0.416, +0.555),  # ch  7  (PMT 31)
+    Direction(+0.720, +0.416, +0.555),  # ch  8  (PMT 27)
+    Direction(+0.000, +0.832, +0.555),  # ch  9  (PMT 26)
+    Direction(+0.478, +0.827, +0.295),  # ch 10  (PMT 20)
+    Direction(-0.478, +0.827, +0.295),  # ch 11  (PMT 25)
+    Direction(+0.000, +0.955, -0.295),  # ch 12  (PMT 14)
+    Direction(+0.416, +0.720, -0.555),  # ch 13  (PMT  8)
+    Direction(+0.000, +0.527, -0.850),  # ch 14  (PMT  2)
+    Direction(+0.827, +0.478, -0.295),  # ch 15  (PMT 15)
+    Direction(-0.827, +0.478, -0.295),  # ch 16  (PMT 19)
+    Direction(-0.416, +0.720, -0.555),  # ch 17  (PMT 13)
+    Direction(-0.456, +0.263, -0.850),  # ch 18  (PMT  7)
+    Direction(+0.456, +0.263, -0.850),  # ch 19  (PMT  3)
+    Direction(-0.832, +0.000, -0.555),  # ch 20  (PMT 12)
+    Direction(+0.832, +0.000, -0.555),  # ch 21  (PMT  9)
+    Direction(+0.000, +0.000, -1.000),  # ch 22  (PMT  1, bottom)
+    Direction(+0.827, -0.478, -0.295),  # ch 23  (PMT 16)
+    Direction(+0.000, -0.527, -0.850),  # ch 24  (PMT  5)
+    Direction(+0.456, -0.263, -0.850),  # ch 25  (PMT  4)
+    Direction(-0.456, -0.263, -0.850),  # ch 26  (PMT  6)
+    Direction(-0.827, -0.478, -0.295),  # ch 27  (PMT 18)
+    Direction(-0.416, -0.720, -0.555),  # ch 28  (PMT 11)
+    Direction(+0.416, -0.720, -0.555),  # ch 29  (PMT 10)
+    Direction(+0.000, -0.955, -0.295),  # ch 30  (PMT 17)
+]
 
 struct PMTParameters
     QE::Float64  # probability of underamplified hit
