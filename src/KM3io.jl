@@ -30,8 +30,6 @@ using StaticArrays: FieldVector, @SArray, SVector, Size
 import StaticArrays: similar_type
 import UnROOT
 
-using HDF5
-
 
 include("exports.jl")
 
@@ -97,6 +95,7 @@ include("extensions.jl")
 
 function __init__()
     @static if !isdefined(Base, :get_extension)
+        @require HDF5="f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f" include("../ext/KM3ioHDF5Ext.jl")
         @require KM3DB="a9013879-bb44-4449-9e5b-40f9ac008ab0" include("../ext/KM3ioKM3DBExt.jl")
         @require KM3Aux="a0704f48-f225-4b05-83f3-c70968ad2d8c" include("../ext/KM3ioKM3AuxExt.jl")
     end
