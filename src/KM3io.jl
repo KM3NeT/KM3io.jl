@@ -31,7 +31,6 @@ import StaticArrays: similar_type
 import UnROOT
 
 using HDF5
-using Corpuscles
 
 
 include("exports.jl")
