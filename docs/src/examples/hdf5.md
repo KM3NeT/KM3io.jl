@@ -10,6 +10,7 @@ into different datasets.
 
 ```@example 1
 using KM3io
+using HDF5  # loads the KM3ioHDF5Ext extension which provides the H5File I/O
 using Random
 
 Random.seed!(23)  # to make things reproducible ;)

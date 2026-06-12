@@ -61,12 +61,13 @@ function Base.show(io::IO, f::OSCFile)
 
 end
 
-const NUE_PDGID = Particle("nu(e)0").pdgid.value
-const ANUE_PDGID = Particle("~nu(e)0").pdgid.value
-const NUMU_PDGID = Particle("nu(mu)0").pdgid.value
-const ANUMU_PDGID = Particle("~nu(mu)0").pdgid.value
-const NUTAU_PDGID = Particle("nu(tau)0").pdgid.value
-const ANUTAU_PDGID = Particle("~nu(tau)0").pdgid.value
+# PDG Monte Carlo particle numbering scheme codes for the neutrino flavours.
+const NUE_PDGID = Int32(12)    # nu(e)0
+const ANUE_PDGID = Int32(-12)  # ~nu(e)0
+const NUMU_PDGID = Int32(14)   # nu(mu)0
+const ANUMU_PDGID = Int32(-14) # ~nu(mu)0
+const NUTAU_PDGID = Int32(16)  # nu(tau)0
+const ANUTAU_PDGID = Int32(-16) # ~nu(tau)0
 
 """
 

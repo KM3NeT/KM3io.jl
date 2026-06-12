@@ -1,15 +1,5 @@
 # Cherenkov times
 
-```@setup 1
-using PGFPlotsX
-savefigs = (figname, obj) -> begin
-    pgfsave(figname * ".pdf", obj)
-    run(`pdftocairo -svg -l  1 $(figname * ".pdf") $(figname * ".svg")`)
-    pgfsave(figname * ".tex", obj);
-    return nothing
-end
-```
-
 In this example, we will pick the best reconstructed muon (from the Jpp muon
 reconstruction chain `JMuon`) in each event and calculate the Cherenkov hit time
 residuals for each triggered hit.
@@ -50,20 +40,13 @@ cherenkov(best_muon, filter(triggered, evt.hits))
 To obtain more statistics, we iterate through all the events and calculate the
 Cherenkov time residuals for each set of hits based on the best reconstruction
 track. We fill the time residuals in a 1D histogram using the
-[FHist](https://github.com/Moelf/FHist.jl) package.
-
-
-!!! note
-
-    This example uses [PGFPlotsX](https://github.com/KristofferC/PGFPlotsX.jl)
-    which is a wrapper for the LaTeX library PGFPlots. Feel free to adapt the
-    example to use your favourite plotting library.
-
+[FHist](https://github.com/Moelf/FHist.jl) package and plot it with
+[`Makie`](https://makie.org):
 
 ```@example 1
 using KM3io, KM3NeTTestData
 using FHist
-using PGFPlotsX
+using CairoMakie
 
 f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
 Δts = Hist1D(; counttype=Int, binedges=-10:50)
@@ -76,18 +59,8 @@ for evt ∈ f.offline
     end
 end
 
-axis = @pgf Axis(
-    {
-        ybar, const_plot, grid,
-        xlabel=raw"\Delta t / ns",
-        ylabel="counts",
-    },
-    PlotInc(Coordinates(bincenters(Δts), bincounts(Δts)), raw"\closedcycle")
-)
-axis
-savefigs("cherenkov", ans) # hide
+fig = Figure(size=(600, 400), fontsize=16)
+ax = Axis(fig[1, 1], xlabel="Δt / ns", ylabel="counts")
+barplot!(ax, bincenters(Δts), bincounts(Δts))
+fig
 ```
-
-[\[.pdf\]](cherenkov.pdf), [\[generated .tex\]](cherenkov.tex)
-
-![](cherenkov.svg)

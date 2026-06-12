@@ -1,10 +1,9 @@
-# HDF5
+# HDF5 (the methods live in the KM3ioHDF5Ext extension, loaded with `using HDF5`)
 export
 
 H5CompoundDataset,
 H5File,
 addmeta,
-create_dataset,
 
 # Basic types
 Direction,     # reexport from KM3Base

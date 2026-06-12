@@ -1,6 +1,9 @@
 using Documenter
 using DocumenterInterLinks
 using KM3io
+using HDF5  # triggers the KM3ioHDF5Ext extension so its docstrings are available
+
+const KM3ioHDF5Ext = Base.get_extension(KM3io, :KM3ioHDF5Ext)
 
 links = InterLinks(
     "KM3Base" => "https://common.pages.km3net.de/KM3Base.jl/dev/"
@@ -9,7 +12,7 @@ links = InterLinks(
 @show links["KM3Base"]
 
 makedocs(;
-    modules = [KM3io],
+    modules = [KM3io, KM3ioHDF5Ext],
     sitename = "KM3io.jl",
     authors = "Tamas Gal",
     format = Documenter.HTML(;
