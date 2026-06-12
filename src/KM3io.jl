@@ -92,6 +92,8 @@ include("displays.jl")
 
 include("extensions.jl")
 
+include("precompile.jl")
+
 
 function __init__()
     @static if !isdefined(Base, :get_extension)
