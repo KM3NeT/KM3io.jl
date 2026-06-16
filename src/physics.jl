@@ -17,22 +17,127 @@ end
 
 """
 
+Water medium properties relevant for Cherenkov light. `n_phase` is the phase
+index of refraction, which sets the Cherenkov angle (`cos θ_c = 1/n_phase`),
+while `n_group` is the group index of refraction, which sets the photon group
+velocity (`v = c/n_group`).
+
+The default values are the ones used in `aanet`: `n_phase = 1.3499` and
+`n_group = n_phase + 0.0298`, where the latter offset accounts for the
+dispersion between phase and group velocity.
+
+# Examples
+```julia
+Water()                                # aanet defaults
+Water(n = 1.35)                        # set the phase index, derive the group index
+Water(n_phase = 1.35, n_group = 1.38)  # set both indices independently
+```
+
+See also [`cherenkov`](@ref).
+"""
+struct Water
+    n_phase::Float64
+    n_group::Float64
+end
+function Water(; n=Constants.WATER_INDEX,
+                n_phase=n,
+                n_group=n_phase + Constants.DN_DL,
+                λ=nothing,
+                P=Constants.KM3NET_AMBIENT_PRESSURE)
+    λ === nothing && return Water(n_phase, n_group)
+    Water(_index_phase(λ, P), _index_group(λ, P))
+end
+
+# Jpp dispersion model (JDispersion.hh): phase index of refraction at wavelength
+# λ [nm] and ambient pressure P [atm].
+function _index_phase(λ, P)
+    x = 1.0 / λ
+    Constants.DISPERSION_A0 + Constants.DISPERSION_A1 * P +
+        x * (Constants.DISPERSION_A2 + x * (Constants.DISPERSION_A3 + x * Constants.DISPERSION_A4))
+end
+# Dispersion dn/dλ of the phase index (pressure independent).
+function _dispersion_phase(λ)
+    x = 1.0 / λ
+    -x * x * (Constants.DISPERSION_A2 + x * (2 * Constants.DISPERSION_A3 + x * 3 * Constants.DISPERSION_A4))
+end
+# Group index of refraction n_g = n / (1 + (dn/dλ)·λ/n).
+function _index_group(λ, P)
+    n = _index_phase(λ, P)
+    n / (1.0 + _dispersion_phase(λ) * λ / n)
+end
+
+"""
+    pressure_at_depth(depth)
+
+Hydrostatic ambient pressure [atm] at the given `depth` [m] of sea water, using
+the mean sea water density (`Constants.DENSITY_SEA_WATER`) and standard gravity
+on top of one standard atmosphere at the surface.
+"""
+function pressure_at_depth(depth)
+    g = 9.80665                            # standard gravity [m/s^2]
+    ρ = Constants.DENSITY_SEA_WATER * 1e3  # [g/cm^3] -> [kg/m^3]
+    P0 = 101325.0                          # standard atmosphere [Pa]
+    (P0 + ρ * g * depth) / P0
+end
+
+"""
+
+[`Water`](@ref) properties for the KM3NeT/ORCA site, evaluated with the Jpp
+dispersion model at the reference wavelength (`Constants.REFERENCE_WAVELENGTH`,
+460 nm) and the ambient pressure for a sea water depth of 2440 m.
+
+"""
+const WaterORCA = Water(λ=Constants.REFERENCE_WAVELENGTH, P=pressure_at_depth(2440.0))
+
+"""
+
+[`Water`](@ref) properties for the KM3NeT/ARCA site, evaluated with the Jpp
+dispersion model at the reference wavelength (`Constants.REFERENCE_WAVELENGTH`,
+460 nm) and the ambient pressure for a sea water depth of 3450 m.
+
+"""
+const WaterARCA = Water(λ=Constants.REFERENCE_WAVELENGTH, P=pressure_at_depth(3450.0))
+
+"""
+
 Calculates the parameters of cherenkov photons emitted from a track and hitting
 the PMTs represented as (calibrated) hits. The returned cherenkov photons hold
 information about the closest distance to track, the time residual, arrival
 time, impact angle, photon travel distance, track travel distance and photon
 travel direction. See [`CherenkovPhoton`](@ref) for more information.
 
+The optional `water` argument ([`Water`](@ref)) sets the index of refraction
+used for the Cherenkov angle (phase index) and for the photon group velocity
+(group index). It defaults to the `aanet` values.
+
+For the hit-based methods, the keyword `correct_slew` (default `false`) controls
+whether a time-over-threshold slewing correction is applied to the hit time
+before computing the time residual `Δt`, by subtracting `slew(hit.tot)` (see
+[`slew`](@ref)). Keep it at `false` for hits whose time already includes the
+slewing correction (e.g. offline hits written by Jpp with slewing enabled) to
+avoid a double correction, and set it to `true` for slewing-free calibrated
+times (such as those produced by [`calibratetime`](@ref) or [`calibrate`](@ref))
+to follow the Jpp reconstruction convention.
+
 """
-cherenkov(track, hits::Vector{T}) where {T<:AbstractCalibratedHit} = [cherenkov(track, h) for h ∈ hits]
-cherenkov(track, hit::AbstractCalibratedHit) = cherenkov(track, hit.pos; dir=hit.dir, t=hit.t)
-function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, t=0)
+function cherenkov(track, hits::AbstractVector{<:AbstractCalibratedHit}, water::Water=Water(); correct_slew=false)
+    [cherenkov(track, hit, water; correct_slew=correct_slew) for hit in hits]
+end
+function cherenkov(track, hit::AbstractCalibratedHit, water::Water=Water(); correct_slew=false)
+    cherenkov(track, hit.pos, water; dir=hit.dir, t=time(hit; correct_slew=correct_slew))
+end
+function cherenkov(track, pos::Position, water::Water=Water(); dir::Union{Direction,Missing}=missing, t=0)
+    cos_thetac = 1.0 / water.n_phase
+    sin_thetac = √(1.0 - cos_thetac * cos_thetac)
+    tan_thetac = sin_thetac / cos_thetac
+    v_light_water = Constants.C_LIGHT / water.n_group
+
     V = pos - track.pos
     L = V ⋅ track.dir
     d_closest = √((V ⋅ V) - L .* L)
-    d_photon = d_closest / Constants.SIN_CHERENKOV
-    d_track = L - d_closest / Constants.TAN_CHERENKOV
-    _t = track.t + d_track / Constants.C_LIGHT + d_photon / Constants.V_LIGHT_WATER
+    d_photon = d_closest / sin_thetac
+    d_track = L - d_closest / tan_thetac
+    _t = track.t + d_track / Constants.C_LIGHT + d_photon / v_light_water
     Δt = t - _t
     _pos = V - (d_track * track.dir)
     _dir = normalize(_pos)
@@ -47,9 +152,9 @@ function cherenkov(track, pos::Position; dir::Union{Direction,Missing}=missing, 
         _dir
     )
 end
-(track::Track)(hit::AbstractCalibratedHit) = cherenkov(track, hit)
-(track::Track)(hit::Position; dir::Union{Direction, Missing}=missing, t=0) = cherenkov(track, hit; dir=dir, t=t)
-(track::Track)(hits::Vector{CalibratedHit}) = cherenkov(track, hits)
+(track::Track)(hit::AbstractCalibratedHit, water::Water=Water(); correct_slew=false) = cherenkov(track, hit, water; correct_slew=correct_slew)
+(track::Track)(hit::Position, water::Water=Water(); dir::Union{Direction, Missing}=missing, t=0) = cherenkov(track, hit, water; dir=dir, t=t)
+(track::Track)(hits::AbstractVector{<:AbstractCalibratedHit}, water::Water=Water(); correct_slew=false) = cherenkov(track, hits, water; correct_slew=correct_slew)
 
 """
 

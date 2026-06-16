@@ -39,6 +39,19 @@ const C_LIGHT = 299792458e-9  # m/ns
 const V_LIGHT_WATER = C_LIGHT / (WATER_INDEX + DN_DL)
 const C_WATER = C_LIGHT / INDEX_OF_REFRACTION_WATER
 
+# Jpp light dispersion model (JDispersion, Bailey 2002): the index of refraction
+# n(lambda, P) is a polynomial in x = 1/lambda, with the wavelength lambda in [nm]
+# and the ambient pressure P in [atm].
+const DISPERSION_A0 = 1.3201    # offset
+const DISPERSION_A1 = 1.4e-5    # dn/dP
+const DISPERSION_A2 = 16.2566   # coefficients of the polynomial in 1/lambda
+const DISPERSION_A3 = -4383.0
+const DISPERSION_A4 = 1.1455e6
+# Reference wavelength [nm] at which the effective water index is evaluated. It is
+# chosen such that the dispersion model reproduces the aanet/Jpp average indices
+# (n_phase ~ 1.3499, n_group ~ 1.3797) at the nominal ambient pressure.
+const REFERENCE_WAVELENGTH = 460.0
+
 # DAQ related values, which are not yet present in the km3net-dataformat repository.
 const MINIMAL_RATE_HZ = 2.0e3
 const MAXIMAL_RATE_HZ = 2.0e6

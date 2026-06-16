@@ -177,6 +177,9 @@ slerp
 ```@docs
 cherenkov
 CherenkovPhoton
+Water
+WaterORCA
+WaterARCA
 K40Rates
 ```
 
