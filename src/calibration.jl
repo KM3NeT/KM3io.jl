@@ -139,7 +139,10 @@ function floordist(det::Detector)
 end
 
 """
-Return the time slewing for a ToT.
+Return the time slewing [ns] for a given time-over-threshold (ToT) [ns].
+
+This implements Jpp's default slewing table (`JTimeSlewing<-1>`) and does not
+apply the per-PMT-type-dependent variants.
 """
 slew(tot::Integer) = @inbounds ifelse(tot < 256, SLEWS[tot + 1], SLEWS[end])
 slew(tot::AbstractFloat) = slew(Int(floor(tot)))  # Jpp convention, not rounding but casting to int

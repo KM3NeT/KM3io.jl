@@ -194,6 +194,9 @@ triggered,
 
 # Physics and math helpers
 CherenkovPhoton,
+Water,
+WaterORCA,
+WaterARCA,
 azimuth,          # reexport from KM3Base
 true_azimuth,     # reexport from KM3Base
 cherenkov,
