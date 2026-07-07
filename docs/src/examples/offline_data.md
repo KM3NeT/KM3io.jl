@@ -68,6 +68,17 @@ and have a look at its contents:
 evt.hits
 ```
 
+### Skipping branches
+
+If you only need part of each event, [`eachevent`](@ref) skips the
+deserialisation of whole sub-collections (`:hits`, `:mc_hits`, `:trks`,
+`:mc_trks`). Skipped collections come back empty and their ROOT baskets are never
+read, which is much faster when, for example, only the MC tracks are needed:
+
+```@example 1
+[length(e.mc_trks) for e ∈ eachevent(f.offline; skip=(:hits, :mc_hits, :trks))]
+```
+
 Let's close this file properly:
 
 ```@example 1

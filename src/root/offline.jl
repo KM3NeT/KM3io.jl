@@ -370,7 +370,7 @@ function Base.getindex(f::OfflineTree, b::AbstractString, ::Colon)
 end
 Base.getindex(f::OfflineTree, r::UnitRange) = [f[idx] for idx ∈ r]
 Base.getindex(f::OfflineTree, mask::BitArray) = [f[idx] for (idx, selected) ∈ enumerate(mask) if selected]
-function Base.getindex(f::OfflineTree, idx::Integer)::Evt
+function _evt(f::OfflineTree, idx::Integer, skip)::Evt
     idx > length(f) && throw(BoundsError(f, idx))
     e = f._t[idx]  # the event as NamedTuple: struct of arrays
 
@@ -383,83 +383,10 @@ function Base.getindex(f::OfflineTree, idx::Integer)::Evt
         usr_dct = Dict{String, Float64}()
     end
 
-    n = length(e.mc_hits_id)
-    mc_hits = sizehint!(Vector{CalibratedMCHit}(), n)
-    for i ∈ 1:n
-        push!(mc_hits,
-              CalibratedMCHit(
-                  e.mc_hits_pmt_id[i],
-                  e.mc_hits_t[i],
-                  e.mc_hits_a[i],
-                  e.mc_hits_type[i],
-                  e.mc_hits_origin[i],
-                  Position(e.mc_hits_pos_x[i], e.mc_hits_pos_y[i], e.mc_hits_pos_z[i]),
-                  Direction(e.mc_hits_dir_x[i], e.mc_hits_dir_y[i], e.mc_hits_dir_z[i])
-              )
-        )
-    end
-
-    n = length(e.hits_id)
-    hits = sizehint!(Vector{CalibratedHit}(), n)
-    for i ∈ 1:n
-        push!(hits,
-              CalibratedHit(
-                  e.hits_dom_id[i],
-                  e.hits_channel_id[i],
-                  e.hits_tdc[i],
-                  e.hits_tot[i],
-                  e.hits_trig[i],
-                  e.hits_t[i],
-                  Position(e.hits_pos_x[i], e.hits_pos_y[i], e.hits_pos_z[i]),
-                  Direction(e.hits_dir_x[i], e.hits_dir_y[i], e.hits_dir_z[i])
-              )
-        )
-    end
-
-    n = length(e.mc_trks_id)
-    mc_trks = sizehint!(Vector{MCTrk}(), n)
-    # legacy format support
-    skip_mc_trks_status = !hasproperty(e, :mc_trks_status)
-    skip_mc_trks_mother_id = !hasproperty(e, :mc_trks_mother_id)
-    skip_mc_trks_counter = !hasproperty(e, :mc_trks_counter)
-    for i ∈ 1:n
-        push!(mc_trks,
-            MCTrk(
-                e.mc_trks_id[i],
-                Position(e.mc_trks_pos_x[i], e.mc_trks_pos_y[i], e.mc_trks_pos_z[i]),
-                Direction(e.mc_trks_dir_x[i], e.mc_trks_dir_y[i], e.mc_trks_dir_z[i]),
-                e.mc_trks_t[i],
-                e.mc_trks_E[i],
-                e.mc_trks_len[i],
-                e.mc_trks_type[i],
-                skip_mc_trks_status ? 0 : e.mc_trks_status[i],
-                skip_mc_trks_mother_id ? 0 : e.mc_trks_mother_id[i],
-                skip_mc_trks_counter ? 0 : e.mc_trks_counter[i],
-            )
-        )
-    end
-
-    n = length(e.trks_id)
-    trks = sizehint!(Vector{Trk}(), n)
-    # legacy format support
-    skip_trks_status = !hasproperty(e, :trks_status)
-    for i ∈ 1:n
-        push!(trks,
-            Trk(
-                e.trks_id[i],
-                Position(e.trks_pos_x[i], e.trks_pos_y[i], e.trks_pos_z[i]),
-                Direction(e.trks_dir_x[i], e.trks_dir_y[i], e.trks_dir_z[i]),
-                e.trks_t[i],
-                e.trks_E[i],
-                e.trks_len[i],
-                e.trks_lik[i],
-                e.trks_rec_type[i],
-                e.trks_rec_stages[i],
-                FitInformation(e.trks_fitinf[i]),
-                skip_trks_status ? 0 : e.trks_status[i],
-            )
-        )
-    end
+    mc_hits = :mc_hits in skip ? CalibratedMCHit[] : _read_mc_hits(e)
+    hits = :hits in skip ? CalibratedHit[] : _read_hits(e)
+    mc_trks = :mc_trks in skip ? MCTrk[] : _read_mc_trks(e)
+    trks = :trks in skip ? Trk[] : _read_trks(e)
 
     Evt(
         e.Evt_id,
@@ -485,6 +412,150 @@ function Base.getindex(f::OfflineTree, idx::Integer)::Evt
         e.Evt_flags,
         usr_dct
     )
+end
+
+Base.getindex(f::OfflineTree, idx::Integer)::Evt = _evt(f, idx, ())
+
+function _read_mc_hits(e)
+    n = length(e.mc_hits_id)
+    mc_hits = sizehint!(Vector{CalibratedMCHit}(), n)
+    for i ∈ 1:n
+        push!(mc_hits,
+              CalibratedMCHit(
+                  e.mc_hits_pmt_id[i],
+                  e.mc_hits_t[i],
+                  e.mc_hits_a[i],
+                  e.mc_hits_type[i],
+                  e.mc_hits_origin[i],
+                  Position(e.mc_hits_pos_x[i], e.mc_hits_pos_y[i], e.mc_hits_pos_z[i]),
+                  Direction(e.mc_hits_dir_x[i], e.mc_hits_dir_y[i], e.mc_hits_dir_z[i])
+              )
+        )
+    end
+    mc_hits
+end
+
+function _read_hits(e)
+    n = length(e.hits_id)
+    hits = sizehint!(Vector{CalibratedHit}(), n)
+    for i ∈ 1:n
+        push!(hits,
+              CalibratedHit(
+                  e.hits_dom_id[i],
+                  e.hits_channel_id[i],
+                  e.hits_tdc[i],
+                  e.hits_tot[i],
+                  e.hits_trig[i],
+                  e.hits_t[i],
+                  Position(e.hits_pos_x[i], e.hits_pos_y[i], e.hits_pos_z[i]),
+                  Direction(e.hits_dir_x[i], e.hits_dir_y[i], e.hits_dir_z[i])
+              )
+        )
+    end
+    hits
+end
+
+function _read_mc_trks(e)
+    n = length(e.mc_trks_id)
+    mc_trks = sizehint!(Vector{MCTrk}(), n)
+    # legacy format support
+    skip_mc_trks_status = !hasproperty(e, :mc_trks_status)
+    skip_mc_trks_mother_id = !hasproperty(e, :mc_trks_mother_id)
+    skip_mc_trks_counter = !hasproperty(e, :mc_trks_counter)
+    for i ∈ 1:n
+        push!(mc_trks,
+            MCTrk(
+                e.mc_trks_id[i],
+                Position(e.mc_trks_pos_x[i], e.mc_trks_pos_y[i], e.mc_trks_pos_z[i]),
+                Direction(e.mc_trks_dir_x[i], e.mc_trks_dir_y[i], e.mc_trks_dir_z[i]),
+                e.mc_trks_t[i],
+                e.mc_trks_E[i],
+                e.mc_trks_len[i],
+                e.mc_trks_type[i],
+                skip_mc_trks_status ? 0 : e.mc_trks_status[i],
+                skip_mc_trks_mother_id ? 0 : e.mc_trks_mother_id[i],
+                skip_mc_trks_counter ? 0 : e.mc_trks_counter[i],
+            )
+        )
+    end
+    mc_trks
+end
+
+function _read_trks(e)
+    n = length(e.trks_id)
+    trks = sizehint!(Vector{Trk}(), n)
+    # legacy format support
+    skip_trks_status = !hasproperty(e, :trks_status)
+    for i ∈ 1:n
+        push!(trks,
+            Trk(
+                e.trks_id[i],
+                Position(e.trks_pos_x[i], e.trks_pos_y[i], e.trks_pos_z[i]),
+                Direction(e.trks_dir_x[i], e.trks_dir_y[i], e.trks_dir_z[i]),
+                e.trks_t[i],
+                e.trks_E[i],
+                e.trks_len[i],
+                e.trks_lik[i],
+                e.trks_rec_type[i],
+                e.trks_rec_stages[i],
+                FitInformation(e.trks_fitinf[i]),
+                skip_trks_status ? 0 : e.trks_status[i],
+            )
+        )
+    end
+    trks
+end
+
+const SKIPPABLE_OFFLINE_BRANCHES = (:hits, :mc_hits, :trks, :mc_trks)
+
+_normalize_skip(s::Symbol) = _normalize_skip((s,))
+function _normalize_skip(skip)
+    syms = Tuple(skip)
+    for s ∈ syms
+        s ∈ SKIPPABLE_OFFLINE_BRANCHES || throw(ArgumentError(
+            "cannot skip branch :$(s), skippable offline branches are $(SKIPPABLE_OFFLINE_BRANCHES)"))
+    end
+    syms
+end
+
+struct OfflineTreeView{T, N}
+    _tree::OfflineTree{T}
+    skip::NTuple{N, Symbol}
+end
+
+"""
+    eachevent(f::OfflineTree; skip=())
+
+An iterable, index-able view over the offline events which skips deserialisation
+of the named sub-collections. `skip` is a `Symbol` or a collection of `Symbol`s,
+each one of `:hits`, `:mc_hits`, `:trks`, `:mc_trks`. Skipped collections are
+returned as empty vectors and their (usually dominant) ROOT baskets are never
+read, which speeds up iteration a lot when only a part of each event is needed.
+
+# Example
+```
+julia> f = ROOTFile(datapath("offline", "km3net_offline.root"));
+
+julia> for e ∈ eachevent(f.offline; skip=(:hits, :mc_hits))
+           @show length(e.trks)  # hits and mc_hits are empty, no I/O for them
+       end
+```
+"""
+eachevent(f::OfflineTree; skip=()) = OfflineTreeView(f, _normalize_skip(skip))
+
+Base.length(v::OfflineTreeView) = length(v._tree)
+Base.size(v::OfflineTreeView) = (length(v),)
+Base.firstindex(v::OfflineTreeView) = 1
+Base.lastindex(v::OfflineTreeView) = length(v)
+Base.eltype(::OfflineTreeView) = Evt
+Base.getindex(v::OfflineTreeView, idx::Integer) = _evt(v._tree, idx, v.skip)
+Base.getindex(v::OfflineTreeView, r::UnitRange) = [v[idx] for idx ∈ r]
+Base.getindex(v::OfflineTreeView, mask::BitArray) = [v[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+function Base.iterate(v::OfflineTreeView, state=1)
+    state > length(v) ? nothing : (v[state], state+1)
+end
+function Base.show(io::IO, v::OfflineTreeView)
+    print(io, "OfflineTreeView ($(length(v)) events, skipping: $(join(v.skip, ", ")))")
 end
 
 

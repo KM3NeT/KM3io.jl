@@ -94,6 +94,7 @@ describe_dst_branch,
 
 # Offline dataformat
 OfflineEventTape,
+eachevent,
 CalibratedHit,
 CalibratedMCHit,
 CalibratedSnapshotHit,
