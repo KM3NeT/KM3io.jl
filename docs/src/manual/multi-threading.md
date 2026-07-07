@@ -22,7 +22,7 @@ using KM3NeTTestData
 
 f = ROOTFile(datapath("offline", "numucc.root"))
 
-Threads.@threads for event in f.offline
+Threads.@threads for event in eachevent(f.offline)
     println("Processing event $(event.id)")
     sleep(rand()/10)  # to mimic varying processing times
 end
@@ -57,7 +57,7 @@ f = ROOTFile(datapath("online", "km3net_online.root"))
 tot_threshold = 50  # [ns]
 n_big_hits = Threads.Atomic{Int}(0)
 
-Threads.@threads for event in f.online.events
+Threads.@threads for event in eachevent(f.online)
 
     n = 0
     for hit in event.snapshot_hits
