@@ -539,3 +539,26 @@ function Base.show(io::IO, t::OnlineTree)
     end
     print(io, "OnlineTree ($(join(parts, ", ")))")
 end
+
+# Online counterpart of eachevent. A plain wrapper for now (no branch skipping),
+# provided so the same verb works for online and offline trees.
+struct OnlineTreeView
+    _tree::OnlineTree
+end
+eachevent(t::OnlineTree) = OnlineTreeView(t)
+
+_eventcontainer(v::OnlineTreeView) = v._tree.events
+Base.length(v::OnlineTreeView) = (c = _eventcontainer(v); isnothing(c) ? 0 : length(c))
+Base.size(v::OnlineTreeView) = (length(v),)
+Base.firstindex(v::OnlineTreeView) = 1
+Base.lastindex(v::OnlineTreeView) = length(v)
+Base.eltype(::OnlineTreeView) = DAQEvent
+Base.getindex(v::OnlineTreeView, idx::Integer) = _eventcontainer(v)[idx]
+Base.getindex(v::OnlineTreeView, r::UnitRange) = [v[idx] for idx ∈ r]
+Base.getindex(v::OnlineTreeView, mask::BitArray) = [v[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+function Base.iterate(v::OnlineTreeView, state=1)
+    state > length(v) ? nothing : (v[state], state+1)
+end
+function Base.show(io::IO, v::OnlineTreeView)
+    print(io, "OnlineTreeView ($(length(v)) events)")
+end

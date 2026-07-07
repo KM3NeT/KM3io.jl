@@ -374,6 +374,18 @@ end
 
     @test 2 == length(events)
 
+    # eachevent wrapper mirrors iterating f.online.events
+    v = eachevent(f.online)
+    @test length(v) == length(f.online.events)
+    @test eltype(v) == KM3io.DAQEvent
+    @test [e.header.frame_index for e ∈ v] == [e.header.frame_index for e ∈ f.online.events]
+    @test length(v[1].snapshot_hits) == length(f.online.events[1].snapshot_hits)
+    n = Threads.Atomic{Int}(0)
+    Threads.@threads for e ∈ eachevent(f.online)
+        Threads.atomic_add!(n, 1)
+    end
+    @test n[] == length(f.online.events)
+
     s = f.online.summaryslices
     @test 64 == length(s[1].frames)
     @test 66 == length(s[2].frames)

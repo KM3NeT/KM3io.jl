@@ -525,12 +525,16 @@ end
 
 """
     eachevent(f::OfflineTree; skip=())
+    eachevent(t::OnlineTree)
 
-An iterable, index-able view over the offline events which skips deserialisation
-of the named sub-collections. `skip` is a `Symbol` or a collection of `Symbol`s,
-each one of `:hits`, `:mc_hits`, `:trks`, `:mc_trks`. Skipped collections are
-returned as empty vectors and their (usually dominant) ROOT baskets are never
-read, which speeds up iteration a lot when only a part of each event is needed.
+An iterable, index-able view over the events of an offline or online tree.
+
+For an offline tree, `skip` names the sub-collections to leave out: a `Symbol` or
+a collection of `Symbol`s, each one of `:hits`, `:mc_hits`, `:trks`, `:mc_trks`.
+Skipped collections are returned as empty vectors and their (usually dominant)
+ROOT baskets are never read, which speeds up iteration a lot when only a part of
+each event is needed. For an online tree there is nothing to skip yet, so
+`eachevent(t)` is simply a thin wrapper over the DAQ events.
 
 # Example
 ```
