@@ -68,6 +68,65 @@ const USRFILE = datapath("offline", "usr-sample.root")
     close(f)
 end
 
+@testset "Skipping offline branches" begin
+    f = ROOTFile(datapath("offline", "numucc.root"))
+    full = f.offline[1]
+    @test !isempty(full.hits)          # sanity: non-empty in a full read
+    @test !isempty(full.mc_hits)
+    @test !isempty(full.trks)
+
+    v = eachevent(f.offline; skip=(:hits, :mc_hits))
+    @test length(v) == length(f.offline)
+    @test eltype(v) == Evt
+
+    e = v[1]
+    @test isempty(e.hits)              # skipped -> empty
+    @test isempty(e.mc_hits)
+    @test e.trks == full.trks          # untouched -> identical to full read
+    @test e.mc_trks == full.mc_trks
+    @test e.id == full.id
+    @test e.w2list == full.w2list
+
+    # a single Symbol is accepted too
+    @test isempty(eachevent(f.offline; skip=:trks)[1].trks)
+
+    # everything skipped
+    for ev ∈ eachevent(f.offline; skip=(:hits, :mc_hits, :trks, :mc_trks))
+        @test isempty(ev.hits) && isempty(ev.mc_hits) && isempty(ev.trks) && isempty(ev.mc_trks)
+    end
+
+    # a full read from the same tree still works
+    @test !isempty(f.offline[1].hits)
+
+    # unknown branch names raise
+    @test_throws ArgumentError eachevent(f.offline; skip=(:hitz,))
+    @test_throws ArgumentError eachevent(f.offline; skip=:bar)
+
+    # threaded iteration with skipping
+    n = Threads.Atomic{Int}(0)
+    Threads.@threads for ev ∈ eachevent(f.offline; skip=(:hits, :mc_hits))
+        @assert isempty(ev.hits) && isempty(ev.mc_hits)
+        Threads.atomic_add!(n, 1)
+    end
+    @test n[] == length(f.offline)
+
+    # `only` keeps the named branches and skips the rest (complement of `skip`)
+    o = eachevent(f.offline; only=:mc_trks)[1]
+    @test isempty(o.hits) && isempty(o.mc_hits) && isempty(o.trks)
+    @test o.mc_trks == full.mc_trks
+    o2 = eachevent(f.offline; only=(:hits, :trks))[1]
+    @test o2.hits == full.hits && o2.trks == full.trks
+    @test isempty(o2.mc_hits) && isempty(o2.mc_trks)
+    # only=() keeps nothing, i.e. skips everything
+    oall = eachevent(f.offline; only=())[1]
+    @test isempty(oall.hits) && isempty(oall.mc_hits) && isempty(oall.trks) && isempty(oall.mc_trks)
+    # skip and only together, or an unknown branch, raise
+    @test_throws ArgumentError eachevent(f.offline; skip=(:hits,), only=(:mc_trks,))
+    @test_throws ArgumentError eachevent(f.offline; only=(:bogus,))
+
+    close(f)
+end
+
 @testset "OfflineEventTape" begin
     t = KM3io.OfflineEventTape([
         datapath("online", "km3net_online.root")
@@ -328,6 +387,18 @@ end
     end
 
     @test 2 == length(events)
+
+    # eachevent wrapper mirrors iterating f.online.events
+    v = eachevent(f.online)
+    @test length(v) == length(f.online.events)
+    @test eltype(v) == KM3io.DAQEvent
+    @test [e.header.frame_index for e ∈ v] == [e.header.frame_index for e ∈ f.online.events]
+    @test length(v[1].snapshot_hits) == length(f.online.events[1].snapshot_hits)
+    n = Threads.Atomic{Int}(0)
+    Threads.@threads for e ∈ eachevent(f.online)
+        Threads.atomic_add!(n, 1)
+    end
+    @test n[] == length(f.online.events)
 
     s = f.online.summaryslices
     @test 64 == length(s[1].frames)

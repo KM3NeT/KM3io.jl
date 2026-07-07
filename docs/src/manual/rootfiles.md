@@ -136,7 +136,7 @@ julia> event.trks[1:4]
  KM3io.Trk(3, [448.136188112227, ... , 294.6407542676734, 4000)
  KM3io.Trk(4, [448.258348900570, ... , 291.64653112688273, 4000)
 
-julia> for event in f.offline
+julia> for event in eachevent(f.offline)
            @show event
        end
 event = KM3io.Evt (176 hits, 0 MC hits, 56 tracks, 0 MC tracks)
@@ -150,6 +150,18 @@ event = KM3io.Evt (84 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 event = KM3io.Evt (255 hits, 0 MC hits, 54 tracks, 0 MC tracks)
 event = KM3io.Evt (105 hits, 0 MC hits, 56 tracks, 0 MC tracks)
 ```
+
+!!! tip "Prefer eachevent"
+
+    [`eachevent`](@ref) is the recommended way to iterate an offline tree. On top
+    of a plain `for event in eachevent(f.offline)` loop, it lets you skip whole
+    sub-collections you do not need via the `skip` keyword, for example
+    `eachevent(f.offline; skip=(:hits, :mc_hits, :trks))`, or name the ones to
+    keep with `only`, e.g. `eachevent(f.offline; only=:mc_trks)`. Skipped
+    collections are returned as empty vectors and their (usually dominant) ROOT
+    baskets are never read from disk, which speeds up the iteration a lot when only
+    part of each event is needed. The branches are `:hits`, `:mc_hits`, `:trks` and
+    `:mc_trks`.
 
 ### Multiple Files
 
@@ -216,7 +228,7 @@ julia> event.triggered_hits[4:8]
  KM3io.TriggeredHit(808447186, 0x03, 30733214, 0x1c, 0x0000000000000016)
  KM3io.TriggeredHit(808451907, 0x07, 30733441, 0x1e, 0x0000000000000004)
 
-julia> for event ∈ f.online.events
+julia> for event ∈ eachevent(f.online)
            @show event.header.frame_index length(event.snapshot_hits)
        end
 event.header.frame_index = 127

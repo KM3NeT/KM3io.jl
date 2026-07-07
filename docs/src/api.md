@@ -19,6 +19,7 @@ ROOTFile
 ```@docs
 Evt
 OfflineEventTape
+eachevent
 CalibratedHit
 CalibratedMCHit
 XCalibratedHit

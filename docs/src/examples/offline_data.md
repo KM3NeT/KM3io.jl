@@ -68,6 +68,23 @@ and have a look at its contents:
 evt.hits
 ```
 
+### Iterating with `eachevent`
+
+The recommended way to iterate an offline tree is [`eachevent`](@ref), which also
+lets you leave out whole sub-collections you do not need. Use `skip` to name the
+ones to drop, or `only` to name the ones to keep (its complement). Both accept a
+single `Symbol` or a collection of them, each one of `:hits`, `:mc_hits`, `:trks`,
+`:mc_trks`. Skipped collections are returned as empty vectors and, crucially,
+their (usually dominant) ROOT baskets are never read from disk, so iterating only
+the parts you need can be dramatically faster.
+
+For example, to collect the muon multiplicity per event while reading only the MC
+tracks (equivalent here to `skip=(:hits, :mc_hits, :trks)`):
+
+```@example 1
+[length(e.mc_trks) for e ∈ eachevent(f.offline; only=:mc_trks)]
+```
+
 Let's close this file properly:
 
 ```@example 1
