@@ -508,14 +508,23 @@ end
 
 const SKIPPABLE_OFFLINE_BRANCHES = (:hits, :mc_hits, :trks, :mc_trks)
 
-_normalize_skip(s::Symbol) = _normalize_skip((s,))
-function _normalize_skip(skip)
-    syms = Tuple(skip)
+_normalize_branches(s::Symbol) = _normalize_branches((s,))
+function _normalize_branches(branches)
+    syms = Tuple(branches)
     for s ∈ syms
         s ∈ SKIPPABLE_OFFLINE_BRANCHES || throw(ArgumentError(
-            "cannot skip branch :$(s), skippable offline branches are $(SKIPPABLE_OFFLINE_BRANCHES)"))
+            "unknown offline branch :$(s), valid branches are $(SKIPPABLE_OFFLINE_BRANCHES)"))
     end
     syms
+end
+
+# Effective set of branches to skip, given the `skip`/`only` keywords. `only`
+# keeps the named branches and skips the rest; it is the complement of `skip`.
+function _resolve_skip(skip, only)
+    only === nothing && return _normalize_branches(skip)
+    isempty(skip) || throw(ArgumentError("pass either `skip` or `only`, not both"))
+    keep = _normalize_branches(only)
+    Tuple(b for b ∈ SKIPPABLE_OFFLINE_BRANCHES if b ∉ keep)
 end
 
 struct OfflineTreeView{T, N}
@@ -524,16 +533,19 @@ struct OfflineTreeView{T, N}
 end
 
 """
-    eachevent(f::OfflineTree; skip=())
+    eachevent(f::OfflineTree; skip=(), only=nothing)
     eachevent(t::OnlineTree)
 
 An iterable, index-able view over the events of an offline or online tree.
 
-For an offline tree, `skip` names the sub-collections to leave out: a `Symbol` or
-a collection of `Symbol`s, each one of `:hits`, `:mc_hits`, `:trks`, `:mc_trks`.
-Skipped collections are returned as empty vectors and their (usually dominant)
-ROOT baskets are never read, which speeds up iteration a lot when only a part of
-each event is needed. For an online tree there is nothing to skip yet, so
+For an offline tree, `skip` names the sub-collections to leave out and `only`
+names the ones to keep (the complement of `skip`); pass at most one of the two.
+Both accept a `Symbol` or a collection of `Symbol`s, each one of `:hits`,
+`:mc_hits`, `:trks`, `:mc_trks`. Skipped collections are returned as empty vectors
+and their (usually dominant) ROOT baskets are never read, which speeds up
+iteration a lot when only a part of each event is needed. For example
+`only=:mc_trks` reads just the MC tracks and skips the hits, MC hits and
+reconstructed tracks. For an online tree there is nothing to skip yet, so
 `eachevent(t)` is simply a thin wrapper over the DAQ events.
 
 # Example
@@ -543,9 +555,13 @@ julia> f = ROOTFile(datapath("offline", "km3net_offline.root"));
 julia> for e ∈ eachevent(f.offline; skip=(:hits, :mc_hits))
            @show length(e.trks)  # hits and mc_hits are empty, no I/O for them
        end
+
+julia> for e ∈ eachevent(f.offline; only=:mc_trks)
+           @show length(e.mc_trks)  # only the MC tracks are read
+       end
 ```
 """
-eachevent(f::OfflineTree; skip=()) = OfflineTreeView(f, _normalize_skip(skip))
+eachevent(f::OfflineTree; skip=(), only=nothing) = OfflineTreeView(f, _resolve_skip(skip, only))
 
 Base.length(v::OfflineTreeView) = length(v._tree)
 Base.size(v::OfflineTreeView) = (length(v),)

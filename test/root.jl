@@ -110,6 +110,20 @@ end
     end
     @test n[] == length(f.offline)
 
+    # `only` keeps the named branches and skips the rest (complement of `skip`)
+    o = eachevent(f.offline; only=:mc_trks)[1]
+    @test isempty(o.hits) && isempty(o.mc_hits) && isempty(o.trks)
+    @test o.mc_trks == full.mc_trks
+    o2 = eachevent(f.offline; only=(:hits, :trks))[1]
+    @test o2.hits == full.hits && o2.trks == full.trks
+    @test isempty(o2.mc_hits) && isempty(o2.mc_trks)
+    # only=() keeps nothing, i.e. skips everything
+    oall = eachevent(f.offline; only=())[1]
+    @test isempty(oall.hits) && isempty(oall.mc_hits) && isempty(oall.trks) && isempty(oall.mc_trks)
+    # skip and only together, or an unknown branch, raise
+    @test_throws ArgumentError eachevent(f.offline; skip=(:hits,), only=(:mc_trks,))
+    @test_throws ArgumentError eachevent(f.offline; only=(:bogus,))
+
     close(f)
 end
 
