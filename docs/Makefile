@@ -1,5 +1,5 @@
 all:
-	julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve()'
+	julia --project=. -e 'import Pkg; Pkg.resolve(); Pkg.instantiate()'
 	julia --project=. make.jl
 
 clean:
