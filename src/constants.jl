@@ -57,4 +57,6 @@ const MINIMAL_RATE_HZ = 2.0e3
 const MAXIMAL_RATE_HZ = 2.0e6
 const RATE_FACTOR = log(MAXIMAL_RATE_HZ / MINIMAL_RATE_HZ) / 255.0
 
+const FRAME_TIME = 1e8  # [ns] duration of a DAQ timeslice / frame (100 ms)
+
 end

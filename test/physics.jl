@@ -1,5 +1,6 @@
 using KM3io
 import KM3io: CherenkovPhoton
+using KM3NeTTestData
 using Test
 
 @testset "cherenkov()" begin
@@ -187,4 +188,33 @@ end
     @test ctrack(hit).Δt == γ_raw.Δt
     @test ctrack([hit]; correct_slew=true)[1].Δt == γ_slew.Δt
     @test ctrack([hit])[1].Δt == γ_raw.Δt
+end
+
+@testset "TimeConverter" begin
+    tc = TimeConverter(9.25879610631827e9, 93)
+    @test tc.offset ≈ 5.879610631826973e7
+    @test TimeConverter(9.25879610631827e9, 93) == TimeConverter(5.879610631826973e7)
+    # frame_index <= 0 -> frame_start is 0
+    @test TimeConverter(1234.0, 0).offset == 1234.0
+    @test TimeConverter(1234.0, -5).offset == 1234.0
+    # directions and round trip (offset ~5.9e7 dominates, so round trip is approximate)
+    @test mc2daq(tc, 0.0) == tc.offset
+    @test daq2mc(tc, tc.offset) == 0.0
+    @test daq2mc(tc, mc2daq(tc, 123.4)) ≈ 123.4
+    # broadcasting (guards the broadcastable definition)
+    @test mc2daq.(tc, [0.0, 10.0]) == [tc.offset, tc.offset + 10.0]
+
+    f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
+    evt = first(f.offline)
+    tcE = TimeConverter(evt)
+    @test evt.frame_index == 93
+    @test tcE.offset ≈ 5.879610631826973e7
+    @test tcE == TimeConverter(evt.mc_t, evt.frame_index)
+    # track/hit sugar pulls .t
+    @test mc2daq(tcE, evt.mc_trks[1]) == mc2daq(tcE, evt.mc_trks[1].t)
+    # the converted MC-truth muon time lands just before the first triggered hit
+    t_daq = mc2daq(tcE, evt.mc_trks[1])
+    firsthit = minimum(h.t for h in filter(triggered, evt.hits))
+    @test 0 < firsthit - t_daq < 1e4
+    close(f)
 end

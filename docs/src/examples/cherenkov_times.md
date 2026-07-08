@@ -64,3 +64,52 @@ ax = Axis(fig[1, 1], xlabel="Δt / ns", ylabel="counts")
 barplot!(ax, bincenters(Δts), bincounts(Δts))
 fig
 ```
+
+## Using the Monte Carlo truth track
+
+Instead of the reconstructed muon we can seed the same calculation with the
+**true** muon from the `mc_trks`. There is one catch: the MC track times live in
+the Monte Carlo event frame (`t = 0` at the simulated event time), while the
+calibrated hits live in the DAQ/trigger frame. Feeding a raw MC time into
+[`cherenkov()`](@ref) would therefore offset every residual by the per-event
+frame time (order `1e7` ns).
+
+A [`TimeConverter`](@ref) built from the event bridges the two frames. It reads
+the event's `mc_t` and `frame_index` and exposes [`mc2daq`](@ref) (and its
+inverse [`daq2mc`](@ref)) to move a time, an `MCTrk` or a `CalibratedMCHit` onto
+the DAQ base:
+
+```@example 1
+evt = f.offline[1]
+tc = TimeConverter(evt)
+
+mc_muon = argmax(t -> t.E, filter(t -> abs(t.type) == 13, evt.mc_trks))
+track = Track(mc_muon.dir, mc_muon.pos, mc2daq(tc, mc_muon))  # true muon on the DAQ time base
+
+cherenkov(track, filter(triggered, evt.hits))
+```
+
+Iterating over all events, the true-muon residuals now peak at zero just like the
+reconstructed ones (they would sit around `1e7` ns without the conversion):
+
+```@example 1
+Δts_mc = Hist1D(; counttype=Int, binedges=-10:50)
+
+for evt ∈ eachevent(f.offline)
+    muons = filter(t -> abs(t.type) == 13, evt.mc_trks)
+    isempty(muons) && continue
+    mc_muon = argmax(t -> t.E, muons)
+
+    tc = TimeConverter(evt)
+    track = Track(mc_muon.dir, mc_muon.pos, mc2daq(tc, mc_muon))
+
+    for cp ∈ cherenkov(track, filter(triggered, evt.hits))
+        push!(Δts_mc, cp.Δt)
+    end
+end
+
+fig = Figure(size=(600, 400), fontsize=16)
+ax = Axis(fig[1, 1], xlabel="Δt / ns", ylabel="counts")
+barplot!(ax, bincenters(Δts_mc), bincounts(Δts_mc))
+fig
+```

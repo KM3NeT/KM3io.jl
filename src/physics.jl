@@ -158,6 +158,72 @@ end
 
 """
 
+Converts times between the Monte Carlo event frame (`t = 0` at the simulated
+event time) and the DAQ/trigger frame used by the calibrated hits and the
+reconstructed tracks. A single additive `offset` [ns] captures the conversion,
+derived from the event's run-relative generation time `mc_t` and its
+`frame_index`:
+
+    offset = mc_t - frame_start,   frame_start = frame_index > 0 ? (frame_index - 1) * FRAME_TIME : 0
+
+Only the (small, order 1e7 ns) difference is stored, which preserves nanosecond
+precision in `Float64`. Build it from an offline event and apply it with
+[`mc2daq`](@ref) / [`daq2mc`](@ref).
+
+This is meaningful for MC events with a populated `frame_index`, as produced by
+the Jpp reconstruction of offline files. On real data or events without frame
+timing (`frame_index == 0`, `mc_t == 0`) the `offset` is not physically
+meaningful.
+
+# Examples
+```julia
+tc = TimeConverter(evt)         # from an offline event
+mc2daq(tc, evt.mc_trks[1])      # MC track time -> DAQ frame
+daq2mc(tc, evt.hits[1].t)       # DAQ hit time  -> MC frame
+mc2daq.(tc, evt.mc_hits)        # broadcasts over the MC hits
+```
+
+See also [`mc2daq`](@ref), [`daq2mc`](@ref), [`cherenkov`](@ref).
+"""
+struct TimeConverter
+    offset::Float64  # [ns]  t_daq = t_mc + offset
+end
+function TimeConverter(mc_t::Real, frame_index::Integer)
+    frame_start = frame_index > 0 ? (frame_index - 1) * Constants.FRAME_TIME : 0.0
+    TimeConverter(mc_t - frame_start)
+end
+TimeConverter(e::Evt) = TimeConverter(e.mc_t, e.frame_index)
+
+Base.show(io::IO, tc::TimeConverter) = print(io, "TimeConverter(offset=$(tc.offset) ns)")
+
+# Treat the converter as a scalar in broadcasting, so `mc2daq.(tc, times)` works
+# (a bare struct is otherwise iterated over).
+Base.Broadcast.broadcastable(tc::TimeConverter) = Ref(tc)
+
+"""
+
+Convert a time [ns] from the Monte Carlo event frame to the DAQ/trigger frame
+with a [`TimeConverter`](@ref). Also accepts an `MCTrk` or `CalibratedMCHit` and
+converts its time.
+
+See also [`daq2mc`](@ref), [`TimeConverter`](@ref).
+"""
+mc2daq(tc::TimeConverter, t::Real) = t + tc.offset
+mc2daq(tc::TimeConverter, x::Union{MCTrk,CalibratedMCHit}) = mc2daq(tc, x.t)
+
+"""
+
+Convert a time [ns] from the DAQ/trigger frame to the Monte Carlo event frame
+with a [`TimeConverter`](@ref). Also accepts a `Trk` or `CalibratedHit` and
+converts its time.
+
+See also [`mc2daq`](@ref), [`TimeConverter`](@ref).
+"""
+daq2mc(tc::TimeConverter, t::Real) = t - tc.offset
+daq2mc(tc::TimeConverter, x::Union{Trk,CalibratedHit}) = daq2mc(tc, x.t)
+
+"""
+
 K40 rates with L0 and higher level rates (with increasing multiplicities).
 
 """

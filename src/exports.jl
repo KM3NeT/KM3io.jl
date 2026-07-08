@@ -207,6 +207,11 @@ theta,            # reexport from KM3Base
 zenith,           # reexport from KM3Base
 slerp,
 
+# MC <-> DAQ time conversion
+TimeConverter,
+mc2daq,
+daq2mc,
+
 # Real-time
 @ip_str,
 CHClient,
