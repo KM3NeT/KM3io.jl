@@ -15,6 +15,7 @@ struct ROOTFile
     online::Union{OnlineTree, Nothing}
     offline::Union{OfflineTree, Nothing}
     dst::Union{DSTTree, Nothing}
+    meta::Vector{MetaData}
 
     function ROOTFile(filename::AbstractString)
         customstructs = Dict(
@@ -33,10 +34,13 @@ struct ROOTFile
             any(k -> startswith(k, "KM3NET_TIMESLICE"), keyset)
         online = has_online ? OnlineTree(fobj) : nothing
         dst = _is_dst(fobj) ? DSTTree(fobj) : nothing
-        new(fobj, online, offline, dst)
+        meta = readmeta(fobj)
+        new(fobj, online, offline, dst, meta)
     end
 end
 Base.close(f::ROOTFile) = close(f._fobj)
+printmeta(f::ROOTFile) = printmeta(stdout, f.meta)
+printmeta(io::IO, f::ROOTFile) = printmeta(io, f.meta)
 function Base.show(io::IO, f::ROOTFile)
     s = String[]
     !isnothing(f.online) && push!(s, "$(f.online)")
