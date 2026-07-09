@@ -36,6 +36,141 @@ file still has an `OnlineTree`, but `f.online.events` will be `nothing` and
 should not be accessed without a guard. The same applies to
 `f.online.summaryslices` and `f.online.timeslices.<stream>` in the reverse cases.
 
+## File meta data
+
+Every application of the [`Jpp`](https://git.km3net.de/common/jpp) processing
+chain stamps the ROOT file with a bit of provenance (the application name, its
+`GIT` release, the ROOT version, the full command line and the host system) via
+the `JMeta` mechanism of `km3net-dataformat`. `KM3io` reads all of these entries
+and exposes them through the `.meta` field of a `ROOTFile` as a
+`Vector{`[`MetaData`](@ref)`}`, ordered by processing step: the first entry is
+the application which created the file, the last one the application which
+touched it most recently. Files without any meta data return an empty vector.
+
+```julia-repl
+julia> using KM3io, KM3NeTTestData
+
+julia> f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"));
+
+julia> f.meta
+8-element Vector{MetaData}:
+ MetaData(JConvertEvt @ 14.1.0)
+ MetaData(JMuonEnergy @ 14.1.0)
+ MetaData(JMuonStart @ 14.1.0)
+ MetaData(JMuonGandalf @ 14.1.0)
+ MetaData(JMuonStart @ 14.1.0)
+ MetaData(JMuonSimplex @ 14.1.0)
+ MetaData(JMuonPrefit @ 14.1.0)
+ MetaData(JTriggerEfficiency @ 14.1.0)
+```
+
+Each [`MetaData`](@ref) exposes the well-known entries as fields
+(`application`, `datetime`, `revision`, `root`, `namespace`, `command`, `system`):
+
+```julia-repl
+julia> f.meta[1]
+MetaData (JConvertEvt)
+  datetime:  2021-04-14T10:36:23
+  revision:  14.1.0
+  ROOT:      6.22/06
+  namespace: KM3NET
+  hostname:  ccwsge0526
+  system:    Linux ccwsge0526 3.10.0-1160.6.1.el7.x86_64 #1 SMP Tue Nov 17 13:59:11 UTC 2020 x86_64
+  command:   /Jpp/out//Linux/bin//JConvertEvt -f ... -d 2 --!
+
+julia> f.meta[1].application
+"JConvertEvt"
+
+julia> f.meta[1].revision
+"14.1.0"
+
+julia> f.meta[1].datetime
+2021-04-14T10:36:23
+```
+
+The `revision` field returns the `GIT` release, falling back to `SVN` for legacy
+files which predate the switch to git.
+
+The `datetime` is the write time of the underlying ROOT key, i.e. the local time
+of the machine which wrote the entry (no timezone is stored), and it is `missing`
+if the file holds no valid timestamp. Because each application copies the meta
+data of its input file into its own output, all entries of a file normally carry
+the timestamp of the processing step which produced that file, rather than the
+time at which each individual application originally ran.
+
+### The `system` entry
+
+The `system` entry is the `uname` output of the machine which ran the application.
+It is decomposed into `sysname`, `hostname`, `kernel_release`, `kernel_datetime`
+and `machine`:
+
+```julia-repl
+julia> f.meta[1].hostname
+"ccwsge0526"
+
+julia> f.meta[1].kernel_release
+"3.10.0-1160.6.1.el7.x86_64"
+
+julia> f.meta[1].machine
+"x86_64"
+
+julia> f.meta[1].kernel_datetime
+2020-11-17T13:59:11
+```
+
+!!! warning "kernel_datetime is not a processing time"
+
+    The date embedded in the `system` string is the build time of the operating
+    system kernel, taken from the `uname` version field. It is a property of the
+    machine, not of the processing step: every job running on the same kernel
+    reports the very same value, and it can predate the file by years. Use
+    `datetime` to find out when a file was actually produced.
+
+The raw key-value pairs exactly as stored in the file are reachable by indexing,
+along with `keys`, `haskey` and `get`:
+
+```julia-repl
+julia> f.meta[1]["GIT"]
+"14.1.0"
+
+julia> keys(f.meta[1])
+KeySet for a Dict{String, String} with 6 entries. Keys:
+  "system"
+  "command"
+  "namespace"
+  "ROOT"
+  "GIT"
+  "application"
+```
+
+To dump the whole processing chain in a readable form, use [`printmeta`](@ref),
+which accepts a `ROOTFile`, a `Vector{MetaData}` or a single [`MetaData`](@ref)
+and optionally an `IO` as its first argument:
+
+```julia-repl
+julia> printmeta(f)
+Meta data (8 processing steps, oldest first)
+
+[1] JConvertEvt
+    datetime:  2021-04-14T10:36:23
+    revision:  14.1.0
+    ROOT:      6.22/06
+    namespace: KM3NET
+    system:    Linux ccwsge0526 3.10.0-1160.6.1.el7.x86_64 #1 SMP Tue Nov 17 13:59:11 UTC 2020 x86_64
+    command:   /Jpp/out//Linux/bin//JConvertEvt -f ... -d 2 --!
+
+[2] JMuonEnergy
+    datetime:  2021-04-14T10:36:23
+    revision:  14.1.0
+    ...
+```
+
+!!! note
+
+    The meta data is auxiliary information which is read eagerly when the file is
+    opened. If a file carries a corrupted `META` directory, a warning is emitted
+    and `f.meta` is empty, but the file itself stays readable.
+
 ## [Offline Dataformat](@id offline dataformat)
 
 The [offline

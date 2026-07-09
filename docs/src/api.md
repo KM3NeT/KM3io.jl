@@ -13,6 +13,8 @@ Location
 ## ROOT
 ```@docs
 ROOTFile
+MetaData
+printmeta
 ```
 
 ## Offline Format
