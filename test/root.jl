@@ -712,3 +712,134 @@ end
     @test occursin("MC", describe_dst_branch("sum_mc_evt"))
     @test ismissing(describe_dst_branch("not_a_known_branch"))
 end
+
+@testset "Meta data" begin
+    # Single application (file created by JConvertEvt)
+    f = ROOTFile(datapath("offline", "numucc.root"))
+    @test f.meta isa Vector{MetaData}
+    @test 1 == length(f.meta)
+    m = f.meta[1]
+    @test m isa MetaData
+    @test "JConvertEvt" == m.application
+    @test "12.1.0" == m.revision
+    @test "5.34/38" == m.root
+    @test "KM3NET" == m.namespace
+    @test occursin("JConvertEvt -n 10", m.command)
+    @test occursin("Linux", m.system)
+    @test DateTime(2019, 12, 10, 13, 59, 52) == m.datetime
+    # the `system` entry is uname output and is decomposed
+    @test "Linux" == m.sysname
+    @test "cca007" == m.hostname
+    @test "3.10.0-1062.9.1.el7.x86_64" == m.kernel_release
+    @test "x86_64" == m.machine
+    # the date inside `system` is the kernel build time, not the processing time
+    @test DateTime(2019, 12, 6, 15, 49, 49) == m.kernel_datetime
+    @test m.kernel_datetime != m.datetime
+    # raw key-value access
+    @test "JConvertEvt" == m["application"]
+    @test "12.1.0" == m["GIT"]
+    @test haskey(m, "GIT")
+    @test !haskey(m, "SVN")
+    @test "fallback" == get(m, "SVN", "fallback")
+    @test Set(keys(m)) == Set(["application", "GIT", "ROOT", "namespace", "command", "system"])
+    @test_throws KeyError m["nope"]
+    close(f)
+
+    # Full processing chain, ordered by processing step
+    f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
+    @test 8 == length(f.meta)
+    @test ["JConvertEvt", "JMuonEnergy", "JMuonStart", "JMuonGandalf",
+           "JMuonStart", "JMuonSimplex", "JMuonPrefit", "JTriggerEfficiency"] ==
+        [m.application for m in f.meta]
+    # the two JMuonStart steps are distinct invocations
+    @test f.meta[3].command != f.meta[5].command
+    @test all(m -> m.revision == "14.1.0", f.meta)
+    # each application copies the meta of its input, so all entries carry the
+    # timestamp of the step which wrote this file
+    @test [DateTime(2021, 4, 14, 10, 36, 23)] == unique(m.datetime for m in f.meta)
+    close(f)
+
+    # Online file, whose `system` holds a full "uname -a" (trailing "GNU/Linux")
+    f = ROOTFile(datapath("online", "km3net_online.root"))
+    @test 1 == length(f.meta)
+    m = f.meta[1]
+    @test "JDataWriter" == m.application
+    @test DateTime(2019, 11, 17, 0, 8, 51) == m.datetime
+    @test "antorcadaq1.in2p3.fr" == m.hostname
+    @test "x86_64" == m.machine                 # not the trailing "GNU/Linux"
+    @test DateTime(2014, 12, 16, 14, 29, 22) == m.kernel_datetime
+    close(f)
+
+    # File without any meta data yields an empty vector
+    f = ROOTFile(OFFLINEFILE)
+    @test f.meta isa Vector{MetaData}
+    @test isempty(f.meta)
+    close(f)
+
+    # Parsing: value may itself contain '=' (only first '=' splits key/value)
+    raw = KM3io._parse_jmeta("application=JFoo\ncommand=A -@ \"x = 1;\"\nGIT=1.2.3\n")
+    @test "JFoo" == raw["application"]
+    @test "A -@ \"x = 1;\"" == raw["command"]
+    @test "1.2.3" == raw["GIT"]
+    md = MetaData(raw)
+    @test "JFoo" == md.application
+    @test "1.2.3" == md.revision
+
+    # Parsing edge cases: empty value, no separator, blank lines
+    raw = KM3io._parse_jmeta("a=\nnoseparator\n\nb=1")
+    @test "" == raw["a"]
+    @test "1" == raw["b"]
+    @test !haskey(raw, "noseparator")
+
+    # Legacy files store the code version under SVN instead of GIT
+    @test "9.9" == MetaData(Dict("application" => "JBar", "SVN" => "9.9")).revision
+    # Missing entries degrade to empty strings rather than throwing
+    @test "" == MetaData(Dict("application" => "JBar")).revision
+    @test ismissing(MetaData(Dict("application" => "JBar")).datetime)
+
+    # ROOT TDatime decoding (cross-checked against ROOT's own TDatime)
+    @test DateTime(2021, 4, 14, 10, 36, 23) == KM3io._datime2datetime(1763485975)
+    @test DateTime(2019, 12, 10, 13, 59, 52) == KM3io._datime2datetime(1662312180)
+    @test ismissing(KM3io._datime2datetime(0))          # month/day are 0 -> invalid
+
+    # uname decomposition of the `system` entry
+    s = KM3io._parse_system("Linux cca007 3.10.0-1062.9.1.el7.x86_64 #1 SMP Fri Dec 6 15:49:49 UTC 2019 x86_64")
+    @test ("Linux", "cca007", "x86_64") == (s.sysname, s.hostname, s.machine)
+    @test DateTime(2019, 12, 6, 15, 49, 49) == s.kernel_datetime
+    # "uname -a" layout: machine is the token after the year, not the last one
+    s = KM3io._parse_system("Linux w1 2.6.32.x86_64 #1 SMP Tue Dec 16 14:29:22 CST 2014 x86_64 x86_64 x86_64 GNU/Linux")
+    @test "x86_64" == s.machine
+    @test DateTime(2014, 12, 16, 14, 29, 22) == s.kernel_datetime
+    # kernels without a timezone token, and PREEMPT_DYNAMIC style versions
+    @test DateTime(2025, 9, 8, 12, 15, 13) ==
+        KM3io._parse_system("Linux h 5.14.0 #1 SMP PREEMPT_DYNAMIC Mon Sep 8 12:15:13 EDT 2025 x86_64").kernel_datetime
+    @test DateTime(2022, 8, 10, 13, 42, 3) ==
+        KM3io._parse_system("Linux h 5.4.0-125-generic #141-Ubuntu SMP Wed Aug 10 13:42:03 2022 x86_64").kernel_datetime
+    # degrade gracefully
+    for bad in ("", "Linux", "Linux host 1.2.3", "no date here at all")
+        p = KM3io._parse_system(bad)
+        @test ismissing(p.kernel_datetime)
+        @test "" == p.machine
+    end
+    @test "" == KM3io._parse_system("").hostname
+    @test ismissing(MetaData(Dict("application" => "JX")).kernel_datetime)
+
+    # printmeta
+    f = ROOTFile(datapath("offline", "numucc.root"))
+    out = sprint(printmeta, f)
+    @test occursin("Meta data (1 processing step)", out)
+    @test occursin("[1] JConvertEvt", out)
+    @test occursin("revision:  12.1.0", out)
+    @test occursin("datetime:  2019-12-10T13:59:52", out)
+    @test out == sprint(printmeta, f.meta)      # ROOTFile and its meta vector agree
+    close(f)
+
+    f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
+    out = sprint(printmeta, f)
+    @test occursin("Meta data (8 processing steps, oldest first)", out)
+    @test occursin("[8] JTriggerEfficiency", out)
+    close(f)
+
+    @test "No meta data.\n" == sprint(printmeta, MetaData[])
+    @test occursin("[1] JBar", sprint(printmeta, MetaData(Dict("application" => "JBar"))))
+end
