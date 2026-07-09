@@ -714,7 +714,7 @@ end
 end
 
 @testset "Meta data" begin
-    # Single application (file created by JConvertEvt)
+    # single application
     f = ROOTFile(datapath("offline", "numucc.root"))
     @test f.meta isa Vector{MetaData}
     @test 1 == length(f.meta)
@@ -727,12 +727,12 @@ end
     @test occursin("JConvertEvt -n 10", m.command)
     @test occursin("Linux", m.system)
     @test DateTime(2019, 12, 10, 13, 59, 52) == m.datetime
-    # the `system` entry is uname output and is decomposed
+    # `system` is uname output, decomposed
     @test "Linux" == m.sysname
     @test "cca007" == m.hostname
     @test "3.10.0-1062.9.1.el7.x86_64" == m.kernel_release
     @test "x86_64" == m.machine
-    # the date inside `system` is the kernel build time, not the processing time
+    # kernel build time, not the processing time
     @test DateTime(2019, 12, 6, 15, 49, 49) == m.kernel_datetime
     @test m.kernel_datetime != m.datetime
     # raw key-value access
@@ -745,7 +745,7 @@ end
     @test_throws KeyError m["nope"]
     close(f)
 
-    # Full processing chain, ordered by processing step
+    # full processing chain, ordered by processing step
     f = ROOTFile(datapath("offline", "mcv6.0.gsg_muon_highE-CC_50-500GeV.km3sim.jterbr00008357.jorcarec.aanet.905.root"))
     @test 8 == length(f.meta)
     @test ["JConvertEvt", "JMuonEnergy", "JMuonStart", "JMuonGandalf",
@@ -754,12 +754,11 @@ end
     # the two JMuonStart steps are distinct invocations
     @test f.meta[3].command != f.meta[5].command
     @test all(m -> m.revision == "14.1.0", f.meta)
-    # each application copies the meta of its input, so all entries carry the
-    # timestamp of the step which wrote this file
+    # all entries carry the timestamp of the step which wrote the file
     @test [DateTime(2021, 4, 14, 10, 36, 23)] == unique(m.datetime for m in f.meta)
     close(f)
 
-    # Online file, whose `system` holds a full "uname -a" (trailing "GNU/Linux")
+    # online file, `system` holds a full "uname -a"
     f = ROOTFile(datapath("online", "km3net_online.root"))
     @test 1 == length(f.meta)
     m = f.meta[1]
@@ -770,13 +769,13 @@ end
     @test DateTime(2014, 12, 16, 14, 29, 22) == m.kernel_datetime
     close(f)
 
-    # File without any meta data yields an empty vector
+    # no meta data
     f = ROOTFile(OFFLINEFILE)
     @test f.meta isa Vector{MetaData}
     @test isempty(f.meta)
     close(f)
 
-    # Parsing: value may itself contain '=' (only first '=' splits key/value)
+    # only the first '=' of a line splits key and value
     raw = KM3io._parse_jmeta("application=JFoo\ncommand=A -@ \"x = 1;\"\nGIT=1.2.3\n")
     @test "JFoo" == raw["application"]
     @test "A -@ \"x = 1;\"" == raw["command"]
@@ -785,24 +784,24 @@ end
     @test "JFoo" == md.application
     @test "1.2.3" == md.revision
 
-    # Parsing edge cases: empty value, no separator, blank lines
+    # empty value, no separator, blank lines
     raw = KM3io._parse_jmeta("a=\nnoseparator\n\nb=1")
     @test "" == raw["a"]
     @test "1" == raw["b"]
     @test !haskey(raw, "noseparator")
 
-    # Legacy files store the code version under SVN instead of GIT
+    # legacy files use SVN instead of GIT
     @test "9.9" == MetaData(Dict("application" => "JBar", "SVN" => "9.9")).revision
-    # Missing entries degrade to empty strings rather than throwing
+    # missing entries degrade instead of throwing
     @test "" == MetaData(Dict("application" => "JBar")).revision
     @test ismissing(MetaData(Dict("application" => "JBar")).datetime)
 
-    # ROOT TDatime decoding (cross-checked against ROOT's own TDatime)
+    # cross-checked against ROOT's own TDatime
     @test DateTime(2021, 4, 14, 10, 36, 23) == KM3io._datime2datetime(1763485975)
     @test DateTime(2019, 12, 10, 13, 59, 52) == KM3io._datime2datetime(1662312180)
     @test ismissing(KM3io._datime2datetime(0))          # month/day are 0 -> invalid
 
-    # uname decomposition of the `system` entry
+    # uname decomposition
     s = KM3io._parse_system("Linux cca007 3.10.0-1062.9.1.el7.x86_64 #1 SMP Fri Dec 6 15:49:49 UTC 2019 x86_64")
     @test ("Linux", "cca007", "x86_64") == (s.sysname, s.hostname, s.machine)
     @test DateTime(2019, 12, 6, 15, 49, 49) == s.kernel_datetime

@@ -1,37 +1,26 @@
-# Application meta data written by Jpp (km3net-dataformat, JSupport/JMeta.hh).
-# Each application in a processing chain stores a `TNamed` object inside the
-# top-level `META` ROOT directory. The object's title is a "key=value" list
-# (one entry per line) and its name is the application name. A parallel set of
-# `JMeta` objects records the processing order.
+# Jpp meta data (km3net-dataformat, JSupport/JMeta.hh): each application of a
+# processing chain adds a `TNamed` to the top-level `META` directory, named after
+# the application and with a "key=value" list (one per line) as its title.
 
 const META_DIRECTORY = "META"
 const META_NAME = "JMeta"
 
 """
-Meta data of a single Jpp application (one step of a processing chain), as stored
-via the `JMeta` mechanism of km3net-dataformat. A ROOT file usually carries one
-`MetaData` entry per application which processed it, accessible through the `meta`
-field of a [`ROOTFile`](@ref).
+Meta data of a single Jpp application, i.e. one step of the processing chain which
+produced a [`ROOTFile`](@ref), available via its `meta` field.
 
-The well-known entries are exposed as fields. The raw key-value pairs as stored in
-the file (including any non-standard keys) are reachable by indexing, e.g.
-`m["GIT"]`, together with `keys`, `haskey` and `get`. Note that older files store
-the code version under `SVN` instead of `GIT`; `revision` returns whichever is
-present.
+The well-known entries are exposed as fields, the raw key-value pairs via indexing
+(`m["GIT"]`), `keys`, `haskey` and `get`. `revision` is the `GIT` release, falling
+back to `SVN` for legacy files.
 
-The `datetime` is the time at which the entry was written to the file, taken from
-the timestamp of the underlying ROOT key. It is the local time of the writing
-machine and carries no timezone information, and it is `missing` if the file
-stores no valid timestamp. Since every application copies the meta data of its
-input file into its own output, all entries of a file usually share the timestamp
-of the processing step which created that file.
+`datetime` is the write time of the underlying ROOT key (local time of the writing
+machine, `missing` if the file stores no valid timestamp). Every application copies
+the meta data of its input, so all entries of a file usually carry the timestamp of
+the step which created it.
 
-The `system` entry is the `uname` output of the machine which ran the application
-and is decomposed into `sysname`, `hostname`, `kernel_release`, `kernel_datetime`
-and `machine`. Note that `kernel_datetime` is the build time of the operating
-system kernel, a property of the machine rather than of the processing step: all
-jobs running on the same kernel report the very same value. Use `datetime` to find
-out when a file was actually produced.
+`system` is the `uname` output, decomposed into `sysname`, `hostname`,
+`kernel_release`, `kernel_datetime` and `machine`. Note that `kernel_datetime` is
+the build time of the kernel and not a processing time.
 """
 struct MetaData
     application::String
@@ -73,16 +62,14 @@ const _MONTH_NUMBERS = Dict(
     "Jul" => 7, "Aug" => 8, "Sep" => 9, "Oct" => 10, "Nov" => 11, "Dec" => 12,
 )
 
-# The kernel build time as it appears in the `uname` version field, e.g.
-# "#1 SMP Fri Dec 6 15:49:49 UTC 2019". The leading weekday is skipped implicitly
-# since only the month name is followed by the day of month. The timezone token is
-# optional and discarded, the resulting time is the one recorded in the string.
+# Kernel build time in the `uname` version field, e.g. "#1 SMP Fri Dec 6 15:49:49
+# UTC 2019". Matching starts at the month, which skips the weekday since only the
+# month is followed by a day number. The timezone token is optional and discarded.
 const _KERNEL_DATETIME = r"([A-Z][a-z]{2})\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})(?:\s+[A-Za-z]{2,5})?\s+(\d{4})"
 
-# Jpp assembles the `system` entry as "sysname nodename release version machine"
-# (JUTSName). The version field itself contains spaces, but it always ends with
-# the year of the kernel build time, so the machine is the token right after it.
-# Some files instead store a full `uname -a`, which appends further tokens.
+# `system` is "sysname nodename release version machine" (JUTSName). The version
+# field contains spaces but always ends with the kernel build year, so `machine` is
+# the token right after it. Some files store a full `uname -a`, with more tokens.
 function _parse_system(system::AbstractString)
     tokens = split(system)
     n = length(tokens)
@@ -119,9 +106,8 @@ function _kerneldatetime(m::RegexMatch)
     end
 end
 
-# ROOT stores the write time of a key as a packed 32 bit word (`TDatime`): bits
-# 0-5 seconds, 6-11 minutes, 12-16 hours, 17-21 day, 22-25 month and 26-31 the
-# year since 1995.
+# ROOT's `TDatime`, a packed 32 bit word: bits 0-5 seconds, 6-11 minutes,
+# 12-16 hours, 17-21 day, 22-25 month, 26-31 year since 1995.
 function _datime2datetime(fDatime::Integer)
     d = UInt32(fDatime)
     year = Int(d >> 26) + 1995
@@ -187,9 +173,8 @@ function printmeta(io::IO, meta::AbstractVector{MetaData})
     nothing
 end
 
-# Split a JMeta title ("key=value" lines) into its raw key-value pairs. The value
-# may itself contain '=' (e.g. inside a command line), so only the first '=' of
-# each line separates key from value.
+# Values may contain '=' themselves (command lines), so only the first '=' of a
+# line separates key from value.
 function _parse_jmeta(title::AbstractString)
     raw = Dict{String, String}()
     for line in split(title, '\n')
@@ -203,10 +188,9 @@ function _parse_jmeta(title::AbstractString)
 end
 
 """
-Reads all application meta data from the `META` directory of a ROOT file and
-returns them as a vector of [`MetaData`](@ref), ordered by processing step (the
-first entry is the application which created the file). Returns an empty vector
-if the file has no meta data.
+Reads the application meta data from the `META` directory of a ROOT file, ordered
+by processing step (the first entry created the file). Empty if the file carries
+no meta data.
 """
 function readmeta(fobj::UnROOT.ROOTFile)
     idx = findfirst(
@@ -217,9 +201,8 @@ function readmeta(fobj::UnROOT.ROOTFile)
     try
         _readmeta(fobj, fobj.directory.keys[idx])
     catch e
-        # The META directory is the only part of the file which is read eagerly
-        # and it carries no event data. A truncated or corrupted one must not
-        # render an otherwise perfectly readable file unopenable.
+        # Meta data is auxiliary, but read eagerly: a corrupted META directory
+        # must not render an otherwise readable file unopenable.
         @warn "Unable to read the META directory, continuing without meta data." exception=e
         MetaData[]
     end
@@ -231,14 +214,13 @@ function _readmeta(fobj::UnROOT.ROOTFile, metakey)
         k -> k.fClassName == "TNamed" && k.fName != META_NAME,
         metadir.keys,
     )
-    # `fSeekKey` (byte offset in the file) grows with each appended write, so it
-    # recovers the chronological processing order regardless of ROOT cycles.
+    # `fSeekKey` (byte offset) grows with each appended write and thus recovers the
+    # processing order, regardless of ROOT cycles.
     sort!(appkeys, by = k -> k.fSeekKey)
     metadata = MetaData[]
     for k in appkeys
         raw = _parse_jmeta(k.fTitle)
-        # Every JMeta record stores the application name, anything else in this
-        # directory does not originate from Jpp.
+        # Only JMeta records carry an application name, skip anything else.
         haskey(raw, "application") || continue
         push!(metadata, MetaData(raw, _datime2datetime(k.fDatime)))
     end
