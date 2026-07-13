@@ -259,6 +259,8 @@ struct OfflineTree{T}
     header::Union{MCHeader, Missing}
     _frame_index_trigger_counter_lookup_map::Dict{Tuple{Int, Int}, Int}
     _t::T  # carry the type to ensure type-safety
+    _timeorder::Base.RefValue{Union{Nothing, Vector{Int}}}
+    _lock::ReentrantLock
 
     function OfflineTree(fobj::UnROOT.ROOTFile)
         tpath = ROOT.TTREE_OFFLINE_EVENT
@@ -307,7 +309,8 @@ struct OfflineTree{T}
 
         header = "Head" ∈ keys(fobj) ? MCHeader(fobj["Head"]) : missing
 
-        new{typeof(t)}(fobj, header, Dict{Tuple{Int, Int}, Int}(), t)
+        new{typeof(t)}(fobj, header, Dict{Tuple{Int, Int}, Int}(), t,
+                       Ref{Union{Nothing, Vector{Int}}}(nothing), ReentrantLock())
     end
 end
 OfflineTree(filename::AbstractString) = OfflineTree(UnROOT.ROOTFile(filename))
@@ -530,11 +533,26 @@ end
 struct OfflineTreeView{T, N}
     _tree::OfflineTree{T}
     skip::NTuple{N, Symbol}
+    _order::Union{Nothing, Vector{Int}}
+end
+
+# The events of an offline tree are not necessarily sorted in time either. Their
+# time is kept in two scalar branches, so the permutation is derived without
+# touching the hits or the tracks. It is cached in the tree and computed at most
+# once.
+function _timeorder(t::OfflineTree)
+    lock(t._lock) do
+        if isnothing(t._timeorder[])
+            timestamps = t["t/t.fSec", :] .* 1_000_000_000 .+ t["t/t.fNanoSec", :]
+            t._timeorder[] = sortperm(timestamps; alg=MergeSort)
+        end
+        t._timeorder[]
+    end
 end
 
 """
-    eachevent(f::OfflineTree; skip=(), only=nothing)
-    eachevent(t::OnlineTree)
+    eachevent(f::OfflineTree; skip=(), only=nothing, timesorted=false)
+    eachevent(t::OnlineTree; timesorted=false)
 
 An iterable, index-able view over the events of an offline or online tree.
 
@@ -548,6 +566,11 @@ iteration a lot when only a part of each event is needed. For example
 reconstructed tracks. For an online tree there is nothing to skip yet, so
 `eachevent(t)` is simply a thin wrapper over the DAQ events.
 
+Events are not guaranteed to be stored in the order of their time. With
+`timesorted`, they are handed over sorted by their time instead. The permutation
+is derived from the time branches alone, without ever reading the hits, and it is
+cached in the tree, so it is computed at most once.
+
 # Example
 ```
 julia> f = ROOTFile(datapath("offline", "km3net_offline.root"));
@@ -559,16 +582,22 @@ julia> for e ∈ eachevent(f.offline; skip=(:hits, :mc_hits))
 julia> for e ∈ eachevent(f.offline; only=:mc_trks)
            @show length(e.mc_trks)  # only the MC tracks are read
        end
+
+julia> for e ∈ eachevent(f.offline; timesorted=true)
+           @show e.t  # in time order
+       end
 ```
 """
-eachevent(f::OfflineTree; skip=(), only=nothing) = OfflineTreeView(f, _resolve_skip(skip, only))
+eachevent(f::OfflineTree; skip=(), only=nothing, timesorted=false) =
+    OfflineTreeView(f, _resolve_skip(skip, only), timesorted ? _timeorder(f) : nothing)
 
 Base.length(v::OfflineTreeView) = length(v._tree)
 Base.size(v::OfflineTreeView) = (length(v),)
 Base.firstindex(v::OfflineTreeView) = 1
 Base.lastindex(v::OfflineTreeView) = length(v)
 Base.eltype(::OfflineTreeView) = Evt
-Base.getindex(v::OfflineTreeView, idx::Integer) = _evt(v._tree, idx, v.skip)
+Base.getindex(v::OfflineTreeView, idx::Integer) =
+    _evt(v._tree, isnothing(v._order) ? idx : v._order[idx], v.skip)
 Base.getindex(v::OfflineTreeView, r::UnitRange) = [v[idx] for idx ∈ r]
 Base.getindex(v::OfflineTreeView, mask::BitArray) = [v[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.iterate(v::OfflineTreeView, state=1)

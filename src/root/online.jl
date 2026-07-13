@@ -582,6 +582,8 @@ struct OnlineTree
     summaryslices::Union{SummarysliceContainer, Nothing}
     timeslices::Timeslices
     _frame_index_trigger_counter_lookup_map::Dict{Tuple{Int, Int}, Int}
+    _timeorders::Dict{Symbol, Vector{Int}}
+    _lock::ReentrantLock
 
     function OnlineTree(fobj::UnROOT.ROOTFile)
         keyset = keys(fobj)
@@ -597,7 +599,8 @@ struct OnlineTree
                 UnROOT.LazyBranch(fobj, "KM3NET_SUMMARYSLICE/KM3NET_SUMMARYSLICE/vector<KM3NETDAQ::JDAQSummaryFrame>")
             ) : nothing
         timeslices = Timeslices(fobj)
-        new(fobj, events, summaryslices, timeslices, Dict{Tuple{Int, Int}, Int}())
+        new(fobj, events, summaryslices, timeslices, Dict{Tuple{Int, Int}, Int}(),
+            Dict{Symbol, Vector{Int}}(), ReentrantLock())
     end
 end
 function Base.show(io::IO, t::OnlineTree)
@@ -611,12 +614,63 @@ function Base.show(io::IO, t::OnlineTree)
     print(io, "OnlineTree ($(join(parts, ", ")))")
 end
 
+# Time ordering
+#
+# The DAQ writes events, summaryslices and timeslices in the order in which the
+# data filter processed them, which is not their order in time. The `timesorted`
+# keyword of the `each*` iterators hands them over in time order instead.
+#
+# The permutation is derived from the header alone: only the branches holding the
+# time of each entry are read, never the payload branches with the hits, which are
+# orders of magnitude larger. It is then cached in the tree, so that it is
+# computed at most once per stream, no matter how often the iterators are created.
+
+_nanoseconds(t::UTCExtended) = UInt64(t.s) * 1_000_000_000 + t.ns
+
+# the timeslice header readers can hand out the time without reading the rest of
+# the header (the split one keeps it in its own branch)
+_readtimestamp(r::_SplitHeaderReader, idx::Integer) = _readtime(r._time, idx)
+_readtimestamp(r::_ObjectHeaderReader, idx::Integer) = r._header[idx].t
+
+_timestamps(c::EventContainer) = UInt64[_nanoseconds(h.t) for h ∈ c.headers]
+_timestamps(c::SummarysliceContainer) = UInt64[_nanoseconds(h.t) for h ∈ c.headers]
+_timestamps(c::TimesliceContainer) = UInt64[_nanoseconds(_readtimestamp(c._header, idx)) for idx ∈ 1:length(c)]
+
+# A stable sort, so that entries which share a header time (all the events of a
+# single timeslice do) keep the order in which they were written.
+_timesortperm(c) = sortperm(_timestamps(c); alg=MergeSort)
+
+# The cached time order of a stream, computed on first use. `nothing` for an
+# absent stream, so that it can be passed straight to a view.
+_timeorder(t::OnlineTree, key::Symbol, ::Nothing) = nothing
+function _timeorder(t::OnlineTree, key::Symbol, container)
+    lock(t._lock) do
+        get!(() -> _timesortperm(container), t._timeorders, key)
+    end
+end
+
+# The entry to read for the `idx`-th element of a view, which is `idx` itself
+# unless the view carries a permutation.
+const _Order = Union{Nothing, Vector{Int}}
+_entry(::Nothing, idx::Integer) = idx
+_entry(order::Vector{Int}, idx::Integer) = order[idx]
+
 # Online counterpart of eachevent. A plain wrapper for now (no branch skipping),
 # provided so the same verb works for online and offline trees.
 struct OnlineTreeView
     _tree::OnlineTree
+    _order::_Order
 end
-eachevent(t::OnlineTree) = OnlineTreeView(t)
+
+"""
+    eachevent(t::OnlineTree; timesorted=false)
+
+An iterable, index-able view over the DAQ events of an online tree. With
+`timesorted`, the events are handed over in the order of their header time rather
+than in the order in which they were written, see [`eachtimeslice`](@ref).
+"""
+eachevent(t::OnlineTree; timesorted=false) =
+    OnlineTreeView(t, timesorted ? _timeorder(t, :events, t.events) : nothing)
 
 _eventcontainer(v::OnlineTreeView) = v._tree.events
 Base.length(v::OnlineTreeView) = (c = _eventcontainer(v); isnothing(c) ? 0 : length(c))
@@ -624,7 +678,7 @@ Base.size(v::OnlineTreeView) = (length(v),)
 Base.firstindex(v::OnlineTreeView) = 1
 Base.lastindex(v::OnlineTreeView) = length(v)
 Base.eltype(::OnlineTreeView) = DAQEvent
-Base.getindex(v::OnlineTreeView, idx::Integer) = _eventcontainer(v)[idx]
+Base.getindex(v::OnlineTreeView, idx::Integer) = _eventcontainer(v)[_entry(v._order, idx)]
 Base.getindex(v::OnlineTreeView, r::UnitRange) = [v[idx] for idx ∈ r]
 Base.getindex(v::OnlineTreeView, mask::BitArray) = [v[idx] for (idx, selected) ∈ enumerate(mask) if selected]
 function Base.iterate(v::OnlineTreeView, state=1)
@@ -632,6 +686,51 @@ function Base.iterate(v::OnlineTreeView, state=1)
 end
 function Base.show(io::IO, v::OnlineTreeView)
     print(io, "OnlineTreeView ($(length(v)) events)")
+end
+
+struct SummarysliceView{C<:Union{SummarysliceContainer, Nothing}}
+    _container::C
+    _order::_Order
+end
+
+"""
+    eachsummaryslice(t::OnlineTree; timesorted=false)
+    eachsummaryslice(f::ROOTFile; timesorted=false)
+
+An iterable, index-able view over the summaryslices, the counterpart of
+[`eachevent`](@ref) for the summaryslice tree. A file without summaryslices simply
+yields nothing, so no guard is needed.
+
+With `timesorted`, the summaryslices are handed over in the order of their header
+time rather than in the order in which they were written, see
+[`eachtimeslice`](@ref).
+
+# Example
+```
+julia> f = ROOTFile(datapath("online", "km3net_online.root"));
+
+julia> for s ∈ eachsummaryslice(f; timesorted=true)
+           @show s.header.frame_index, length(s.frames)
+       end
+```
+"""
+eachsummaryslice(t::OnlineTree; timesorted=false) =
+    SummarysliceView(t.summaryslices, timesorted ? _timeorder(t, :summaryslices, t.summaryslices) : nothing)
+
+Base.length(::SummarysliceView{Nothing}) = 0
+Base.length(v::SummarysliceView) = length(v._container)
+Base.size(v::SummarysliceView) = (length(v),)
+Base.firstindex(v::SummarysliceView) = 1
+Base.lastindex(v::SummarysliceView) = length(v)
+Base.eltype(::SummarysliceView) = Summaryslice
+Base.getindex(v::SummarysliceView, idx::Integer) = v._container[_entry(v._order, idx)]
+Base.getindex(v::SummarysliceView, r::UnitRange) = [v[idx] for idx ∈ r]
+Base.getindex(v::SummarysliceView, mask::BitArray) = [v[idx] for (idx, selected) ∈ enumerate(mask) if selected]
+function Base.iterate(v::SummarysliceView, state=1)
+    state > length(v) ? nothing : (v[state], state+1)
+end
+function Base.show(io::IO, v::SummarysliceView)
+    print(io, "SummarysliceView ($(length(v)) summaryslices)")
 end
 
 # Whether a timeslice has at least one super frame of one of the given optical
@@ -647,6 +746,7 @@ _hasmodule(r::_MemberwiseFrameReader, idx::Integer, module_ids) =
 struct TimesliceView{C<:Union{TimesliceContainer, Nothing}}
     _container::C
     module_ids::Set{Int32}
+    _order::_Order
 end
 Base.eltype(::TimesliceView) = Timeslice
 Base.IteratorSize(::Type{<:TimesliceView}) = Base.SizeUnknown()
@@ -654,8 +754,9 @@ Base.iterate(::TimesliceView{Nothing}, state=1) = nothing
 function Base.iterate(v::TimesliceView{<:TimesliceContainer}, state=1)
     c = v._container
     while state <= length(c)
-        if isempty(v.module_ids) || _hasmodule(c._frames, state, v.module_ids)
-            return (c[state], state + 1)
+        idx = _entry(v._order, state)
+        if isempty(v.module_ids) || _hasmodule(c._frames, idx, v.module_ids)
+            return (c[idx], state + 1)
         end
         state += 1
     end
@@ -670,12 +771,18 @@ function Base.show(io::IO, v::TimesliceView{<:TimesliceContainer})
 end
 
 """
-    eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=())
-    eachtimeslice(f::ROOTFile, stream::Symbol; module_ids=())
+    eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=(), timesorted=false)
+    eachtimeslice(f::ROOTFile, stream::Symbol; module_ids=(), timesorted=false)
 
 An iterable view over the timeslices of a single `stream` (`:L0`, `:L1`, `:L2`,
 `:SN` or `:TS`), the online counterpart of [`eachevent`](@ref) for timeslices. A
 stream which is absent or empty simply yields nothing, so no guard is needed.
+
+The DAQ writes the entries of a tree in the order in which the data filter
+processed them, which is not their order in time. With `timesorted`, they are
+handed over sorted by their header time instead. The permutation is derived from
+the header branches alone, without ever reading the hits, and it is cached in the
+tree, so it is computed at most once per stream.
 
 `module_ids` restricts the iteration to the timeslices which have at least one
 super frame of one of the given optical modules; all others are skipped. The
@@ -701,8 +808,13 @@ julia> for ts ∈ eachtimeslice(f, :L1)
 julia> for ts ∈ eachL1timeslice(f; module_ids=(806451572, 806455814))
            # only timeslices with a frame of one of the two modules
        end
+
+julia> for ts ∈ eachTStimeslice(f; timesorted=true)
+           @show ts.header.frame_index  # in time order, not in the order written
+       end
 ```
 """
-function eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=())
-    TimesliceView(getproperty(t.timeslices, stream), Set{Int32}(module_ids))
+function eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=(), timesorted=false)
+    c = getproperty(t.timeslices, stream)
+    TimesliceView(c, Set{Int32}(module_ids), timesorted ? _timeorder(t, stream, c) : nothing)
 end

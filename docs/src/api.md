@@ -74,6 +74,7 @@ hasL1timeslices
 hasL2timeslices
 hasSNtimeslices
 hasTStimeslices
+eachsummaryslice
 eachtimeslice
 eachL0timeslice
 eachL1timeslice

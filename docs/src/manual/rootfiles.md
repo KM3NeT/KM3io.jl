@@ -407,6 +407,16 @@ s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c,
 s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))
 ```
 
+[`eachsummaryslice`](@ref) is the iterator counterpart, which also works on a file
+without summaryslices (it then simply yields nothing) and accepts `timesorted`,
+see [Time order](@ref):
+
+```@example 2
+using KM3io, KM3NeTTestData # hide
+f = ROOTFile(datapath("online", "km3net_online.root")) # hide
+[s.header.frame_index for s in eachsummaryslice(f)]
+```
+
 Each summaryslice consists of multiple frames, one for every optical module which
 has sent data during the recording time of the corresponding timeslice.
 
@@ -597,6 +607,47 @@ The frames of a yielded timeslice are *not* filtered, the timeslice is handed ov
 as it is. Note also that only the fully split on-disk layout can tell which
 modules a timeslice contains without reading its hits; for the other layouts the
 hits are decoded anyway and the saving is in the loop body rather than in the I/O.
+
+### Time order
+
+The DAQ writes the entries of a tree in the order in which the data filter
+processed them, which is **not** their order in time. The L1 timeslices of the
+example file, for instance, are stored as:
+
+```@example timeslices
+[ts.header.frame_index for ts in eachL1timeslice(f)]
+```
+
+Every iterator ([`eachevent`](@ref), [`eachsummaryslice`](@ref),
+[`eachtimeslice`](@ref) and its per-stream shortcuts) takes a `timesorted`
+keyword, which hands the entries over sorted by their header time instead:
+
+```@example timeslices
+[ts.header.frame_index for ts in eachL1timeslice(f; timesorted=true)]
+```
+
+It also applies to the offline events, which are not stored in time order either:
+
+```julia-repl
+julia> for e ∈ eachevent(f.offline; timesorted=true)
+           @show e.t
+       end
+```
+
+The permutation is derived from the header branches alone, so the hits, which
+outweigh the headers by orders of magnitude, are never read for it. Sorting a full
+run file is therefore a matter of milliseconds even for the largest trees (about
+100 ms for the 107k summaryslices, and about the same for the 107k SN timeslices
+of a 3 GB run file). The result is cached in the tree, so it is computed at most
+once per stream, no matter how often an iterator is created.
+
+!!! note "Events of the same timeslice"
+
+    The header time of an event is the start of the timeslice it was triggered in,
+    so all the events of a single timeslice share it. The sort is stable, which
+    means those events keep the order in which they were written, i.e. their
+    trigger order. Sorting by `(t, trigger_counter)` instead would give the same
+    result.
 
 The supernova stream is accessed in exactly the same way. Because it only keeps
 higher-order coincidences, many of its super frames (and occasionally whole

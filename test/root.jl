@@ -694,6 +694,75 @@ end
     close(g)
 end
 
+@testset "eachsummaryslice" begin
+    f = ROOTFile(ONLINEFILE)
+
+    v = eachsummaryslice(f)
+    @test 3 == length(v)
+    @test Summaryslice == eltype(v)
+    @test [126, 127, 128] == [s.header.frame_index for s in v]
+    @test 64 == length(v[1].frames)
+    @test 2 == length(v[1:2])
+    @test 3 == length(collect(eachsummaryslice(f.online)))
+
+    # a file without summaryslices yields nothing
+    @test 0 == length(collect(eachsummaryslice(ROOTFile(OFFLINEFILE))))
+
+    close(f)
+end
+
+@testset "timesorted" begin
+    f = ROOTFile(ONLINEFILE)
+
+    # the DAQ writes the entries in the order the data filter processed them,
+    # which is not their order in time
+    @test [512, 509, 514] == [ts.header.frame_index for ts in eachL1timeslice(f)]
+    @test [509, 512, 514] == [ts.header.frame_index for ts in eachL1timeslice(f; timesorted=true)]
+    @test [240, 259, 250] == [ts.header.frame_index for ts in eachTStimeslice(f)]
+    @test [240, 250, 259] == [ts.header.frame_index for ts in eachTStimeslice(f; timesorted=true)]
+
+    # the time order is monotonic for every stream and for the events
+    ns(t) = UInt64(t.s) * 1_000_000_000 + t.ns
+    @test issorted([ns(ts.header.t) for ts in eachL1timeslice(f; timesorted=true)])
+    @test issorted([ns(ts.header.t) for ts in eachTStimeslice(f; timesorted=true)])
+    @test issorted([ns(ts.header.t) for ts in eachSNtimeslice(f; timesorted=true)])
+    @test issorted([ns(s.header.t) for s in eachsummaryslice(f; timesorted=true)])
+    @test issorted([ns(e.header.t) for e in eachevent(f.online; timesorted=true)])
+
+    # sorting is a permutation, nothing is lost or duplicated
+    @test sort([ts.header.frame_index for ts in eachL1timeslice(f)]) ==
+          sort([ts.header.frame_index for ts in eachL1timeslice(f; timesorted=true)])
+    @test 3 == length(collect(eachsummaryslice(f; timesorted=true)))
+    @test 3 == length(collect(eachevent(f.online; timesorted=true)))
+
+    # the order is cached in the tree, so it is computed once per stream
+    @test :L1 ∈ keys(f.online._timeorders)
+    @test [2, 1, 3] == f.online._timeorders[:L1]
+    @test f.online._timeorders[:L1] === f.online._timeorders[:L1]
+
+    # timesorted composes with module_ids
+    @test [240, 250, 259] ==
+        [ts.header.frame_index for ts in eachTStimeslice(f; timesorted=true, module_ids=(808969857,))]
+    @test 0 == length(collect(eachTStimeslice(f; timesorted=true, module_ids=(1,))))
+
+    # an absent stream stays empty
+    @test 0 == length(collect(eachL0timeslice(f; timesorted=true)))
+
+    close(f)
+
+    # offline events are not stored in time order either
+    g = ROOTFile(OFFLINEFILE)
+    times = [e.t for e in eachevent(g.offline)]
+    @test !issorted(times)
+    sorted = [e.t for e in eachevent(g.offline; timesorted=true)]
+    @test issorted(sorted)
+    @test sort(times) == sorted
+    # composes with skip, and the cache is reused
+    @test issorted([e.t for e in eachevent(g.offline; timesorted=true, skip=(:hits, :mc_hits))])
+    @test !isnothing(g.offline._timeorder[])
+    close(g)
+end
+
 @testset "DAQ status of super frames" begin
     f = ROOTFile(ONLINEFILE)
     frame = f.online.timeslices.TS[1].frames[1]
