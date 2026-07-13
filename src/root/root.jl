@@ -98,22 +98,64 @@ hastimeslices(f::ROOTFile) = !isnothing(f.online) &&
 """
 Returns true if the file contains L0 (unfiltered) timeslices.
 """
-hasl0timeslices(f::ROOTFile) = hastimeslices(f, :L0)
+hasL0timeslices(f::ROOTFile) = hastimeslices(f, :L0)
 
 """
 Returns true if the file contains L1 (loose coincidence) timeslices.
 """
-hasl1timeslices(f::ROOTFile) = hastimeslices(f, :L1)
+hasL1timeslices(f::ROOTFile) = hastimeslices(f, :L1)
 
 """
 Returns true if the file contains L2 (tight coincidence) timeslices.
 """
-hasl2timeslices(f::ROOTFile) = hastimeslices(f, :L2)
+hasL2timeslices(f::ROOTFile) = hastimeslices(f, :L2)
 
 """
 Returns true if the file contains SN (supernova) timeslices.
 """
-hassntimeslices(f::ROOTFile) = hastimeslices(f, :SN)
+hasSNtimeslices(f::ROOTFile) = hastimeslices(f, :SN)
+
+"""
+Returns true if the file contains timeslices in the bare `KM3NET_TIMESLICE` tree,
+which holds the super frames discarded by the data filter, see [`checksum`](@ref).
+"""
+hasTStimeslices(f::ROOTFile) = hastimeslices(f, :TS)
+
+
+# A timeslice stream can be iterated from a file or directly from its online tree.
+const TimesliceSource = Union{ROOTFile, OnlineTree}
+
+function eachtimeslice(f::ROOTFile, stream::Symbol; module_ids=())
+    isnothing(f.online) && return TimesliceView(nothing, Set{Int32}(module_ids))
+    eachtimeslice(f.online, stream; module_ids=module_ids)
+end
+
+"""
+Iterate over the L0 (unfiltered) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL0timeslice(src::TimesliceSource; module_ids=()) = eachtimeslice(src, :L0; module_ids=module_ids)
+
+"""
+Iterate over the L1 (loose coincidence) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL1timeslice(src::TimesliceSource; module_ids=()) = eachtimeslice(src, :L1; module_ids=module_ids)
+
+"""
+Iterate over the L2 (tight coincidence) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL2timeslice(src::TimesliceSource; module_ids=()) = eachtimeslice(src, :L2; module_ids=module_ids)
+
+"""
+Iterate over the SN (supernova) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachSNtimeslice(src::TimesliceSource; module_ids=()) = eachtimeslice(src, :SN; module_ids=module_ids)
+
+"""
+Iterate over the timeslices of the bare `KM3NET_TIMESLICE` tree, which holds the
+super frames discarded by the data filter, see [`eachtimeslice`](@ref) and
+[`checksum`](@ref).
+"""
+eachTStimeslice(src::TimesliceSource; module_ids=()) = eachtimeslice(src, :TS; module_ids=module_ids)
 
 
 """

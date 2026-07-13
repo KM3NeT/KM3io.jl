@@ -633,3 +633,76 @@ end
 function Base.show(io::IO, v::OnlineTreeView)
     print(io, "OnlineTreeView ($(length(v)) events)")
 end
+
+# Whether a timeslice has at least one super frame of one of the given optical
+# modules. The fully split layout keeps the module ids in their own branch, so
+# they can be checked without touching the hits, which are by far the bulk of a
+# timeslice. The member-wise layout stores everything in a single branch, so the
+# timeslice has to be decoded either way (the decoded basket is cached by UnROOT,
+# so reading a matching timeslice afterwards is free).
+_hasmodule(r::_SplitFrameReader, idx::Integer, module_ids) = any(∈(module_ids), r._module_id[idx])
+_hasmodule(r::_MemberwiseFrameReader, idx::Integer, module_ids) =
+    any(frame -> frame.module_id ∈ module_ids, r._frames[idx])
+
+struct TimesliceView{C<:Union{TimesliceContainer, Nothing}}
+    _container::C
+    module_ids::Set{Int32}
+end
+Base.eltype(::TimesliceView) = Timeslice
+Base.IteratorSize(::Type{<:TimesliceView}) = Base.SizeUnknown()
+Base.iterate(::TimesliceView{Nothing}, state=1) = nothing
+function Base.iterate(v::TimesliceView{<:TimesliceContainer}, state=1)
+    c = v._container
+    while state <= length(c)
+        if isempty(v.module_ids) || _hasmodule(c._frames, state, v.module_ids)
+            return (c[state], state + 1)
+        end
+        state += 1
+    end
+    nothing
+end
+function Base.show(io::IO, v::TimesliceView{Nothing})
+    print(io, "TimesliceView (empty)")
+end
+function Base.show(io::IO, v::TimesliceView{<:TimesliceContainer})
+    filtered = isempty(v.module_ids) ? "" : ", filtered by $(length(v.module_ids)) module(s)"
+    print(io, "TimesliceView ($(v._container.stream), $(length(v._container)) timeslices$(filtered))")
+end
+
+"""
+    eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=())
+    eachtimeslice(f::ROOTFile, stream::Symbol; module_ids=())
+
+An iterable view over the timeslices of a single `stream` (`:L0`, `:L1`, `:L2`,
+`:SN` or `:TS`), the online counterpart of [`eachevent`](@ref) for timeslices. A
+stream which is absent or empty simply yields nothing, so no guard is needed.
+
+`module_ids` restricts the iteration to the timeslices which have at least one
+super frame of one of the given optical modules; all others are skipped. The
+frames of a yielded timeslice are not filtered. This mostly pays off for the `:TS`
+stream, where a timeslice usually holds a single module, while the L0, L1, L2 and
+SN streams normally carry a frame of every active module in every timeslice, so
+that nothing gets skipped. Note also that only the fully split on-disk layout can
+decide this without reading the hits, so for other files the saving is in the loop
+body, not in the I/O.
+
+The per-stream shortcuts [`eachL0timeslice`](@ref), [`eachL1timeslice`](@ref),
+[`eachL2timeslice`](@ref), [`eachSNtimeslice`](@ref) and [`eachTStimeslice`](@ref)
+are also available.
+
+# Example
+```
+julia> f = ROOTFile(datapath("online", "km3net_online.root"));
+
+julia> for ts ∈ eachtimeslice(f, :L1)
+           @show ts.header.frame_index, length(ts.frames)
+       end
+
+julia> for ts ∈ eachL1timeslice(f; module_ids=(806451572, 806455814))
+           # only timeslices with a frame of one of the two modules
+       end
+```
+"""
+function eachtimeslice(t::OnlineTree, stream::Symbol; module_ids=())
+    TimesliceView(getproperty(t.timeslices, stream), Set{Int32}(module_ids))
+end

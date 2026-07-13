@@ -443,10 +443,10 @@ end
     @test hastimeslices(f, :SN)
     @test !hastimeslices(f, :L0)
     @test !hastimeslices(f, :L2)
-    @test hasl1timeslices(f)
-    @test hassntimeslices(f)
-    @test !hasl0timeslices(f)
-    @test !hasl2timeslices(f)
+    @test hasL1timeslices(f)
+    @test hasSNtimeslices(f)
+    @test !hasL0timeslices(f)
+    @test !hasL2timeslices(f)
 
     # absent/empty streams are `nothing`
     @test f.online.timeslices.L0 === nothing
@@ -539,10 +539,10 @@ end
     f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_L1.root"))
     @test hastimeslices(f, :L1)
     @test !hastimeslices(f, :SN)
-    @test hasl1timeslices(f)
-    @test !hasl0timeslices(f)
-    @test !hasl2timeslices(f)
-    @test !hassntimeslices(f)
+    @test hasL1timeslices(f)
+    @test !hasL0timeslices(f)
+    @test !hasL2timeslices(f)
+    @test !hasSNtimeslices(f)
     @test f.online.timeslices.L0 === nothing
     @test f.online.timeslices.L2 === nothing
     @test f.online.timeslices.SN === nothing
@@ -577,8 +577,8 @@ end
     f = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_SN.root"))
     @test hastimeslices(f, :SN)
     @test !hastimeslices(f, :L1)
-    @test hassntimeslices(f)
-    @test !hasl1timeslices(f)
+    @test hasSNtimeslices(f)
+    @test !hasL1timeslices(f)
     SN = f.online.timeslices.SN
     @test 100 == length(SN)
 
@@ -640,6 +640,58 @@ end
     @test all(t -> all(isvalid, t.frames), f.online.timeslices.SN)
 
     close(f)
+end
+
+@testset "eachtimeslice" begin
+    f = ROOTFile(ONLINEFILE)
+
+    @test 3 == length(collect(eachtimeslice(f, :L1)))
+    @test 3 == length(collect(eachL1timeslice(f)))
+    @test 3 == length(collect(eachSNtimeslice(f)))
+    @test 3 == length(collect(eachTStimeslice(f)))
+    @test Timeslice == eltype(eachL1timeslice(f))
+
+    # absent and empty streams simply yield nothing, no guard needed
+    @test 0 == length(collect(eachL0timeslice(f)))
+    @test 0 == length(collect(eachL2timeslice(f)))
+    @test 0 == length(collect(eachtimeslice(ROOTFile(OFFLINEFILE), :L1)))
+
+    # the online tree works just like the file
+    @test 3 == length(collect(eachtimeslice(f.online, :L1)))
+    @test 3 == length(collect(eachL1timeslice(f.online)))
+
+    @test [512, 509, 514] == [ts.header.frame_index for ts in eachL1timeslice(f)]
+    @test [126, 127, 128] == [ts.header.frame_index for ts in eachSNtimeslice(f)]
+    @test all(ts -> ts.stream == :L1, eachL1timeslice(f))
+
+    # module_ids skips the timeslices without a frame of any of the given modules
+    @test 3 == length(collect(eachL1timeslice(f; module_ids=(806451572,))))
+    @test 0 == length(collect(eachL1timeslice(f; module_ids=(1234,))))
+    @test 3 == length(collect(eachL1timeslice(f; module_ids=Set([1234, 806451572]))))
+    # frames are handed over unfiltered
+    @test 69 == length(first(eachL1timeslice(f; module_ids=(806451572,))).frames)
+
+    # the SN stream has empty frames and timeslices, and a single module which
+    # only shows up in some of them
+    sn_modules = [Set(fr.module_id for fr in ts.frames if !isempty(fr.hits)) for ts in eachSNtimeslice(f)]
+    module_id = first(sn_modules[1])
+    selected = collect(eachSNtimeslice(f; module_ids=(module_id,)))
+    @test length(selected) == count(m -> module_id ∈ m, [Set(fr.module_id for fr in ts.frames) for ts in eachSNtimeslice(f)])
+    @test all(ts -> any(fr -> fr.module_id == module_id, ts.frames), selected)
+
+    # the TS stream holds a single module per timeslice
+    @test 3 == length(collect(eachTStimeslice(f; module_ids=(808969857,))))
+    @test 0 == length(collect(eachTStimeslice(f; module_ids=(806451572,))))
+
+    close(f)
+
+    # the member-wise layout takes the other code path for the module id lookup
+    g = ROOTFile(datapath("online", "KM3NeT_00000267_00025291_L1.root"))
+    @test 3 == length(collect(eachL1timeslice(g)))
+    @test 3 == length(collect(eachL1timeslice(g; module_ids=(806455816,))))
+    @test 0 == length(collect(eachL1timeslice(g; module_ids=(1,))))
+    @test [5057, 5058, 5059] == [ts.header.frame_index for ts in eachL1timeslice(g)]
+    close(g)
 end
 
 @testset "DAQ status of super frames" begin

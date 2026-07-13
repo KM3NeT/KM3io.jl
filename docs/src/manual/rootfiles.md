@@ -17,7 +17,7 @@ without poking into the lazy containers:
 - [`hasofflineevents`](@ref) === `true` if the file has a non-empty offline event tree (`E`).
 - [`hasonlineevents`](@ref) === `true` if the file has a non-empty online event tree (`KM3NET_EVENT`).
 - [`hassummaryslices`](@ref)  === `true` if the file has a non-empty summaryslice tree (`KM3NET_SUMMARYSLICE`).
-- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2`, `:SN` or `:TS`) to check a specific one. The per-stream shortcuts [`hasl0timeslices`](@ref), [`hasl1timeslices`](@ref), [`hasl2timeslices`](@ref) and [`hassntimeslices`](@ref) are also available.
+- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2`, `:SN` or `:TS`) to check a specific one. The per-stream shortcuts [`hasL0timeslices`](@ref), [`hasL1timeslices`](@ref), [`hasL2timeslices`](@ref), [`hasSNtimeslices`](@ref) and [`hasTStimeslices`](@ref) are also available.
 
 Each returns `false` when the corresponding tree is missing or empty, so they
 are safe to call on any file:
@@ -556,6 +556,47 @@ below), so that Julia can specialise on the concrete container type:
 total_hits(c) = sum(length(frame.hits) for ts in c for frame in ts.frames)
 total_hits(f.online.timeslices.L1)
 ```
+
+### Iterating timeslices
+
+[`eachtimeslice`](@ref) is the counterpart of [`eachevent`](@ref) for timeslices.
+It takes the stream as a symbol, and a stream which is absent or empty yields
+nothing, so the loop needs no guard:
+
+```@example timeslices
+for ts in eachtimeslice(f, :L1)
+    println(ts.header.frame_index, ": ", length(ts.frames), " frames")
+end
+```
+
+The shortcuts [`eachL0timeslice`](@ref), [`eachL1timeslice`](@ref),
+[`eachL2timeslice`](@ref), [`eachSNtimeslice`](@ref) and [`eachTStimeslice`](@ref)
+spell out the stream instead:
+
+```@example timeslices
+sum(length(ts.frames) for ts in eachSNtimeslice(f))
+```
+
+When only a few optical modules are of interest, `module_ids` skips the
+timeslices which have no super frame of any of them. This pays off for the sparse
+streams: a timeslice of the `TS` stream typically holds a single module, so
+selecting one picks out exactly the timeslices in which it was discarded, and a
+module which was never discarded yields nothing at all:
+
+```@example timeslices
+([ts.header.frame_index for ts in eachTStimeslice(f; module_ids=(808969857,))],
+ [ts.header.frame_index for ts in eachTStimeslice(f; module_ids=(806451572,))])
+```
+
+For L0, L1, L2 and SN the filter is of little use, since these streams normally
+carry a frame of every active module in every single timeslice, so nothing gets
+skipped. It is still accepted there, e.g. for files which only cover a part of the
+detector.
+
+The frames of a yielded timeslice are *not* filtered, the timeslice is handed over
+as it is. Note also that only the fully split on-disk layout can tell which
+modules a timeslice contains without reading its hits; for the other layouts the
+hits are decoded anyway and the saving is in the loop body rather than in the I/O.
 
 The supernova stream is accessed in exactly the same way. Because it only keeps
 higher-order coincidences, many of its super frames (and occasionally whole
