@@ -170,6 +170,12 @@ end
 # The strategy types `_TimesliceHeaderReader`, `_TimesliceTimeReader` and
 # `_SuperFrameReader` abstract over these so that the public container interface
 # stays identical.
+#
+# An unsplit `vector<KM3NETDAQ::JDAQSuperFrame>` can moreover be streamed either
+# member-wise (columnar, what the DAQ writes) or object-wise (one whole super
+# frame after the other, as ROOT does without a member-wise streamer). The
+# member-wise bit of the collection streamer version tells the two apart and
+# `_parse_superframes` decodes both.
 
 # The bare `KM3NET_TIMESLICE` tree is written with split level 1 (the other
 # streams use 2), which leaves the `KM3NETDAQ::JDAQTimesliceHeader` as a single
@@ -218,10 +224,65 @@ end
 
 """
 
-Decode the member-wise streamed `vector<KM3NETDAQ::JDAQSuperFrame>` branch of a
-timeslice into a `Vector{SuperFrame}` for each entry.
+Decode an object-wise streamed `vector<KM3NETDAQ::JDAQSuperFrame>` into a
+`Vector{SuperFrame}`, with the `io` positioned right after the collection
+streamer version.
 
-The collection is streamed member-wise (columnar): after a 12 byte header
+In contrast to the member-wise (columnar) layout of the DAQ files, each super
+frame is serialised as a whole here, with a ROOT object header (byte count and
+class version) in front of every (base) class:
+
+    JDAQPreamble.length            Int32
+    JDAQPreamble.type              Int32       (= DAQSUPERFRAME)
+    JDAQSuperFrameHeader           6 byte object header
+      JDAQHeader                   6 byte object header
+        JDAQChronometer            6 byte object header
+        detector_id, run, frame_index    3 x Int32   (redundant with the timeslice header)
+        timeslice_start            6 byte object header + 2 x UInt32
+      JDAQModuleIdentifier.id      Int32       (the module id)
+      JDAQFrameStatus              6 byte object header
+        daq, status, fifo, status_3, status_4    5 x UInt32
+    JDAQFrame                      6 byte object header
+      numberOfHits                 Int32
+      buffer                       6 byte object header + the hits
+
+"""
+function _read_superframes_objectwise(io::IO)
+    n = UnROOT.readtype(io, Int32)
+    n < 0 && error("Corrupt timeslice: negative super frame count ($n)")
+    frames = Vector{SuperFrame}(undef, n)
+    @inbounds for i in 1:n
+        skip(io, 8)                  # JDAQPreamble (length and type)
+        skip(io, 6 + 6 + 6)          # JDAQSuperFrameHeader, JDAQHeader, JDAQChronometer
+        skip(io, 12)                 # detector_id, run, frame_index
+        skip(io, 14)                 # timeslice_start (JDAQUTCExtended object)
+        module_id = UnROOT.readtype(io, Int32)
+        skip(io, 6)                  # JDAQFrameStatus
+        daq = UnROOT.readtype(io, UInt32)
+        status = UnROOT.readtype(io, UInt32)
+        fifo = UnROOT.readtype(io, UInt32)
+        skip(io, 8)                  # status_3, status_4 (spare)
+        skip(io, 6)                  # JDAQFrame
+        m = UnROOT.readtype(io, Int32)
+        skip(io, 6)                  # buffer (fByteCount + fVersion)
+        hits = Vector{TimesliceHit}(undef, m)
+        for j in 1:m
+            pmt = read(io, UInt8)
+            tdc = ltoh(read(io, UInt32))  # little-endian on disk
+            tot = read(io, UInt8)
+            hits[j] = TimesliceHit(tdc % Int32, pmt, tot)
+        end
+        frames[i] = SuperFrame(module_id, daq, status, fifo, hits)
+    end
+    frames
+end
+
+"""
+
+Decode the `vector<KM3NETDAQ::JDAQSuperFrame>` branch of a timeslice into a
+`Vector{SuperFrame}` for each entry.
+
+The DAQ streams the collection member-wise (columnar): after a 12 byte header
 (`fByteCount`, the member-wise `fVersion`, the `JDAQSuperFrame` class version and
 the number of super frames `n`) each data member is stored contiguously for all
 `n` super frames, following the streamer (base class) order:
@@ -245,6 +306,9 @@ the number of super frames `n`) each data member is stored contiguously for all
 Each hit occupies 6 bytes: `pmt` (UInt8), `tdc` (UInt32, little-endian) and
 `tot` (UInt8).
 
+A collection which was written object-wise instead (the member-wise bit of the
+streamer version is not set) is handed to [`_read_superframes_objectwise`](@ref).
+
 """
 function _parse_superframes(rawdata::Vector{UInt8}, rawoffsets)
     nentries = length(rawoffsets) - 1
@@ -255,8 +319,8 @@ function _parse_superframes(rawdata::Vector{UInt8}, rawoffsets)
         skip(io, 4)                              # fByteCount
         version = UnROOT.readtype(io, UInt16)    # collection streamer version
         if (version & 0x4000) == 0
-            error("Timeslice super frames are not streamed member-wise " *
-                  "(version=0x$(string(version, base=16))); this layout is not supported.")
+            out[e] = _read_superframes_objectwise(io)
+            continue
         end
         skip(io, 2)                              # JDAQSuperFrame class version
         n = UnROOT.readtype(io, Int32)           # number of super frames
