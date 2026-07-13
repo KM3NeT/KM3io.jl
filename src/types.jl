@@ -207,6 +207,13 @@ A hit recorded by a single PMT within a timeslice [`SuperFrame`](@ref). Unlike a
 [`SnapshotHit`](@ref) it does not carry the module id, since that is stored once
 in the enclosing super frame.
 
+The time `t` is the raw TDC value, which is unsigned in the dataformat but stored
+here in a signed field, since a valid hit time lies within the 100 ms of the frame
+and therefore far below the signed range. Only a corrupt hit can exceed it and
+show up as a negative time, which in turn is why its frame was discarded by the
+data filter (see [`checksum`](@ref)) and ended up in the `:TS` stream. Hits of the
+L0, L1, L2 and SN streams are never affected.
+
 """
 struct TimesliceHit <: AbstractDAQHit
     # field order chosen so the struct packs to 8 bytes (a leading UInt8 would pad

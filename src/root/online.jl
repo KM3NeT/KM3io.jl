@@ -151,20 +151,56 @@ end
 # (`KM3NETDAQ::JDAQSuperFrame`).
 #
 # The streams differ in their ROOT split level (see the dataformat `root.csv`),
-# which changes how a timeslice is laid out on disk. Two layouts are supported:
+# which changes how a timeslice is laid out on disk. Three layouts are supported:
 #
-#   * member-wise blob (low split level, modern files): the header
+#   * member-wise blob (split level 2, modern files): the header
 #     `KM3NETDAQ::JDAQChronometer` is unrolled into the scalar leaves
 #     `detector_id`, `run`, `frame_index` plus a `timeslice_start` object leaf,
 #     while the `vector<KM3NETDAQ::JDAQSuperFrame>` is a single branch holding the
 #     whole member-wise streamed collection, decoded by `_parse_superframes`.
-#   * fully split (high split level): the `vector<...>` is unrolled into one
-#     sub-branch per data member (`.id`, `.numberOfHits`, `.daq`, ..., `.buffer`)
-#     and `timeslice_start` is split into `UTC_seconds`/`UTC_16nanosecondcycles`
-#     leaves. This is handled by the `_SplitFrameReader` further below.
+#   * fully split (split level 2, older files): the `vector<...>` is unrolled into
+#     one sub-branch per data member (`.id`, `.numberOfHits`, `.daq`, ...,
+#     `.buffer`) and `timeslice_start` is split into
+#     `UTC_seconds`/`UTC_16nanosecondcycles` leaves. This is handled by the
+#     `_SplitFrameReader` further below.
+#   * unsplit header (split level 1, the bare `KM3NET_TIMESLICE` tree): the whole
+#     `KM3NETDAQ::JDAQTimesliceHeader` is a single object leaf, the super frames
+#     are the member-wise blob.
 #
-# The strategy types `_TimesliceTimeReader` and `_SuperFrameReader` abstract over
-# both so that the public container interface stays identical.
+# The strategy types `_TimesliceHeaderReader`, `_TimesliceTimeReader` and
+# `_SuperFrameReader` abstract over these so that the public container interface
+# stays identical.
+
+# The bare `KM3NET_TIMESLICE` tree is written with split level 1 (the other
+# streams use 2), which leaves the `KM3NETDAQ::JDAQTimesliceHeader` as a single
+# unsplit 44 byte object leaf instead of unrolling it into scalar leaves. The
+# blob holds the object headers (byte count + class version) of the three nested
+# base classes, the chronometer and the timeslice start:
+#
+#     JDAQTimesliceHeader  6 byte
+#     JDAQHeader           6 byte
+#     JDAQChronometer      6 byte
+#     detector_id          Int32
+#     run                  Int32
+#     frame_index          Int32
+#     timeslice_start      6 byte object header + 2 x UInt32
+#
+# which is the same layout as the `JDAQSummarysliceHeader`, since both derive
+# from `JDAQChronometer` via `JDAQHeader`.
+packedsizeof(::Type{TimesliceHeader}) = 44
+function UnROOT.readtype(io::IO, T::Type{TimesliceHeader})
+    skip(io, 18)
+    detector_id = UnROOT.readtype(io, Int32)
+    run = UnROOT.readtype(io, Int32)
+    frame_index = UnROOT.readtype(io, Int32)
+    skip(io, 6)
+    UTC_seconds = UnROOT.readtype(io, UInt32)
+    UTC_16nanosecondcycles = UnROOT.readtype(io, UInt32)
+    T(detector_id, run, frame_index, UTCExtended(UTC_seconds, UTC_16nanosecondcycles))
+end
+function UnROOT.interped_data(rawdata, rawoffsets, ::Type{TimesliceHeader}, ::Type{T}) where {T<:UnROOT.JaggType}
+    UnROOT.splitup(rawdata, rawoffsets, TimesliceHeader, jagged=false)
+end
 
 # The `timeslice_start` (a `KM3NETDAQ::JDAQUTCExtended`) is stored as its own
 # split leaf: a 6 byte object header (byte count + version) followed by the two
@@ -331,6 +367,27 @@ struct _TimesliceTimeSplit{S<:UnROOT.LazyBranch, C<:UnROOT.LazyBranch} <: _Times
 end
 _readtime(r::_TimesliceTimeSplit, idx::Integer) = UTCExtended(r._seconds[idx], r._cycles[idx])
 
+# --- header readers ---
+abstract type _TimesliceHeaderReader end
+
+# Split header: the chronometer is unrolled into scalar leaves.
+struct _SplitHeaderReader{D<:UnROOT.LazyBranch, R<:UnROOT.LazyBranch, FI<:UnROOT.LazyBranch, TR<:_TimesliceTimeReader} <: _TimesliceHeaderReader
+    _detector_id::D
+    _run::R
+    _frame_index::FI
+    _time::TR
+end
+_readheader(r::_SplitHeaderReader, idx::Integer) =
+    TimesliceHeader(r._detector_id[idx], r._run[idx], r._frame_index[idx], _readtime(r._time, idx))
+Base.length(r::_SplitHeaderReader) = length(r._detector_id)
+
+# Unsplit header: a single object leaf, decoded by the `TimesliceHeader` streamer.
+struct _ObjectHeaderReader{H<:UnROOT.LazyBranch} <: _TimesliceHeaderReader
+    _header::H
+end
+_readheader(r::_ObjectHeaderReader, idx::Integer) = r._header[idx]
+Base.length(r::_ObjectHeaderReader) = length(r._header)
+
 # --- super frame readers ---
 abstract type _SuperFrameReader end
 
@@ -394,6 +451,16 @@ function _timeslice_time_reader(fobj::UnROOT.ROOTFile, header)
     _TimesliceTimeSplit(UnROOT.LazyBranch(fobj, seconds), UnROOT.LazyBranch(fobj, cycles))
 end
 
+function _timeslice_header_reader(fobj::UnROOT.ROOTFile, header)
+    isempty(header.fBranches.elements) && return _ObjectHeaderReader(UnROOT.LazyBranch(fobj, header))
+    _SplitHeaderReader(
+        UnROOT.LazyBranch(fobj, _find_branch(header, "detector_id")),
+        UnROOT.LazyBranch(fobj, _find_branch(header, "run")),
+        UnROOT.LazyBranch(fobj, _find_branch(header, "frame_index")),
+        _timeslice_time_reader(fobj, header),
+    )
+end
+
 function _superframe_reader(fobj::UnROOT.ROOTFile, tree::UnROOT.TTree)
     vbranch = _find_branch(tree, _TIMESLICE_VECTOR_BRANCH)
     isempty(vbranch.fBranches.elements) &&
@@ -409,37 +476,26 @@ end
 
 """
 
-A lazy container for the timeslices of a single stream (`:L0`, `:L1`, `:L2` or
-`:SN`). Timeslices are read on demand via indexing or iteration.
+A lazy container for the timeslices of a single stream (`:L0`, `:L1`, `:L2`,
+`:SN` or `:TS`). Timeslices are read on demand via indexing or iteration.
 
 """
-struct TimesliceContainer{D<:UnROOT.LazyBranch, R<:UnROOT.LazyBranch, FI<:UnROOT.LazyBranch, TR<:_TimesliceTimeReader, FR<:_SuperFrameReader}
+struct TimesliceContainer{H<:_TimesliceHeaderReader, FR<:_SuperFrameReader}
     stream::Symbol
-    _detector_id::D
-    _run::R
-    _frame_index::FI
-    _time::TR
+    _header::H
     _frames::FR
 end
 function TimesliceContainer(fobj::UnROOT.ROOTFile, tree::UnROOT.TTree, stream::Symbol)
     header = _find_branch(tree, "KM3NETDAQ::JDAQTimesliceHeader")
-    TimesliceContainer(
-        stream,
-        UnROOT.LazyBranch(fobj, _find_branch(header, "detector_id")),
-        UnROOT.LazyBranch(fobj, _find_branch(header, "run")),
-        UnROOT.LazyBranch(fobj, _find_branch(header, "frame_index")),
-        _timeslice_time_reader(fobj, header),
-        _superframe_reader(fobj, tree),
-    )
+    TimesliceContainer(stream, _timeslice_header_reader(fobj, header), _superframe_reader(fobj, tree))
 end
-Base.length(c::TimesliceContainer) = length(c._detector_id)
+Base.length(c::TimesliceContainer) = length(c._header)
 Base.size(c::TimesliceContainer) = (length(c),)
 Base.firstindex(c::TimesliceContainer) = 1
 Base.lastindex(c::TimesliceContainer) = length(c)
 Base.eltype(::TimesliceContainer) = Timeslice
 function Base.getindex(c::TimesliceContainer, idx::Integer)
-    header = TimesliceHeader(c._detector_id[idx], c._run[idx], c._frame_index[idx], _readtime(c._time, idx))
-    Timeslice(header, _readframes(c._frames, idx), c.stream)
+    Timeslice(_readheader(c._header, idx), _readframes(c._frames, idx), c.stream)
 end
 Base.getindex(c::TimesliceContainer, r::UnitRange) = [c[idx] for idx ∈ r]
 Base.getindex(c::TimesliceContainer, mask::BitArray) = [c[idx] for (idx, selected) ∈ enumerate(mask) if selected]
@@ -457,12 +513,17 @@ The timeslice streams of an online file. Each field is either a
 or empty. The L0 stream is unfiltered, L1 and L2 contain (loosely and tightly)
 coincident hits and SN holds the supernova trigger stream.
 
+The TS stream is the bare `KM3NET_TIMESLICE` tree, which in run files holds the
+super frames that the data filter rejected (see [`checksum`](@ref)) and excluded
+from the other streams, so it is complementary to them and not physics data.
+
 """
 struct Timeslices
     L0::Union{TimesliceContainer, Nothing}
     L1::Union{TimesliceContainer, Nothing}
     L2::Union{TimesliceContainer, Nothing}
     SN::Union{TimesliceContainer, Nothing}
+    TS::Union{TimesliceContainer, Nothing}
 end
 function Timeslices(fobj::UnROOT.ROOTFile)
     keyset = keys(fobj)
@@ -473,11 +534,17 @@ function Timeslices(fobj::UnROOT.ROOTFile)
         header = _find_branch(tree, "KM3NETDAQ::JDAQTimesliceHeader")
         vbranch = _find_branch(tree, _TIMESLICE_VECTOR_BRANCH)
         (isnothing(header) || isnothing(vbranch)) && return nothing
-        # header must provide detector id, run, frame index and a timeslice start
-        _find_branch(header, "detector_id") === nothing && return nothing
-        has_time = _find_branch(header, "timeslice_start") !== nothing ||
-                   _find_branch(header, "timeslice_start.UTC_seconds") !== nothing
-        has_time || return nothing
+        if isempty(header.fBranches.elements)
+            # an unsplit header only ever comes with the member-wise super frames,
+            # anything else is a layout we do not know
+            isempty(vbranch.fBranches.elements) || return nothing
+        else
+            # a split header must provide detector id, run, frame index and a timeslice start
+            _find_branch(header, "detector_id") === nothing && return nothing
+            has_time = _find_branch(header, "timeslice_start") !== nothing ||
+                       _find_branch(header, "timeslice_start.UTC_seconds") !== nothing
+            has_time || return nothing
+        end
         # a fully split vector needs all the sub-branches we read by name
         if !isempty(vbranch.fBranches.elements)
             for name ∈ ("id", "numberOfHits", "daq", "status", "fifo", "buffer")
@@ -491,12 +558,15 @@ function Timeslices(fobj::UnROOT.ROOTFile)
         build(ROOT.TTREE_ONLINE_TIMESLICEL1, :L1),
         build(ROOT.TTREE_ONLINE_TIMESLICEL2, :L2),
         build(ROOT.TTREE_ONLINE_TIMESLICESN, :SN),
+        build(ROOT.TTREE_ONLINE_TIMESLICE, :TS),
     )
 end
+const TIMESLICE_STREAMS = (:L0, :L1, :L2, :SN, :TS)
 function Base.show(io::IO, t::Timeslices)
     parts = String[]
-    for (name, c) ∈ (("L0", t.L0), ("L1", t.L1), ("L2", t.L2), ("SN", t.SN))
-        isnothing(c) || push!(parts, "$(length(c)) $(name)")
+    for stream ∈ TIMESLICE_STREAMS
+        c = getproperty(t, stream)
+        isnothing(c) || push!(parts, "$(length(c)) $(stream)")
     end
     if isempty(parts)
         print(io, "Timeslices (none)")
@@ -534,8 +604,9 @@ function Base.show(io::IO, t::OnlineTree)
     parts = String[]
     isnothing(t.events) || push!(parts, "$(length(t.events)) events")
     isnothing(t.summaryslices) || push!(parts, "$(length(t.summaryslices)) summaryslices")
-    for (name, c) ∈ (("L0", t.timeslices.L0), ("L1", t.timeslices.L1), ("L2", t.timeslices.L2), ("SN", t.timeslices.SN))
-        isnothing(c) || push!(parts, "$(length(c)) $(name)-timeslices")
+    for stream ∈ TIMESLICE_STREAMS
+        c = getproperty(t.timeslices, stream)
+        isnothing(c) || push!(parts, "$(length(c)) $(stream)-timeslices")
     end
     print(io, "OnlineTree ($(join(parts, ", ")))")
 end

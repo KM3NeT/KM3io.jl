@@ -17,7 +17,7 @@ without poking into the lazy containers:
 - [`hasofflineevents`](@ref) === `true` if the file has a non-empty offline event tree (`E`).
 - [`hasonlineevents`](@ref) === `true` if the file has a non-empty online event tree (`KM3NET_EVENT`).
 - [`hassummaryslices`](@ref)  === `true` if the file has a non-empty summaryslice tree (`KM3NET_SUMMARYSLICE`).
-- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2` or `:SN`) to check a specific one. The per-stream shortcuts [`hasl0timeslices`](@ref), [`hasl1timeslices`](@ref), [`hasl2timeslices`](@ref) and [`hassntimeslices`](@ref) are also available.
+- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2`, `:SN` or `:TS`) to check a specific one. The per-stream shortcuts [`hasl0timeslices`](@ref), [`hasl1timeslices`](@ref), [`hasl2timeslices`](@ref) and [`hassntimeslices`](@ref) are also available.
 
 Each returns `false` when the corresponding tree is missing or empty, so they
 are safe to call on any file:
@@ -491,8 +491,8 @@ end
 Timeslices are the raw hit data from which summaryslices are derived. Like a
 summaryslice, a timeslice spans 100 ms, but instead of a single rate byte per PMT
 it keeps **every individual hit**, grouped per optical module into
-[`SuperFrame`](@ref)s. The DAQ writes them in up to four streams, ordered by the
-applied coincidence level:
+[`SuperFrame`](@ref)s. The DAQ writes them in up to five streams: four physics
+streams, ordered by the applied coincidence level, and the bare stream:
 
 | Stream | Field | Content |
 |:-------|:------|:--------|
@@ -500,6 +500,7 @@ applied coincidence level:
 | L1 | `.L1` | hits with a loose local coincidence (e.g. on the same module within a few ns) |
 | L2 | `.L2` | L1 plus an angular/causality condition (a subset of L1) |
 | SN | `.SN` | the supernova stream (higher-order coincidences) |
+| TS | `.TS` | the super frames which the data filter discarded, see [Discarded frames](@ref) |
 
 They are reachable through the `.timeslices` field of the `OnlineTree`. Each
 present stream is a lazy [`TimesliceContainer`](@ref) and absent (or empty)
@@ -578,6 +579,47 @@ the very same way.
     `timeslice_start` time is likewise either a single object leaf or two scalar
     leaves. `KM3io` detects and reads all of these transparently, so the access
     shown above is identical in every case.
+
+### Discarded frames
+
+The `TS` stream is the bare `KM3NET_TIMESLICE` tree, which has no coincidence
+level. In a run file it holds the super frames which the data filter **rejected**:
+before a frame enters any of the L0, L1, L2 or SN streams, its raw data is checked
+for defects, and a frame which fails that check is discarded and dumped here
+instead. The stream is therefore complementary to the other four (a discarded
+frame appears in none of them) and it is **not physics data**. Historically, before
+the L0 stream existed, the same tree was used for the unfiltered hits, and the
+`JCLB` application writes raw CLB data into it as well, so a bare timeslice is not
+necessarily a discarded one.
+
+It is read like any other stream:
+
+```@example timeslices
+ts = f.online.timeslices.TS[1]
+```
+
+[`checksum`](@ref) applies the very same check as the data filter and tells why a
+frame was thrown out, and `isvalid` is the shortcut for "no defects":
+
+```@example timeslices
+frame = ts.frames[1]
+(errors = checksum(frame), valid = isvalid(frame))
+```
+
+Here the hit times of a PMT are not monotonically increasing ([`TIME_ERROR`](@ref
+DAQFrameError)), so the frame was dumped. The other defects are an out-of-range
+PMT channel ([`PMT_ERROR`](@ref DAQFrameError)), a hit time beyond the duration of
+the frame ([`TDC_ERROR`](@ref DAQFrameError)) and an incomplete UDP transfer
+([`UDP_ERROR`](@ref DAQFrameError)), the latter being what
+[`testdaqstatus`](@ref) reports. Which defects actually occur in a file depends on
+the data filter configuration of the run.
+
+A super frame carries the same DAQ status words as a summary frame, so the status
+tools work on both:
+
+```@example timeslices
+(hrv = hrvstatus(frame), fifo = fifostatus(frame), active = count_active_channels(frame))
+```
 
 
 ## [DST Format](@id dst_format)

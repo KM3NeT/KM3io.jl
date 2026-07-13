@@ -24,6 +24,7 @@ struct ROOTFile
             "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
             "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
             "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame},
+            "KM3NETDAQ::JDAQTimeslice.KM3NETDAQ::JDAQTimesliceHeader" => TimesliceHeader,
             "KM3NETDAQ::JDAQTimeslice.vector<KM3NETDAQ::JDAQSuperFrame>" => Vector{SuperFrame},
             "KM3NETDAQ::JDAQChronometer.timeslice_start" => UTCExtended
         )
@@ -80,8 +81,11 @@ hassummaryslices(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.summ
 
 """
 Returns true if the file contains timeslices of the given stream (`:L0`, `:L1`,
-`:L2` or `:SN`). If no stream is given, returns true if any timeslice stream is
-present.
+`:L2`, `:SN` or `:TS`). If no stream is given, returns true if any timeslice
+stream is present.
+
+The `:TS` stream is the bare `KM3NET_TIMESLICE` tree which holds the super frames
+discarded by the data filter, see [`checksum`](@ref).
 """
 function hastimeslices(f::ROOTFile, stream::Symbol)
     isnothing(f.online) && return false
@@ -89,7 +93,7 @@ function hastimeslices(f::ROOTFile, stream::Symbol)
     !isnothing(c) && length(c) > 0
 end
 hastimeslices(f::ROOTFile) = !isnothing(f.online) &&
-    any(s -> hastimeslices(f, s), (:L0, :L1, :L2, :SN))
+    any(s -> hastimeslices(f, s), TIMESLICE_STREAMS)
 
 """
 Returns true if the file contains L0 (unfiltered) timeslices.

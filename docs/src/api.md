@@ -62,6 +62,10 @@ Timeslices
 TimesliceContainer
 TimesliceHit
 SuperFrame
+AbstractDAQFrame
+DAQFrameError
+checksum
+testdaqstatus
 hasonlineevents
 hassummaryslices
 hastimeslices

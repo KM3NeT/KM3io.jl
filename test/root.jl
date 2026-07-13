@@ -546,6 +546,9 @@ end
     @test f.online.timeslices.L0 === nothing
     @test f.online.timeslices.L2 === nothing
     @test f.online.timeslices.SN === nothing
+    # the bare tree is present but empty in these files
+    @test !hastimeslices(f, :TS)
+    @test f.online.timeslices.TS === nothing
 
     L1 = f.online.timeslices.L1
     @test 3 == length(L1)
@@ -595,6 +598,74 @@ end
 
     @test 2186 == SN[100].header.frame_index
     @test 1068 == sum(length(fr.hits) for fr in SN[100].frames)
+    close(f)
+end
+
+# The bare `KM3NET_TIMESLICE` tree (the `:TS` stream), which is written with a
+# lower split level, so that its header is a single unsplit object leaf.
+@testset "Timeslices (bare KM3NET_TIMESLICE)" begin
+    f = ROOTFile(ONLINEFILE)
+
+    @test hastimeslices(f, :TS)
+    TS = f.online.timeslices.TS
+    @test 3 == length(TS)
+
+    ts = TS[1]
+    @test :TS == ts.stream
+    @test 44 == ts.header.detector_id
+    @test 6633 == ts.header.run
+    @test 240 == ts.header.frame_index
+    @test 1573257624 == ts.header.t.s
+    @test 0 == ts.header.t.ns
+
+    @test 1 == length(ts.frames)
+    frame = ts.frames[1]
+    @test 808969857 == frame.module_id
+    @test 48550 == length(frame.hits)
+    @test 0 == frame.hits[1].channel_id
+    @test 231 == frame.hits[1].t
+    @test 28 == frame.hits[1].tot
+
+    # a dump is not ordered in time, unlike the other streams
+    @test [240, 259, 250] == [t.header.frame_index for t in TS]
+    @test [48550, 57425, 47717] == [sum(length(fr.hits) for fr in t.frames) for t in TS]
+    @test 900000000 == TS[2].header.t.ns  # 56250000 cycles * 16 ns
+
+    # every frame of the stream was discarded by the data filter, here because the
+    # hit times of a PMT are not monotonically increasing
+    @test all(t -> all(fr -> checksum(fr) == [TIME_ERROR], t.frames), TS)
+    @test all(t -> all(fr -> !isvalid(fr), t.frames), TS)
+    # while the frames of the physics streams are intact
+    @test all(t -> all(isvalid, t.frames), f.online.timeslices.L1)
+    @test all(t -> all(isvalid, t.frames), f.online.timeslices.SN)
+
+    close(f)
+end
+
+@testset "DAQ status of super frames" begin
+    f = ROOTFile(ONLINEFILE)
+    frame = f.online.timeslices.TS[1].frames[1]
+
+    # the status words of a super frame are the same as those of a summary frame
+    @test 0x00210022 == frame.daq
+    @test 34 == number_of_udp_packets_received(frame)
+    @test 33 == maximal_udp_sequence_number(frame)
+    @test hasudptrailer(frame)
+    @test testdaqstatus(frame)  # all packets arrived, so this frame was not dumped for a UDP error
+    @test wrstatus(frame)
+    @test hrvstatus(frame)
+    @test hrvstatus(frame, 0)
+    @test fifostatus(frame)
+    @test 0 == count_active_channels(frame)
+    @test !status(frame)
+
+    intact = f.online.timeslices.L1[1].frames[1]
+    @test testdaqstatus(intact)
+    @test !hrvstatus(intact)
+    @test !fifostatus(intact)
+    @test status(intact)
+    @test 31 == count_active_channels(intact)
+
     close(f)
 end
 
