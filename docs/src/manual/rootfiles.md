@@ -17,7 +17,7 @@ without poking into the lazy containers:
 - [`hasofflineevents`](@ref) === `true` if the file has a non-empty offline event tree (`E`).
 - [`hasonlineevents`](@ref) === `true` if the file has a non-empty online event tree (`KM3NET_EVENT`).
 - [`hassummaryslices`](@ref)  === `true` if the file has a non-empty summaryslice tree (`KM3NET_SUMMARYSLICE`).
-- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2` or `:SN`) to check a specific one. The per-stream shortcuts [`hasl0timeslices`](@ref), [`hasl1timeslices`](@ref), [`hasl2timeslices`](@ref) and [`hassntimeslices`](@ref) are also available.
+- [`hastimeslices`](@ref)  === `true` if the file has any non-empty timeslice tree; pass a stream symbol (`:L0`, `:L1`, `:L2`, `:SN` or `:TS`) to check a specific one. The per-stream shortcuts [`hasL0timeslices`](@ref), [`hasL1timeslices`](@ref), [`hasL2timeslices`](@ref), [`hasSNtimeslices`](@ref) and [`hasTStimeslices`](@ref) are also available.
 
 Each returns `false` when the corresponding tree is missing or empty, so they
 are safe to call on any file:
@@ -407,6 +407,16 @@ s.header = KM3io.SummarysliceHeader(44, 6633, 127, KM3io.UTCExtended(0x5dc6018c,
 s.header = KM3io.SummarysliceHeader(44, 6633, 128, KM3io.UTCExtended(0x5dc6018c, 0x2faf0800, false))
 ```
 
+[`eachsummaryslice`](@ref) is the iterator counterpart, which also works on a file
+without summaryslices (it then simply yields nothing) and accepts `timesorted`,
+see [Time order](@ref):
+
+```@example 2
+using KM3io, KM3NeTTestData # hide
+f = ROOTFile(datapath("online", "km3net_online.root")) # hide
+[s.header.frame_index for s in eachsummaryslice(f)]
+```
+
 Each summaryslice consists of multiple frames, one for every optical module which
 has sent data during the recording time of the corresponding timeslice.
 
@@ -491,8 +501,8 @@ end
 Timeslices are the raw hit data from which summaryslices are derived. Like a
 summaryslice, a timeslice spans 100 ms, but instead of a single rate byte per PMT
 it keeps **every individual hit**, grouped per optical module into
-[`SuperFrame`](@ref)s. The DAQ writes them in up to four streams, ordered by the
-applied coincidence level:
+[`SuperFrame`](@ref)s. The DAQ writes them in up to five streams: four physics
+streams, ordered by the applied coincidence level, and the bare stream:
 
 | Stream | Field | Content |
 |:-------|:------|:--------|
@@ -500,6 +510,7 @@ applied coincidence level:
 | L1 | `.L1` | hits with a loose local coincidence (e.g. on the same module within a few ns) |
 | L2 | `.L2` | L1 plus an angular/causality condition (a subset of L1) |
 | SN | `.SN` | the supernova stream (higher-order coincidences) |
+| TS | `.TS` | the super frames which the data filter discarded, see [Discarded frames](@ref) |
 
 They are reachable through the `.timeslices` field of the `OnlineTree`. Each
 present stream is a lazy [`TimesliceContainer`](@ref) and absent (or empty)
@@ -556,6 +567,88 @@ total_hits(c) = sum(length(frame.hits) for ts in c for frame in ts.frames)
 total_hits(f.online.timeslices.L1)
 ```
 
+### Iterating timeslices
+
+[`eachtimeslice`](@ref) is the counterpart of [`eachevent`](@ref) for timeslices.
+It takes the stream as a symbol, and a stream which is absent or empty yields
+nothing, so the loop needs no guard:
+
+```@example timeslices
+for ts in eachtimeslice(f, :L1)
+    println(ts.header.frame_index, ": ", length(ts.frames), " frames")
+end
+```
+
+The shortcuts [`eachL0timeslice`](@ref), [`eachL1timeslice`](@ref),
+[`eachL2timeslice`](@ref), [`eachSNtimeslice`](@ref) and [`eachTStimeslice`](@ref)
+spell out the stream instead:
+
+```@example timeslices
+sum(length(ts.frames) for ts in eachSNtimeslice(f))
+```
+
+When only a few optical modules are of interest, `module_ids` skips the
+timeslices which have no super frame of any of them. This pays off for the sparse
+streams: a timeslice of the `TS` stream typically holds a single module, so
+selecting one picks out exactly the timeslices in which it was discarded, and a
+module which was never discarded yields nothing at all:
+
+```@example timeslices
+([ts.header.frame_index for ts in eachTStimeslice(f; module_ids=(808969857,))],
+ [ts.header.frame_index for ts in eachTStimeslice(f; module_ids=(806451572,))])
+```
+
+For L0, L1, L2 and SN the filter is of little use, since these streams normally
+carry a frame of every active module in every single timeslice, so nothing gets
+skipped. It is still accepted there, e.g. for files which only cover a part of the
+detector.
+
+The frames of a yielded timeslice are *not* filtered, the timeslice is handed over
+as it is. Note also that only the fully split on-disk layout can tell which
+modules a timeslice contains without reading its hits; for the other layouts the
+hits are decoded anyway and the saving is in the loop body rather than in the I/O.
+
+### Time order
+
+The DAQ writes the entries of a tree in the order in which the data filter
+processed them, which is **not** their order in time. The L1 timeslices of the
+example file, for instance, are stored as:
+
+```@example timeslices
+[ts.header.frame_index for ts in eachL1timeslice(f)]
+```
+
+Every iterator ([`eachevent`](@ref), [`eachsummaryslice`](@ref),
+[`eachtimeslice`](@ref) and its per-stream shortcuts) takes a `timesorted`
+keyword, which hands the entries over sorted by their header time instead:
+
+```@example timeslices
+[ts.header.frame_index for ts in eachL1timeslice(f; timesorted=true)]
+```
+
+It also applies to the offline events, which are not stored in time order either:
+
+```julia-repl
+julia> for e ∈ eachevent(f.offline; timesorted=true)
+           @show e.t
+       end
+```
+
+The permutation is derived from the header branches alone, so the hits, which
+outweigh the headers by orders of magnitude, are never read for it. Sorting a full
+run file is therefore a matter of milliseconds even for the largest trees (about
+100 ms for the 107k summaryslices, and about the same for the 107k SN timeslices
+of a 3 GB run file). The result is cached in the tree, so it is computed at most
+once per stream, no matter how often an iterator is created.
+
+!!! note "Events of the same timeslice"
+
+    The header time of an event is the start of the timeslice it was triggered in,
+    so all the events of a single timeslice share it. The sort is stable, which
+    means those events keep the order in which they were written, i.e. their
+    trigger order. Sorting by `(t, trigger_counter)` instead would give the same
+    result.
+
 The supernova stream is accessed in exactly the same way. Because it only keeps
 higher-order coincidences, many of its super frames (and occasionally whole
 timeslices) are empty:
@@ -578,6 +671,47 @@ the very same way.
     `timeslice_start` time is likewise either a single object leaf or two scalar
     leaves. `KM3io` detects and reads all of these transparently, so the access
     shown above is identical in every case.
+
+### Discarded frames
+
+The `TS` stream is the bare `KM3NET_TIMESLICE` tree, which has no coincidence
+level. In a run file it holds the super frames which the data filter **rejected**:
+before a frame enters any of the L0, L1, L2 or SN streams, its raw data is checked
+for defects, and a frame which fails that check is discarded and dumped here
+instead. The stream is therefore complementary to the other four (a discarded
+frame appears in none of them) and it is **not physics data**. Historically, before
+the L0 stream existed, the same tree was used for the unfiltered hits, and the
+`JCLB` application writes raw CLB data into it as well, so a bare timeslice is not
+necessarily a discarded one.
+
+It is read like any other stream:
+
+```@example timeslices
+ts = f.online.timeslices.TS[1]
+```
+
+[`checksum`](@ref) applies the very same check as the data filter and tells why a
+frame was thrown out, and `isvalid` is the shortcut for "no defects":
+
+```@example timeslices
+frame = ts.frames[1]
+(errors = checksum(frame), valid = isvalid(frame))
+```
+
+Here the hit times of a PMT are not monotonically increasing ([`TIME_ERROR`](@ref
+DAQFrameError)), so the frame was dumped. The other defects are an out-of-range
+PMT channel ([`PMT_ERROR`](@ref DAQFrameError)), a hit time beyond the duration of
+the frame ([`TDC_ERROR`](@ref DAQFrameError)) and an incomplete UDP transfer
+([`UDP_ERROR`](@ref DAQFrameError)), the latter being what
+[`testdaqstatus`](@ref) reports. Which defects actually occur in a file depends on
+the data filter configuration of the run.
+
+A super frame carries the same DAQ status words as a summary frame, so the status
+tools work on both:
+
+```@example timeslices
+(hrv = hrvstatus(frame), fifo = fifostatus(frame), active = count_active_channels(frame))
+```
 
 
 ## [DST Format](@id dst_format)

@@ -24,6 +24,7 @@ struct ROOTFile
             "KM3NETDAQ::JDAQEvent.KM3NETDAQ::JDAQEventHeader" => EventHeader,
             "KM3NETDAQ::JDAQSummaryslice.KM3NETDAQ::JDAQSummarysliceHeader" => SummarysliceHeader,
             "KM3NETDAQ::JDAQSummaryslice.vector<KM3NETDAQ::JDAQSummaryFrame>" => Vector{SummaryFrame},
+            "KM3NETDAQ::JDAQTimeslice.KM3NETDAQ::JDAQTimesliceHeader" => TimesliceHeader,
             "KM3NETDAQ::JDAQTimeslice.vector<KM3NETDAQ::JDAQSuperFrame>" => Vector{SuperFrame},
             "KM3NETDAQ::JDAQChronometer.timeslice_start" => UTCExtended
         )
@@ -80,8 +81,11 @@ hassummaryslices(f::ROOTFile) = !isnothing(f.online) && !isnothing(f.online.summ
 
 """
 Returns true if the file contains timeslices of the given stream (`:L0`, `:L1`,
-`:L2` or `:SN`). If no stream is given, returns true if any timeslice stream is
-present.
+`:L2`, `:SN` or `:TS`). If no stream is given, returns true if any timeslice
+stream is present.
+
+The `:TS` stream is the bare `KM3NET_TIMESLICE` tree which holds the super frames
+discarded by the data filter, see [`checksum`](@ref).
 """
 function hastimeslices(f::ROOTFile, stream::Symbol)
     isnothing(f.online) && return false
@@ -89,27 +93,74 @@ function hastimeslices(f::ROOTFile, stream::Symbol)
     !isnothing(c) && length(c) > 0
 end
 hastimeslices(f::ROOTFile) = !isnothing(f.online) &&
-    any(s -> hastimeslices(f, s), (:L0, :L1, :L2, :SN))
+    any(s -> hastimeslices(f, s), TIMESLICE_STREAMS)
 
 """
 Returns true if the file contains L0 (unfiltered) timeslices.
 """
-hasl0timeslices(f::ROOTFile) = hastimeslices(f, :L0)
+hasL0timeslices(f::ROOTFile) = hastimeslices(f, :L0)
 
 """
 Returns true if the file contains L1 (loose coincidence) timeslices.
 """
-hasl1timeslices(f::ROOTFile) = hastimeslices(f, :L1)
+hasL1timeslices(f::ROOTFile) = hastimeslices(f, :L1)
 
 """
 Returns true if the file contains L2 (tight coincidence) timeslices.
 """
-hasl2timeslices(f::ROOTFile) = hastimeslices(f, :L2)
+hasL2timeslices(f::ROOTFile) = hastimeslices(f, :L2)
 
 """
 Returns true if the file contains SN (supernova) timeslices.
 """
-hassntimeslices(f::ROOTFile) = hastimeslices(f, :SN)
+hasSNtimeslices(f::ROOTFile) = hastimeslices(f, :SN)
+
+"""
+Returns true if the file contains timeslices in the bare `KM3NET_TIMESLICE` tree,
+which holds the super frames discarded by the data filter, see [`checksum`](@ref).
+"""
+hasTStimeslices(f::ROOTFile) = hastimeslices(f, :TS)
+
+
+# The online iterators work on a file just as well as on its online tree.
+const OnlineSource = Union{ROOTFile, OnlineTree}
+
+function eachtimeslice(f::ROOTFile, stream::Symbol; module_ids=(), timesorted=false)
+    isnothing(f.online) && return TimesliceView(nothing, Set{Int32}(module_ids), nothing)
+    eachtimeslice(f.online, stream; module_ids=module_ids, timesorted=timesorted)
+end
+
+function eachsummaryslice(f::ROOTFile; timesorted=false)
+    isnothing(f.online) && return SummarysliceView(nothing, nothing)
+    eachsummaryslice(f.online; timesorted=timesorted)
+end
+
+"""
+Iterate over the L0 (unfiltered) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL0timeslice(src::OnlineSource; kwargs...) = eachtimeslice(src, :L0; kwargs...)
+
+"""
+Iterate over the L1 (loose coincidence) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL1timeslice(src::OnlineSource; kwargs...) = eachtimeslice(src, :L1; kwargs...)
+
+"""
+Iterate over the L2 (tight coincidence) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachL2timeslice(src::OnlineSource; kwargs...) = eachtimeslice(src, :L2; kwargs...)
+
+"""
+Iterate over the SN (supernova) timeslices, see [`eachtimeslice`](@ref).
+"""
+eachSNtimeslice(src::OnlineSource; kwargs...) = eachtimeslice(src, :SN; kwargs...)
+
+"""
+Iterate over the timeslices of the bare `KM3NET_TIMESLICE` tree, which holds the
+super frames discarded by the data filter, see [`eachtimeslice`](@ref) and
+[`checksum`](@ref).
+"""
+eachTStimeslice(src::OnlineSource; kwargs...) = eachtimeslice(src, :TS; kwargs...)
 
 
 """

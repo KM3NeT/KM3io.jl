@@ -62,13 +62,25 @@ Timeslices
 TimesliceContainer
 TimesliceHit
 SuperFrame
+AbstractDAQFrame
+DAQFrameError
+checksum
+testdaqstatus
 hasonlineevents
 hassummaryslices
 hastimeslices
-hasl0timeslices
-hasl1timeslices
-hasl2timeslices
-hassntimeslices
+hasL0timeslices
+hasL1timeslices
+hasL2timeslices
+hasSNtimeslices
+hasTStimeslices
+eachsummaryslice
+eachtimeslice
+eachL0timeslice
+eachL1timeslice
+eachL2timeslice
+eachSNtimeslice
+eachTStimeslice
 ```
 
 ## Oscillations Open Data
