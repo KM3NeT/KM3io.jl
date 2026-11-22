@@ -44,7 +44,7 @@ const AbstractDAQFrame = Union{SummaryFrame, SuperFrame}
 
 """
 
-Return `true` if the TDC is in high rate veto.
+Return `true` if the TDC is in high rate veto. Valid TDCs are `0:30`, the index is not checked (as in Jpp).
 
 """
 hrvstatus(f::AbstractDAQFrame, tdc) = nthbitset(tdc, f.status)
@@ -72,7 +72,7 @@ wrstatus(f::AbstractDAQFrame) = nthbitset(31, f.status)
 
 """
 
-Return `true` if the TDC has FIFO almost full.
+Return `true` if the TDC has FIFO almost full. Valid TDCs are `0:30`, the index is not checked (as in Jpp).
 
 """
 fifostatus(f::AbstractDAQFrame, tdc) = nthbitset(tdc, f.fifo)
@@ -178,7 +178,7 @@ names in parentheses are the corresponding error types of Jpp's `JChecksum`.
 
 - `PMT_ERROR` (`EPMT_t`): a hit with an out-of-range PMT channel
 - `TDC_ERROR` (`ETDC_t`): a hit with a time beyond the duration of the frame
-- `TIME_ERROR` (`TIME_t`): hit times which are not monotonically increasing within a PMT
+- `TIME_ERROR` (`TIME_t`): a hit time smaller than the previous one of the same PMT (equal times are fine)
 - `UDP_ERROR` (`EUDP_t`): an incomplete UDP transfer (lost packets or a missing trailer)
 
 """
