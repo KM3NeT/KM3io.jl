@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -29,7 +29,15 @@ module FITPARAMETERS
   const JPP_COVERAGE_POSITION = 19  # coverage of dynamic position calibration of this event                                                                                    
   const JENERGY_MINIMAL_ENERGY = 20  # minimal energy [GeV]                                                                                                        see JRECONSTRUCTION::JMuonEnergy
   const JENERGY_MAXIMAL_ENERGY = 21  # maximal energy [GeV]                                                                                                        see JRECONSTRUCTION::JMuonEnergy
+  const JSHOWERPOSITIONFIT_ISOTROPIC_ENERGY = 0  # isotropic shower energy [GeV]                                                                                   see JRECONSTRUCTION::JShowerPositionFit
+  const JSHOWERPOSITIONFIT_LAMBDA = 1  # largest eigenvalue of error matrix for vertex fit                                                                         see JRECONSTRUCTION::JShowerPositionFit
+  const JSHOWERDIRECTIONPREFIT_LIKELIHOOD_RATIO = 2  # likelihood ratio between this and best alternative fit                                                      see JRECONSTRUCTION::JShowerDirectionPrefit
+  const JSHOWERFIT_LAMBDA = 3  # largest eigenvalue of error matrix for direction and energy fit                                                                   see JRECONSTRUCTION::JShowerFit
   const JSHOWERFIT_ENERGY = 4  # uncorrected energy [GeV]                                                                                                          see JRECONSTRUCTION::JShowerFit
+  const JSHOWERFEATURES_DMIN = 5  # mininal distance between shower vertex and any optical module [m]                                                              see JRECONSTRUCTION::JShowerFeatures
+  const JSHOWERFEATURES_DMIN_MODULEID = 6  # optical module identifier for which the distance to the shower vertex was mininal                                     see JRECONSTRUCTION::JShowerFeatures
+  const JSHOWERFEATURES_NSNAPSHOT = 7  # maximum number of PMT with at least one snapshot hit in any DOM                                                           see JRECONSTRUCTION::JShowerFeatures
+  const JSHOWERFEATURES_NSNAPSHOT_MODULEID = 8  # optical module identifier for which the number of PMT with at least one snapshot hit was maximal                 see JRECONSTRUCTION::JShowerFeatures
   const AASHOWERFIT_ENERGY = 0  # uncorrected energy [GeV]
   const AASHOWERFIT_NUMBER_OF_HITS = 1  # number of hits used
 end

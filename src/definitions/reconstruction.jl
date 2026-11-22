@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -22,6 +22,7 @@ module RECONSTRUCTION
   const JSHOWERENERGYPREFIT = 105  # 
   const JSHOWERPOINTSIMPLEX = 106  # 	
   const JSHOWERDIRECTIONPREFIT = 107  # 
+  const JSHOWERFEATURES = 108  # 
   const JSHOWEREND = 199  # end range of reconstruction stages
   const DUSJ_RECONSTRUCTION_TYPE = 200  # Dusj reconstruction type
   const DUSJSHOWERBEGIN = 200  # begin range of reconstruction stages

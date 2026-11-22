@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -23,6 +23,8 @@ module ROOT
   const TBRANCH_ONLINE_SUMMARYSLICE =  "KM3NET_SUMMARYSLICE"  #   ROOT TBranch name
   const TBRANCH_ONLINE_EVENT =         "KM3NET_EVENT"         #   ROOT TBranch name
   const TBRANCH_OFFLINE_EVENT =        "Evt"                  #   ROOT TBranch name
+  const TDIRECTORY_META =              "META"                 #   META directory name
+  const GIT_META_KEY =                 "GIT"                  #  GIT key in META
   const COMPRESSION_LEVEL_ONLINE_TIMESLICE =     0  #   compression level
   const COMPRESSION_LEVEL_ONLINE_TIMESLICEL0 =   0  #   compression level
   const COMPRESSION_LEVEL_ONLINE_TIMESLICEL1 =   2  #   compression level

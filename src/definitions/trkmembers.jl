@@ -1,9 +1,10 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
 module TRKMEMBERS
+  const TRK_ID_UNDEFINED = -1  # id was not defined for this track
   const TRK_MOTHER_UNDEFINED = -1  # mother id was not defined for this track
   const TRK_MOTHER_NONE = -2  # mother id of a particle if it has no parent
   const TRK_ST_UNDEFINED = 0  # MC or reco status was not defined for this track

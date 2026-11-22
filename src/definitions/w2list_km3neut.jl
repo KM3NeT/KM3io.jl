@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -23,4 +23,5 @@ module W2LIST_KM3NEUT
   const W2LIST_KM3NEUT_VERINCAN = 17  # flag indicating the vertex is in the can
   const W2LIST_KM3NEUT_LEPINCAN = 18  # flag indicating a lepton reached the can
   const W2LIST_KM3NEUT_MODE = 19  # Neut mode
+  const W2LIST_KM3NEUT_W = 23  # Invariant Hadronic Mass calculated from event
 end

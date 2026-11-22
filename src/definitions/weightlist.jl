@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -11,4 +11,6 @@ module WEIGHTLIST
   const WEIGHTLIST_NORMALISATION = 3  # Event rate normalisation
   const WEIGHTLIST_RESCALED_EVENT_RATE = 4  # Rescaled event rate [s-1]
   const WEIGHTLIST_RUN_BY_RUN_WEIGHT = 5  #  w[1]*DAQ_livetime / MC_evts_summary::n_gen (gseagen; [GeV m2 sr s]) or DAQ_livetime/MC_evts_summary::livetime_sim (mupage; [-])
+  const WEIGHTLIST_VISIBLE_ENERGY_LEPTON = 6  #  visible energy from the lepton deposited inside the instrumented volume [GeV] see JVisibleEnergyToolkit.hh
+  const WEIGHTLIST_VISIBLE_ENERGY_HADRON = 7  #  visible energy from the hadron deposited inside the instrumented volume [GeV] see JVisibleEnergyToolkit.hh
 end

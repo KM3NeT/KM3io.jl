@@ -1,5 +1,5 @@
 """
-# KM3NeT Data Definitions v3.6.2-2-g7bbf858
+# KM3NeT Data Definitions v3.6.5
 https://git.km3net.de/common/km3net-dataformat
 """
 
@@ -27,4 +27,5 @@ module W2LIST_GSEAGEN
   const W2LIST_GSEAGEN_CUSTOM_YAW = 20  # user-specified rotation of CORSIKA showers (around z-axis)
   const W2LIST_GSEAGEN_CUSTOM_PITCH = 21  # user-specified rotation of CORSIKA showers (around y-axis)
   const W2LIST_GSEAGEN_CUSTOM_ROLL = 22  # user-specified rotation of CORSIKA showers (around x-axis)
+  const W2LIST_GSEAGEN_W = 23  # Invariant Hadronic Mass extracted from genie
 end
