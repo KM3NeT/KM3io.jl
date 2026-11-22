@@ -79,7 +79,7 @@ fifostatus(f::AbstractDAQFrame, tdc) = nthbitset(tdc, f.fifo)
 
 """
 
-Return `true` if any of the TDCs is in high rate veto.
+Return `true` if any of the TDCs has FIFO almost full.
 
 """
 fifostatus(f::AbstractDAQFrame) = (f.fifo << 1) != 0
