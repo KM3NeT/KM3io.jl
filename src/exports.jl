@@ -54,6 +54,8 @@ ROOTFile,
 AcousticsEventFile,
 MetaData,
 printmeta,
+printmctree,
+pdgname,
 
 # Online dataformat
 DAQEvent,

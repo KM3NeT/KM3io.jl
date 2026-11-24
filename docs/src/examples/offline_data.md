@@ -68,6 +68,28 @@ and have a look at its contents:
 evt.hits
 ```
 
+### MC tracks
+
+The MC tracks are linked to each other via their `mother_id`, which refers to the
+`id` of the parent track. [`printmctree`](@ref) prints them as a tree to show how
+the interaction took place. The `numucc.root` file is too old to have this
+information, so we use a more recent gSeaGen sample:
+
+```@example mctree
+using KM3io, KM3NeTTestData
+
+g = ROOTFile(datapath("offline", "KM3NeT_00000049_00011291.mc.gsg_neutrinos.km3sim_sirene_merged.jterbr.jppmuon_jppshower_static.offline.v9.2.sample.root"))
+printmctree(g.offline[1])
+```
+
+The neutrino and the target nucleus have no mother and are printed as roots. Each
+line shows the track ID, the particle name (see [`pdgname`](@ref)), the energy,
+the time and the MC status as defined in `KM3io.TRKMEMBERS`.
+
+```@example mctree
+close(g)
+```
+
 ### Iterating with `eachevent`
 
 The recommended way to iterate an offline tree is [`eachevent`](@ref), which also

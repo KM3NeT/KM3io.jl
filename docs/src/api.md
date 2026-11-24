@@ -225,6 +225,8 @@ getevent
 categorize
 nthbitset
 most_frequent
+printmctree
+pdgname
 ```
 
 ### DAQ

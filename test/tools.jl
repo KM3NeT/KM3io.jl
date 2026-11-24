@@ -376,3 +376,29 @@ end
 
     close(f)
 end
+
+@testset "printmctree()" begin
+    @test pdgname(14) == "nu(mu)"
+    @test pdgname(-13) == "mu+"
+    @test pdgname(1000080160) == "O16"
+    @test pdgname(1000170350) == "Cl35"
+    @test pdgname(12345) == "pdg(12345)"
+
+    f = ROOTFile(datapath("offline", "KM3NeT_00000049_00011291.mc.gsg_neutrinos.km3sim_sirene_merged.jterbr.jppmuon_jppshower_static.offline.v9.2.sample.root"))
+    evt = f.offline[1]
+    out = sprint(printmctree, evt)
+    lines = split(chomp(out), '\n')
+    @test length(lines) == length(evt.mc_trks)
+    @test startswith(lines[1], "[0] nu(mu)")
+    @test occursin("(primaryneutrino)", lines[1])
+    @test startswith(lines[2], "`-- [4] mu-")
+    @test startswith(lines[3], "[1] O16")
+    @test startswith(lines[4], "|-- [15] gamma")
+    @test startswith(lines[end], "`-- ")
+    close(f)
+
+    pos = Position(0.0, 0.0, 0.0)
+    dir = Direction(0.0, 0.0, 1.0)
+    cyclic = [MCTrk(1, pos, dir, 0.0, 1.0, 0.0, 13, 1, 2, 0), MCTrk(2, pos, dir, 0.0, 1.0, 0.0, 13, 1, 1, 0)]
+    @test length(split(chomp(sprint(printmctree, cyclic)), '\n')) == 2
+end
