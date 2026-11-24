@@ -208,6 +208,7 @@ is3dmuon
 is3dshower
 ismxshower
 isnb
+israndom
 ```
 
 ## ControlHost

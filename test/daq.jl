@@ -22,6 +22,7 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     @test !ismxshower(daqevent)
     @test is3dmuon(daqevent)
     @test !isnb(daqevent)
+    @test !israndom(daqevent)
     close(f)
 
     f = open(IO_EVT)
@@ -40,5 +41,14 @@ const IO_EVT_LEGACY = datapath("daq", "IO_EVT_legacy.dat")
     @test ismxshower(daqevent)
     @test is3dmuon(daqevent)
     @test !isnb(daqevent)
+    @test !israndom(daqevent)
     close(f)
+end
+
+@testset "trigger bits" begin
+    @test israndom(UInt64(1) << 10)
+    @test !israndom(UInt64(1) << 9)
+    @test !israndom(0x0000000000000016)
+    @test israndom((UInt64(1) << 10) | 0x0000000000000016)
+    @test is3dmuon((UInt64(1) << 10) | 0x0000000000000016)
 end

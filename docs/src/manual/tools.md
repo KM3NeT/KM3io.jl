@@ -137,6 +137,7 @@ Functions to check if a trigger has fired are for example
 - [`is3dshower()`](@ref)
 - [`ismxshower()`](@ref)
 - [`isnb()`](@ref)
+- [`israndom()`](@ref)
 
 which all accept either an event is input or something which has a
 `.trigger_mask` field, like a triggered hit.

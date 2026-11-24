@@ -35,3 +35,11 @@ Return `true` if the NanoBeacon trigger bit is set.
 """
 isnb(x) = nthbitset(TRIGGER.JTRIGGERNB, x)
 isnb(e::DAQEvent) = nthbitset(TRIGGER.JTRIGGERNB, e.header.trigger_mask)
+
+"""
+$(METHODLIST)
+
+Return `true` if the random trigger bit is set.
+"""
+israndom(x) = nthbitset(TRIGGER.JTRIGGERRANDOM, x)
+israndom(e::DAQEvent) = nthbitset(TRIGGER.JTRIGGERRANDOM, e.header.trigger_mask)
